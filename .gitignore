@@ -1,0 +1,10 @@
+/.svn
+
+/*/bin/*
+/*/obj/*
+/packages
+
+/*.suo
+/*/*.user
+/MakeCert
+
