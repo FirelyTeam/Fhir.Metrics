@@ -41,6 +41,7 @@
   <ItemGroup>
     <Compile Include="Conversion.cs" />
     <Compile Include="Quantity.cs" />
+    <Compile Include="Exponential.cs" />
     <Compile Include="Units.cs" />
     <Compile Include="Conversions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
