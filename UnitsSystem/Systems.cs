@@ -12,30 +12,32 @@ using System.Threading.Tasks;
 
 namespace Fhir.UnitsSystem
 {
+
     public static class Systems
     {
         private static UnitsSystem getMetric()
         {
             UnitsSystem system = new UnitsSystem();
 
-            system.Units.Add("Micro", "µ", 10e-6M);
+            system.AddPrefix("Micro", "µ", -6);
+            system.AddPrefix("Kilo", "k", 3);
+
+            system.AddUnit("Length", "meter", "m");
+            system.AddUnit("Length", "inch", "[in_i]");
+            system.AddUnit("Surface", "meter", "m2");
+            system.AddUnit("Volume", "Meter", "m3");
+            system.AddUnit("Mass", "Gramme", "g");
+            system.AddUnit("Temperature", "Kelvin", "K");
+            system.AddUnit("Temperature", "Celsius", "C");
             
+            system.AddConversion("g", "T", g => g * 10e9M);
+            system.AddConversion("[in_i]", "m", d => d * Exponential.Exact(0.0254m));
+            system.AddConversion("K", "C", x => x + 273.15m);
 
-            system.Units.Add("Length", "Meter", "m");
-            system.Units.Add("Surface", "meter", "m2");
-            system.Units.Add("Volume", "Meter", "m3");
-            system.Units.Add("Mass", "Gramme", "g");
-            system.Units.Add("Temperature", "Kelvin", "K");
+            system.AddConversion("Temperature", "°F", x => ((x - 32) / 1.8m) + 273.15m);
+            system.AddConversion("Volume", "l", x => x);
+            system.AddConversion("pnd", "g", p => p * 5 * 10e2M);
 
-            system.Add("g", "T", g => g * 10e9M);
-          
-            /*
-            system.Add("Temperature", "kelvin", x => x);
-            system.Add("Temperature", "°K", x => x);
-            system.Add("Temperature", "°C", x => x + 273.15);
-            system.Add("Temperature", "°F", x => ((x - 32) / 1.8) + 273.15);
-            system.Add("Volume", "l", x => x);
-            */
             return system;
         }
 

@@ -4,12 +4,7 @@
 *
 * This file is licensed under the BSD 3-Clause license
 */
-/*
-* Copyright (c) 2014, Furore (info@furore.com) and contributors
-* See the file CONTRIBUTORS for details.
-*
-* This file is licensed under the BSD 3-Clause license
-*/
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,11 +19,19 @@ namespace Fhir.UnitsSystem
         public Units Units = new Units();
         public Conversions Conversions = new Conversions();
 
-        public void Add(string symbolfrom, string symbolto, ConversionMethod method)
+        public void AddConversion(string symbolfrom, string symbolto, ConversionMethod method)
         {
             Unit unitfrom = Units.FindUnit(symbolfrom);
             Unit unitto = Units.FindUnit(symbolto);
             Conversions.Add(unitfrom, unitto, method);
+        }
+        public Unit AddUnit(string dimension, string name, string symbol)
+        {
+            return Units.Add(dimension, name, symbol);
+        }
+        public Prefix AddPrefix(string name, string symbol, int factor)
+        {
+            return Units.Add(name, symbol, factor);
         }
 
         public Quantity Convert(Quantity quantity, Unit unit)
@@ -39,6 +42,12 @@ namespace Fhir.UnitsSystem
         {
             return Conversions.Convert(quantity, metric);
         }
+        public Quantity Convert(Quantity quantity, string metric)
+        {
+            Metric m = Units.ParseMetric(metric);
+            return this.Convert(quantity, m);
+        }
+
         public Quantity ExpressionToQuantity(string expression)
         {
             Match matchValue = Regex.Match(expression, @"(\d+)");
@@ -53,13 +62,13 @@ namespace Fhir.UnitsSystem
             return quantity;
         }
 
-        public string Convert(string expression, string metric)
+        public Quantity Convert(string expression, string metric)
         {
             Quantity q = ExpressionToQuantity(expression);
             Metric m = Units.ParseMetric(metric);
 
             Quantity output = this.Convert(q, m);
-            return output.ToString();
+            return output;
             
         }
     }

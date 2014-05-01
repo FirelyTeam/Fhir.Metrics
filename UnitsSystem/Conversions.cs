@@ -23,13 +23,12 @@ namespace Fhir.UnitsSystem
         {
             return ConvertToPrefix(quantity, null);
         }
-
         public Quantity ConvertToPrefix(Quantity quantity, Prefix prefix = null)
         {
             Quantity output = new Quantity();
-            decimal fromfactor = (quantity.Prefix == null) ? 1 : quantity.Prefix.Value;
-            decimal tofactor = (prefix == null) ? 1 : prefix.Value;
-            decimal factor = fromfactor / tofactor;
+            int fromfactor = (quantity.Prefix == null) ? 1 : quantity.Prefix.Dex;
+            int tofactor = (prefix == null) ? 1 : prefix.Dex;
+            int factor = fromfactor / tofactor;
             output.Value = quantity.Value * factor;
             output.Metric = new Metric(prefix, quantity.Unit);
             return output;
@@ -48,7 +47,6 @@ namespace Fhir.UnitsSystem
             Conversion conversion = Find(from, unit);
             return Convert(quantity, conversion);
         }
-
         public Quantity Convert(Quantity quantity, Metric metric)
         {
             Quantity q = ConvertToBaseUnit(quantity);
@@ -60,7 +58,6 @@ namespace Fhir.UnitsSystem
             output = ConvertToPrefix(output, metric.Prefix);
             return output;
         }
-
         public Conversion Find(Unit from, Unit to)
         {
             foreach (Conversion conversion in conversions)
@@ -75,7 +72,5 @@ namespace Fhir.UnitsSystem
         {
             conversions.Add(new Conversion(from, to, method));
         }
-
-        
     }
 }

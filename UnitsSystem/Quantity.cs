@@ -14,20 +14,20 @@ namespace Fhir.UnitsSystem
 {
     public class Quantity
     {
-        public decimal Value;
+        public Exponential Value;
         public Metric Metric;
         public Quantity() { }
-        public Quantity(decimal value, Unit unit)
+        public Quantity(Exponential value, Unit unit)
         {
             this.Value = value;
             this.Metric = new Metric(null, unit);
         }
-        public Quantity(decimal value, Prefix prefix, Unit unit)
+        public Quantity(Exponential value, Prefix prefix, Unit unit)
         {
             this.Value = value;
             this.Metric = new Metric(prefix, unit);
         }
-        public Quantity(decimal value, Metric metric)
+        public Quantity(Exponential value, Metric metric)
         {
             this.Value = value;
             this.Metric = metric;
@@ -60,7 +60,7 @@ namespace Fhir.UnitsSystem
         }
         public override string ToString()
         {
-            return Convert.ToString(Value) + Metric.ToString();
+            return string.Format("{0}{1}", Value, Metric);
         }
     }
 }

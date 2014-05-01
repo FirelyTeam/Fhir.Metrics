@@ -40,7 +40,7 @@ namespace Fhir.UnitsSystem
 
                 Prefix p = new Prefix();
                 p.Name = n.SelectSingleNode("name").ToString();
-                p.Value = Convert.ToDecimal(n.SelectSingleNode("value/@value").ToString());
+                p.Dex = Convert.ToInt32(n.SelectSingleNode("value/@value").ToString());
                 p.Symbol  = n.SelectSingleNode("printSymbol").ToString();
                     //Symbol = n.SelectSingleNode("@Code").ToString(),
                     //Html = n.SelectSingleNode("value").InnerXml

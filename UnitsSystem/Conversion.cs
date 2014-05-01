@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Fhir.UnitsSystem
 {
-    public delegate decimal ConversionMethod(decimal value);
+    public delegate Exponential ConversionMethod(Exponential value);
   
     public class Conversion
     {
@@ -26,11 +26,10 @@ namespace Fhir.UnitsSystem
             this.To = to;
             this.method = method;
         }
-        public decimal Convert(decimal value)
+        public Exponential Convert(Exponential value)
         {
             return method(value);
         }
     }
 
-    
 }

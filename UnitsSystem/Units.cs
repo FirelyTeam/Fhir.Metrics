@@ -4,12 +4,6 @@
 *
 * This file is licensed under the BSD 3-Clause license
 */
-/*
-* Copyright (c) 2014, Furore (info@furore.com) and contributors
-* See the file CONTRIBUTORS for details.
-*
-* This file is licensed under the BSD 3-Clause license
-*/
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,23 +16,23 @@ namespace Fhir.UnitsSystem
     {
         public string Name; 
         public string Symbol;
-        public decimal Value;
+        public int Dex; // 10 based exponent
 
         public Prefix() { }
-        public Prefix(string name, string symbol, decimal value)
+        public Prefix(string name, string symbol, int dex)
         {
             this.Name = name;
             this.Symbol = symbol;
-            this.Value = value;
+            this.Dex = dex;
         }
-        public decimal ConvertToBase(decimal value)
+        public Exponential ConvertToBase(Exponential value)
         {
-            decimal factor = this.Value;   
+            decimal factor = this.Dex;   
             return value * factor;  // 1kg -> 1000 g
         }
         public decimal ConvertFromBase(decimal value)
         {
-            decimal factor = this.Value;
+            decimal factor = this.Dex;
             return value / factor;  // 1000g -> 1kg
         }
         public override string ToString()
@@ -49,12 +43,12 @@ namespace Fhir.UnitsSystem
 
     public class Unit
     {
-        public string Classification;
+        public string Dimension;
         public string Name;
         public string Symbol;
         public Unit(string classification, string name, string symbol)
         {
-            this.Classification = classification;
+            this.Dimension = classification;
             this.Name = name;
             this.Symbol = symbol;
         }
@@ -85,7 +79,6 @@ namespace Fhir.UnitsSystem
         {
             return Symbols;
         }
-        
     }
 
     public class Units
@@ -100,15 +93,15 @@ namespace Fhir.UnitsSystem
         {
             prefixes.Add(prefix);
         }
-        public Unit Add(string classification, string name, string symbol)
+        public Unit Add(string dimension, string name, string symbol)
         {
-            Unit u = new Unit(classification, name, symbol);
+            Unit u = new Unit(dimension, name, symbol);
             units.Add(u);
             return u;
         }
-        public Prefix Add(string name, string symbol, decimal value)
+        public Prefix Add(string name, string symbol, int dex)
         {
-            Prefix p = new Prefix(name, symbol, value);
+            Prefix p = new Prefix(name, symbol, dex);
             prefixes.Add(p);
             return p;
         }
@@ -129,6 +122,9 @@ namespace Fhir.UnitsSystem
             if (unit == null)
             {
                 prefix = FindPrefix(expression);
+                if (prefix == null)
+                    throw new ArgumentException(string.Format("Unit or prefix found in {0}", expression));
+
                 int count = prefix.Symbol.Length;
                 string s = expression.Remove(0, count);
                 unit = FindUnit(s);

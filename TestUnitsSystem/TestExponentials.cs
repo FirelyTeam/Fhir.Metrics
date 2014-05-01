@@ -1,8 +1,7 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using UnitsOfMeasure;
+using Fhir.UnitsSystem;
 using System.Text.RegularExpressions;
-
 
 namespace UnitsSystemTests
 {
@@ -30,8 +29,6 @@ namespace UnitsSystemTests
             Assert.AreEqual(0.05m, e.Error);
         }
 
-
-
         [TestMethod]
         public void NotationErrors()
         {
@@ -53,7 +50,7 @@ namespace UnitsSystemTests
         [TestMethod]
         public void Normalizing()
         {
-            Exponential a, b;
+            Exponential a;
             
             a = new Exponential(34, 3);
             Assert.AreEqual(3.4m, a.Value);
@@ -67,6 +64,112 @@ namespace UnitsSystemTests
             Assert.AreEqual(9.1093822m, a.Value);
             Assert.AreEqual(-31, a.Exponent);
 
+        }
+
+        [TestMethod]
+        public void ImplicitConversions()
+        {
+            Exponential a = 60.0m;
+            Assert.AreEqual(6.00m, a.Value);
+            Assert.AreEqual(1, a.Exponent);
+
+            a = 4;
+            Assert.AreEqual(4m, a.Value);
+            Assert.AreEqual(0, a.Exponent);
+        }
+
+        [TestMethod]
+        public void ExplicitConversions()
+        {
+            Exponential a;
+
+            a = (Exponential)4.4;
+            Assert.AreEqual(4.4m, a.Value);
+            Assert.AreEqual(0, a.Exponent);
+
+            a = (Exponential)60.0;
+            Assert.AreEqual(6.00m, a.Value);
+            Assert.AreEqual(1, a.Exponent);
+        }
+
+        [TestMethod]
+        public void TestAdd()
+        {
+            Exponential a, b, c;
+
+            a = new Exponential(4.0m);
+            b = new Exponential(2.0m);
+            c = a + b;
+            Assert.AreEqual(6.0m, c.Value);
+            Assert.AreEqual(0.1m, c.Error);
+            Assert.AreEqual(0, c.Exponent);
+
+            a = new Exponential(4.0m);
+            b = new Exponential(20.0m);
+            c = a + b;
+            Assert.AreEqual(2.4m, c.Value);
+            Assert.AreEqual(0.01m, c.Error);
+            Assert.AreEqual(1, c.Exponent);
+
+            // Normalization test:
+            a = 8m;
+            b = 7m;
+            c = a + b;
+            Assert.AreEqual(1.5m, c.Value);
+            Assert.AreEqual(0.1m, c.Error);
+            Assert.AreEqual(1, c.Exponent);
+        }
+
+        [TestMethod]
+        public void TestSubstract()
+        {
+            Exponential a, b, c;
+
+            a = 4.0m;
+            b = 2.0m;
+            c = a - b;
+            Assert.AreEqual(2.0m, c.Value);
+            Assert.AreEqual(0.00m, c.Error);
+            Assert.AreEqual(0, c.Exponent);
+
+            a = 12.0m;
+            b = 8.0m;
+            c = a - b;
+            Assert.AreEqual(4.0m, c.Value);
+            Assert.AreEqual(0.0m, c.Error);
+            Assert.AreEqual(0, c.Exponent);
+        }
+
+        [TestMethod]
+        public void TestMultiplication()
+        {
+            Exponential a, b, c;
+            a = 4.0m;
+            b = 2.0m;
+            c = a * b;
+            Assert.AreEqual(8.0m, c.Value);
+            Assert.AreEqual(0.3m, c.Error);
+            Assert.AreEqual(0, c.Exponent);
+
+            // Normalization test:
+            a = 40m;
+            b = 30m;
+            c = a * b;
+            Assert.AreEqual(1.2m, c.Value);
+            Assert.AreEqual(0.035m, c.Error);
+            Assert.AreEqual(3, c.Exponent);
+        }
+
+        [TestMethod]
+        public void TestDivision()
+        {
+            Exponential a, b, c;
+            a = 200.00m;
+            b = 50.0m;
+            c = a / b;
+            Assert.AreEqual(4.0m, c.Value);
+            Assert.AreEqual(0.1025m, c.Error);
+            Assert.AreEqual(0, c.Exponent);
         }
     }
 }
