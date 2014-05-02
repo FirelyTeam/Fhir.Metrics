@@ -19,8 +19,9 @@ namespace Fhir.UnitsSystem
         {
             UnitsSystem system = new UnitsSystem();
 
-            system.AddPrefix("Micro", "µ", -6);
-            system.AddPrefix("Kilo", "k", 3);
+            system.AddPrefix("Micro", "µ", 1e-6m);
+            system.AddPrefix("Kilo", "k", 1e3m);
+            system.AddPrefix("Test", "t", -6);
 
             system.AddUnit("Length", "meter", "m");
             system.AddUnit("Length", "inch", "[in_i]");
@@ -53,7 +54,12 @@ namespace Fhir.UnitsSystem
             }
         }
 
-
+        public static UnitsSystem LoadUcum()
+        {
+            UcumReader reader = new UcumReader("http://unitsofmeasure.org/ucum-essence.xml");
+            UnitsSystem system = reader.Read();
+            return system;
+        }
 
     }
 }

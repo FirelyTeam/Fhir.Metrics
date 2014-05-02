@@ -16,24 +16,22 @@ namespace Fhir.UnitsSystem
     {
         public string Name; 
         public string Symbol;
-        public int Dex; // 10 based exponent
+        public Exponential Factor; // 10 based exponent
 
         public Prefix() { }
-        public Prefix(string name, string symbol, int dex)
+        public Prefix(string name, string symbol, Exponential factor)
         {
             this.Name = name;
             this.Symbol = symbol;
-            this.Dex = dex;
+            this.Factor = factor;
         }
         public Exponential ConvertToBase(Exponential value)
         {
-            decimal factor = this.Dex;   
-            return value * factor;  // 1kg -> 1000 g
+            return value * this.Factor;  // 1kg -> 1000 g
         }
-        public decimal ConvertFromBase(decimal value)
+        public Exponential ConvertFromBase(decimal value)
         {
-            decimal factor = this.Dex;
-            return value / factor;  // 1000g -> 1kg
+            return value / this.Factor;  // 1000g -> 1kg
         }
         public override string ToString()
         {
@@ -99,9 +97,9 @@ namespace Fhir.UnitsSystem
             units.Add(u);
             return u;
         }
-        public Prefix Add(string name, string symbol, int dex)
+        public Prefix Add(string name, string symbol, Exponential factor)
         {
-            Prefix p = new Prefix(name, symbol, dex);
+            Prefix p = new Prefix(name, symbol, factor);
             prefixes.Add(p);
             return p;
         }

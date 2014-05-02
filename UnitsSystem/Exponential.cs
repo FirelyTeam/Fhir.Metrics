@@ -66,6 +66,13 @@ namespace Fhir.UnitsSystem
             return new Exponential(value, 0, 0);
         }
 
+        public static Exponential Exact(string s)
+        {
+            Exponential e = new Exponential(s);
+            e.Error = 0;
+            return e;
+        }
+
         public static string DecimalToString(decimal d)
         {
             return d.ToString(format);
@@ -119,12 +126,12 @@ namespace Fhir.UnitsSystem
                 return;
 
             int E = 0;
-            while (value > 10)
+            while (Math.Abs(value) > 10)
             {
                 value /=  10;
                 E += 1;
             }
-            while (value < 1)
+            while (Math.Abs(value) < 1)
             {
                 value *= 10;
                 E -= 1;

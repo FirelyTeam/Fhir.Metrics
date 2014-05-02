@@ -29,7 +29,7 @@ namespace Fhir.UnitsSystem
         {
             return Units.Add(dimension, name, symbol);
         }
-        public Prefix AddPrefix(string name, string symbol, int factor)
+        public Prefix AddPrefix(string name, string symbol, Exponential factor)
         {
             return Units.Add(name, symbol, factor);
         }

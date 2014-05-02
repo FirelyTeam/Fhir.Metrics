@@ -46,7 +46,7 @@
     <Compile Include="Conversions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Systems.cs" />
-    <Compile Include="UnitOfMeasurementReader.cs" />
+    <Compile Include="UcumReader.cs" />
     <Compile Include="UnitsSystem.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
