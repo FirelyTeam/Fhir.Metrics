@@ -17,17 +17,21 @@ namespace Fhir.UnitsSystem
     {
         public Exponential Value;
         public Metric Metric;
+
         public Quantity() { }
+
         public Quantity(Exponential value, Unit unit)
         {
             this.Value = value;
             this.Metric = new Metric(null, unit);
         }
+
         public Quantity(Exponential value, Prefix prefix, Unit unit)
         {
             this.Value = value;
             this.Metric = new Metric(prefix, unit);
         }
+
         public Quantity(Exponential value, Metric metric)
         {
             this.Value = value;
@@ -41,6 +45,7 @@ namespace Fhir.UnitsSystem
                 return this.Metric.Prefix;
             }
         }
+        
         public Unit Unit
         {
             get
@@ -52,6 +57,7 @@ namespace Fhir.UnitsSystem
                 this.Metric.Unit = value;
             }
         }
+        
         public string Symbols
         {
             get
@@ -59,7 +65,6 @@ namespace Fhir.UnitsSystem
                 return this.Metric.Symbols;
             }
         }
-
 
         public Quantity ToBase()
         {
@@ -76,7 +81,7 @@ namespace Fhir.UnitsSystem
             output.Metric = new Metric(prefix, this.Unit);
             return output;
         }
-
+        
         public bool Approximates(Quantity q)
         {
             Quantity a = this.ToBase();

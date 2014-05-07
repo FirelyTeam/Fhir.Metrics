@@ -141,9 +141,11 @@ namespace Fhir.UnitsSystem
             return null;
         }
 
-        public void Add(Unit from, Unit to, ConversionMethod method)
+        public Conversion Add(Unit from, Unit to, ConversionMethod method)
         {
-            conversions.Add(new Conversion(from, to, method));
+            Conversion conversion = new Conversion(from, to, method);
+            conversions.Add(conversion);
+            return conversion;
         }
     }
 }

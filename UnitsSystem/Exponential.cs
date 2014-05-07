@@ -4,6 +4,7 @@
 *
 * This file is licensed under the BSD 3-Clause license
 */
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +15,6 @@ using System.Globalization;
 
 namespace Fhir.UnitsSystem
 {
-    
     public struct Exponential
     {
         public decimal Significand;
@@ -277,14 +277,12 @@ namespace Fhir.UnitsSystem
             return expo && sigp && sigm;
         }
 
-
         public bool Approximates(string s)
         {
             Exponential e = new Exponential(s);
             return Approximates(e);
            
         }
-
 
     }
 }

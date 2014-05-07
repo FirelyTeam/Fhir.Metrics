@@ -39,9 +39,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Class1.cs" />
     <Compile Include="Conversion.cs" />
+    <Compile Include="Metric.cs" />
+    <Compile Include="Prefix.cs" />
     <Compile Include="Quantity.cs" />
     <Compile Include="Exponential.cs" />
+    <Compile Include="Unit.cs" />
     <Compile Include="Units.cs" />
     <Compile Include="Conversions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

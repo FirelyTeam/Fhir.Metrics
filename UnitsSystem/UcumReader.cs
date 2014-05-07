@@ -87,9 +87,7 @@ namespace Fhir.UnitsSystem
             }
         }
 
-
-
-        public ConversionMethod BuildConversion(string formula, Exponential number)
+        public static ConversionMethod BuildConversion(string formula, Exponential number)
         {
             // NB! This method is still a (test) dummy.
 

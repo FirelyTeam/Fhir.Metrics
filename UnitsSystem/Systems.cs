@@ -13,7 +13,6 @@ using System.Threading.Tasks;
 
 namespace Fhir.UnitsSystem
 {
-
     public static class Systems
     {
         private static UnitsSystem getMetric()

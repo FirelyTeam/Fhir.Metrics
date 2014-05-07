@@ -26,6 +26,16 @@ namespace UnitsOfMeasure
             Assert.AreEqual(quantity.Unit.Symbol, "m");
             Assert.AreEqual((decimal)quantity.Value, 0.1016m);
             Assert.AreEqual((decimal)quantity.Value.Error, 0.127000m);
+
+            Quantity target = system.Quantity("74e9Bq");
+            quantity = system.Convert("2.00Ci", "Bq");
+            Assert.IsTrue(quantity.Approximates(target));
+
+            quantity = system.Convert("2.00Ci", "mBq");
+            Assert.IsTrue(quantity.Approximates(target));
+
+            quantity = system.Convert("2.00Ci", "MBq");
+            Assert.IsTrue(quantity.Approximates(target));
         }
 
         [TestMethod]
@@ -41,7 +51,7 @@ namespace UnitsOfMeasure
         {
             Quantity quantity = system.ConvertToSsytem("4.00[lb_av]", "si");
 
-            Quantity approx = system.ExpressionToQuantity("1.8e3g");
+            Quantity approx = system.Quantity("1.8e3g");
             Assert.IsTrue(quantity.Approximates(approx));
         }
     
@@ -58,7 +68,8 @@ namespace UnitsOfMeasure
         [TestMethod]
         public void TestExpressionBuilding()
         {
-            //ConversionMethod method = reader.BuildConversion("nvt", 4m);
+
+            ConversionMethod method = UcumReader.BuildConversion("nvt", 4m);
             //Exponential result = method(2);
         }
 
