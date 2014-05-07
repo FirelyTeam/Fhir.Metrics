@@ -15,7 +15,7 @@ namespace UnitsOfMeasure
         public static void Init(TestContext context)
         {
             //UcumReader reader = new UcumReader("http://unitsofmeasure.org/ucum-essence.xml");
-            UcumReader reader = new UcumReader(UcumReader.UcumStream());
+            UcumReader reader = new UcumReader(Systems.UcumStream());
             system = reader.Read();
         }
 

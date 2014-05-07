@@ -6,6 +6,7 @@
 */
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -52,6 +53,12 @@ namespace Fhir.UnitsSystem
                     metric = getMetric();
                 return metric;
             }
+        }
+
+        public static Stream UcumStream()
+        {
+            Stream s = typeof(Systems).Assembly.GetManifestResourceStream("Fhir.UnitsSystem.Data.ucum-essence.xml");
+            return s;
         }
 
         public static UnitsSystem LoadUcum()

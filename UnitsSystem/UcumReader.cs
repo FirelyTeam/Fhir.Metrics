@@ -158,13 +158,5 @@ namespace Fhir.UnitsSystem
             return system;
         }
 
-        public static Stream UcumStream()
-        {
-            string[] names = typeof(UcumReader).Assembly.GetManifestResourceNames();
-            Stream s = typeof(UcumReader).Assembly.GetManifestResourceStream("Fhir.UnitsSystem.Data.ucum-essence.xml");
-            return s;
-        }
-        
-
     }
 }
