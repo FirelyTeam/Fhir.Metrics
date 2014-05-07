@@ -4,6 +4,7 @@
 *
 * This file is licensed under the BSD 3-Clause license
 */
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,7 +30,7 @@ namespace Fhir.UnitsSystem
         {
             return value * this.Factor;  // 1kg -> 1000 g
         }
-        public Exponential ConvertFromBase(decimal value)
+        public Exponential ConvertFromBase(Exponential value)
         {
             return value / this.Factor;  // 1000g -> 1kg
         }
@@ -41,12 +42,13 @@ namespace Fhir.UnitsSystem
 
     public class Unit
     {
+        public string Classification;
         public string Dimension;
         public string Name;
         public string Symbol;
         public Unit(string classification, string name, string symbol)
         {
-            this.Dimension = classification;
+            this.Classification = classification;
             this.Name = name;
             this.Symbol = symbol;
         }
@@ -76,6 +78,22 @@ namespace Fhir.UnitsSystem
         public override string ToString()
         {
             return Symbols;
+        }
+        public override bool Equals(object obj)
+        {
+            if (obj is Metric) 
+            {
+                Metric m = (Metric)obj;
+                return
+                    (this.Prefix == m.Prefix)
+                    &&
+                    (this.Unit == m.Unit);
+            }
+            else return false;
+        }
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
         }
     }
 
@@ -121,13 +139,13 @@ namespace Fhir.UnitsSystem
             {
                 prefix = FindPrefix(expression);
                 if (prefix == null)
-                    throw new ArgumentException(string.Format("Unit or prefix found in {0}", expression));
+                    throw new ArgumentException(string.Format("Unit or prefix not found in {0}", expression));
 
                 int count = prefix.Symbol.Length;
                 string s = expression.Remove(0, count);
                 unit = FindUnit(s);
             }
-            Metric metric = new Metric(prefix, unit);
+            Metric metric = (unit != null) ? new Metric(prefix, unit) : null;
             return metric;
         }
     }

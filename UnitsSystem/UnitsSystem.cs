@@ -50,11 +50,12 @@ namespace Fhir.UnitsSystem
 
         public Quantity ExpressionToQuantity(string expression)
         {
-            Match matchValue = Regex.Match(expression, @"(\d+)");
-            Match matchUnit = Regex.Match(expression, @"([^0-9]+)");
+            MatchCollection matches = Regex.Matches(expression, @"(\-?\d+((\,|\.)\d+)?(e\d+)?)(.+)");
             
-            string symbols = matchUnit.Value;
-            decimal value = System.Convert.ToDecimal(matchValue.Value);
+            string number = matches[0].Groups[1].Value;
+            string symbols = matches[0].Groups[5].Value;
+            
+            Exponential value = new Exponential(number);
             Metric metric = Units.ParseMetric(symbols);
             
             Quantity quantity = new Quantity(value, metric);
@@ -71,5 +72,13 @@ namespace Fhir.UnitsSystem
             return output;
             
         }
+
+        public Quantity ConvertToSsytem(string expression, string system)
+        {
+            Quantity q = ExpressionToQuantity(expression);
+            return Conversions.ConvertToSystem(q, system);
+        }
+
+        
     }
 }

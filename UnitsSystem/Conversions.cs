@@ -4,6 +4,7 @@
 *
 * This file is licensed under the BSD 3-Clause license
 */
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,57 +13,124 @@ using System.Threading.Tasks;
 
 namespace Fhir.UnitsSystem
 {
-    public class Conversions // UCMS
+    public class Conversions 
     {
-        // todo: limit conversion to the system of from-quantity
-        //public Units Units = new Units();
-       
         private List<Conversion> conversions = new List<Conversion>();
-
-        public Quantity ConvertToBaseUnit(Quantity quantity)
-        {
-            return ConvertToPrefix(quantity, null);
-        }
-
-        public Quantity ConvertToPrefix(Quantity quantity, Prefix prefix = null)
-        {
-            Quantity output = new Quantity();
-            Exponential fromfactor = (quantity.Prefix == null) ? 1 : quantity.Prefix.Factor;
-            Exponential tofactor = (prefix == null) ? 1 : prefix.Factor;
-            Exponential factor = fromfactor / tofactor;
-            output.Value = quantity.Value * factor;
-            output.Metric = new Metric(prefix, quantity.Unit);
-            return output;
-        }
 
         public Quantity Convert(Quantity quantity, Conversion conversion)
         {
-            Quantity baseq = ConvertToBaseUnit(quantity);
+            Quantity baseq = quantity.ToBase();
             Quantity output = new Quantity();
             output.Value = conversion.Convert(quantity.Value);
             output.Metric = new Metric(null, conversion.To);
             return output;
         }
 
+        public List<Conversion> Path(Unit from, Func<Conversion, bool> predicate)
+        {
+            Unit u = from;
+
+            List<Conversion> steps = new List<Conversion>();
+            Conversion step;
+            bool found = false;
+            do
+            {
+                step = Find(u);
+                if (step != null) steps.Add(step);
+                u = step.To;
+                found = predicate(step);
+            }
+            while (steps != null && !found);
+            if (found)
+            {
+                return steps;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public bool Path(Unit from, Unit to, out List<Conversion> list)
+        {
+
+            list = Path(from, c => c.To == to);
+            return (list != null);
+            /*
+            Unit u = from;
+
+            List<Conversion> steps = new List<Conversion>();
+            Conversion step;
+            do
+            {
+                step = Find(u);
+                if (step != null) steps.Add(step);
+                u = step.To;
+            }
+            while (steps != null && u != to);
+            if (u == to)
+            {
+                list = steps;
+                return true;
+            }
+            else
+            {
+                list = null;
+                return false;
+            }
+            */
+        }
+
+        public bool PathToSystem(Unit from, string systemname, out List<Conversion> list)
+        {
+            list = Path(from, c => c.To.Classification == systemname);
+            return (list != null);
+        }
+        
+        public Quantity ConvertViaPath(Quantity quantity, IEnumerable<Conversion> steps)
+        {
+            Quantity q = quantity;
+            foreach (Conversion conversion in steps)
+            {
+                q = Convert(q, conversion);
+            }
+            return q;
+        }
+        
         public Quantity Convert(Quantity quantity, Unit unit)
         {
-            Unit from = quantity.Unit;
-            Conversion conversion = Find(from, unit);
-            return Convert(quantity, conversion);
+            List<Conversion> steps;
+            Quantity q = quantity.ToBase();
+            if (Path(q.Unit, unit, out steps))
+            {
+                return ConvertViaPath(q, steps);
+            }
+            else throw new InvalidCastException(string.Format("Quantity {0} cannot be converted to {1}", quantity, unit));
         }
-
+               
         public Quantity Convert(Quantity quantity, Metric metric)
         {
-            Quantity q = ConvertToBaseUnit(quantity);
-            Conversion conversion = Find(quantity.Unit, metric.Unit);
-            
-            Quantity output = new Quantity();
-            output.Value = conversion.Convert(q.Value);
-            output.Metric = new Metric(null, metric.Unit);
-            output = ConvertToPrefix(output, metric.Prefix);
-            return output;
+            Quantity q = Convert(quantity, metric.Unit);
+            q = q.ConvertToPrefix(metric.Prefix);
+            return q;
         }
 
+        public Quantity ConvertToSystem(Quantity quantity, string systemname)
+        {
+            List<Conversion> steps;
+            Quantity q = quantity.ToBase();
+            if (PathToSystem(q.Unit, systemname, out steps))
+            {
+                return ConvertViaPath(q, steps);
+            }
+            else throw new InvalidCastException(string.Format("Quantity {0} cannot be converted to {1}", quantity, systemname));
+        }
+
+        public Conversion Find(Unit from)
+        {
+            return conversions.FirstOrDefault(c => c.From == from);
+        }
+                
         public Conversion Find(Unit from, Unit to)
         {
             foreach (Conversion conversion in conversions)

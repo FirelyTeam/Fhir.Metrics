@@ -4,8 +4,10 @@
 *
 * This file is licensed under the BSD 3-Clause license
 */
+
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
@@ -22,17 +24,27 @@ namespace Fhir.UnitsSystem
     {
         string docname;
         XPathNavigator navigator;
-        XmlDocument document;
+        XmlDocument document = new XmlDocument();
         XmlNamespaceManager ns; 
+
+        public void init(IXPathNavigable navigable)
+        {
+            navigator = document.CreateNavigator();
+            ns = new XmlNamespaceManager(navigator.NameTable);
+            ns.AddNamespace("u", "http://unitsofmeasure.org/ucum-essence");
+        }
 
         public UcumReader(string docname)
         {
             this.docname = docname;
-            document = new XmlDocument();
             document.Load(this.docname);
-            navigator = document.CreateNavigator();
-            ns = new XmlNamespaceManager(navigator.NameTable);
-            ns.AddNamespace("u", "http://unitsofmeasure.org/ucum-essence");
+            init(document);
+        }
+
+        public UcumReader(Stream s)
+        {
+            document.Load(s);
+            init(document);
         }
 
         private void ReadPrefixes(UnitsSystem system)
@@ -54,7 +66,7 @@ namespace Fhir.UnitsSystem
             foreach (XPathNavigator n in navigator.Select("u:root/base-unit", ns))
             {
                 string name = n.SelectSingleNode("name").ToString();
-                string classification = n.SelectSingleNode("@class", ns).ToString();
+                string classification = "si";
                 string symbol = n.SelectSingleNode("@Code").ToString();
                 Unit unit = new Unit(classification, name, symbol);
 
@@ -75,26 +87,64 @@ namespace Fhir.UnitsSystem
             }
         }
 
+
+
         public ConversionMethod BuildConversion(string formula, Exponential number)
         {
             // NB! This method is still a (test) dummy.
+
             ParameterExpression param = Expression.Parameter(typeof(Exponential), "value");
-            Expression body = Expression.Multiply(param, Expression.Constant(number));
+            Expression body;
+            int idx = formula.IndexOfAny(new char[] { '.', '/' }); 
+            if (idx > 0)
+            {
+                body = Expression.Multiply(param, Expression.Constant(number));
+            }
+            else
+            {
+                body = Expression.Multiply(param, Expression.Constant(number));
+            }
             
             Expression<ConversionMethod> expression = Expression.Lambda<ConversionMethod>(body, param);
             ConversionMethod method = expression.Compile();
             return method;
         }
 
+        public void AddConversion(UnitsSystem system, string from, string to, Exponential number)
+        {
+            Metric metricfrom = system.Units.ParseMetric(from);
+            Metric metricto = system.Units.ParseMetric(to);
+            if ( (metricfrom != null) && (metricto != null) )
+            {
+                Exponential factor = number;
+                if (metricfrom.Prefix != null) factor *= metricfrom.Prefix.Factor;
+                if (metricto.Prefix != null) factor *= metricto.Prefix.Factor;
+
+                ConversionMethod method = BuildConversion(to, factor);
+                system.Conversions.Add(metricfrom.Unit, metricto.Unit, method);
+            }
+
+        }
+            
         public void ReadConversions(UnitsSystem system)
         {
             foreach (XPathNavigator n in navigator.Select("u:root/unit", ns))
             {
                 string from = n.SelectSingleNode("@Code").ToString();
-                string to = n.SelectSingleNode("u:value/@Unit").ToString();
-                decimal number = Convert.ToDecimal(n.SelectSingleNode("u:/value/@value").ToString());
-                ConversionMethod method = null;
-                system.AddConversion(from, to, method);
+                string to = n.SelectSingleNode("value/@Unit").ToString();
+                try
+                {
+                    string value = n.SelectSingleNode("value/@value").ToString();
+                    if (value.Length > 16)
+                        value = value.Substring(0, 16);
+                    Exponential number = Exponential.Exact(value);
+                    AddConversion(system, from, to, number);
+                }
+                catch
+                {
+
+                }
+                
             }
         }
        
@@ -102,8 +152,19 @@ namespace Fhir.UnitsSystem
         {
             UnitsSystem system = new UnitsSystem();
             ReadPrefixes(system);
-
+            ReadBaseUnits(system);
+            ReadUnits(system);
+            ReadConversions(system);
             return system;
         }
+
+        public static Stream UcumStream()
+        {
+            string[] names = typeof(UcumReader).Assembly.GetManifestResourceNames();
+            Stream s = typeof(UcumReader).Assembly.GetManifestResourceStream("Fhir.UnitsSystem.Data.ucum-essence.xml");
+            return s;
+        }
+        
+
     }
 }

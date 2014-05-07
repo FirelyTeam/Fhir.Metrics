@@ -4,6 +4,7 @@
 *
 * This file is licensed under the BSD 3-Clause license
 */
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -58,9 +59,44 @@ namespace Fhir.UnitsSystem
                 return this.Metric.Symbols;
             }
         }
+
+
+        public Quantity ToBase()
+        {
+            return this.ConvertToPrefix();
+        }
+
+        public Quantity ConvertToPrefix(Prefix prefix = null)
+        {
+            Quantity output = new Quantity();
+            Exponential fromfactor = (this.Prefix == null) ? 1 : this.Prefix.Factor;
+            Exponential tofactor = (prefix == null) ? 1 : prefix.Factor;
+            Exponential factor = fromfactor / tofactor;
+            output.Value = this.Value * factor;
+            output.Metric = new Metric(prefix, this.Unit);
+            return output;
+        }
+
+        public bool Approximates(Quantity q)
+        {
+            Quantity a = this.ToBase();
+            Quantity b = q.ToBase();
+            
+            bool met = a.Metric.Equals(b.Metric);
+            bool val = a.Value.Approximates(b.Value);
+            return met && val;
+        }
+
+        public static Quantity CopyOf(Quantity q)
+        {
+            return new Quantity(q.Value, q.Metric);
+        }
+      
         public override string ToString()
         {
             return string.Format("{0}{1}", Value, Metric);
         }
+
+
     }
 }

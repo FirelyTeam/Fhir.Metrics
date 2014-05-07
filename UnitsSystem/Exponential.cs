@@ -17,7 +17,7 @@ namespace Fhir.UnitsSystem
     
     public struct Exponential
     {
-        public decimal Value;
+        public decimal Significand;
         public int Exponent;
         public decimal Error;
         
@@ -26,7 +26,7 @@ namespace Fhir.UnitsSystem
 
         public Exponential(decimal value, int exponent, decimal error)
         {
-            this.Value = value;
+            this.Significand = value;
             this.Exponent = exponent;
             this.Error = error;
             this.Normalize();
@@ -34,7 +34,7 @@ namespace Fhir.UnitsSystem
 
         public Exponential(decimal value, int exponent)
         {
-            this.Value = value;
+            this.Significand = value;
             this.Exponent = exponent;
             this.Error = notationError(value);
             this.Normalize();
@@ -42,7 +42,7 @@ namespace Fhir.UnitsSystem
 
         public Exponential(decimal value)
         {
-            this.Value = value;
+            this.Significand = value;
             this.Exponent = 0;
             this.Error = notationError(value);
             this.Normalize();
@@ -55,9 +55,9 @@ namespace Fhir.UnitsSystem
             string exp = groups[4].Value;
             if (string.IsNullOrEmpty(exp)) exp = "0";
             
-            this.Value = StringToDecimal(value);
+            this.Significand = StringToDecimal(value);
             this.Exponent = Convert.ToInt32(exp);
-            this.Error = notationError(this.Value);
+            this.Error = notationError(this.Significand);
             this.Normalize();
         }
 
@@ -109,7 +109,7 @@ namespace Fhir.UnitsSystem
 
         public static Exponential CopyOf(Exponential e)
         {
-            return new Exponential(e.Value, e.Exponent, e.Error);
+            return new Exponential(e.Significand, e.Exponent, e.Error);
         }
 
         public static Exponential Normalize(Exponential e)
@@ -121,7 +121,7 @@ namespace Fhir.UnitsSystem
         
         public void Normalize()
         {
-            decimal value = this.Value;
+            decimal value = this.Significand;
             if (value == 0)
                 return;
 
@@ -136,7 +136,7 @@ namespace Fhir.UnitsSystem
                 value *= 10;
                 E -= 1;
             }
-            this.Value = value;
+            this.Significand = value;
             this.Exponent += E;
             this.Error = Shift(this.Error, -E);
         }
@@ -147,7 +147,7 @@ namespace Fhir.UnitsSystem
             Exponential result;
             
             int dex = b.Exponent - a.Exponent; // dex = decimal exponent
-            result.Value = Shift(a.Value, -dex);
+            result.Significand = Shift(a.Significand, -dex);
             result.Error = Shift(a.Error, -dex);
             result.Exponent = a.Exponent + dex;
             return result;
@@ -158,7 +158,7 @@ namespace Fhir.UnitsSystem
             Exponential result;
             a = rebase(a, b);
 
-            result.Value = a.Value + b.Value;
+            result.Significand = a.Significand + b.Significand;
             result.Exponent = a.Exponent;
             result.Error = a.Error + b.Error;
             result.Normalize();
@@ -170,7 +170,7 @@ namespace Fhir.UnitsSystem
             Exponential result;
             a = rebase(a, b);
 
-            result.Value = a.Value - b.Value;
+            result.Significand = a.Significand - b.Significand;
             result.Exponent = a.Exponent + b.Exponent;
             result.Error = a.Error - b.Error;
             result.Normalize();
@@ -180,9 +180,9 @@ namespace Fhir.UnitsSystem
         public static Exponential Multiply(Exponential a, Exponential b)
         {
             Exponential result;
-            result.Value = a.Value * b.Value;
+            result.Significand = a.Significand * b.Significand;
             result.Exponent = a.Exponent + b.Exponent;
-            result.Error = a.Value * b.Error + b.Value * a.Error;
+            result.Error = a.Significand * b.Error + b.Significand * a.Error;
             result.Normalize();
             return result;
         }
@@ -190,9 +190,9 @@ namespace Fhir.UnitsSystem
         public static Exponential Divide(Exponential a, Exponential b)
         {
             Exponential result;
-            result.Value = a.Value / b.Value;
+            result.Significand = a.Significand / b.Significand;
             result.Exponent = a.Exponent - b.Exponent;
-            result.Error = a.Value * b.Error + b.Value * a.Error;
+            result.Error = a.Significand * b.Error + b.Significand * a.Error;
             result.Normalize();
             return result; 
         }
@@ -219,7 +219,7 @@ namespace Fhir.UnitsSystem
 
         public static bool operator ==(Exponential a, Exponential b)
         {
-            return (a.Value == b.Value) && (a.Exponent == b.Exponent) && (a.Error == b.Error);
+            return (a.Significand == b.Significand) && (a.Exponent == b.Exponent) && (a.Error == b.Error);
         }
         
         public static bool operator !=(Exponential a, Exponential b)
@@ -260,12 +260,31 @@ namespace Fhir.UnitsSystem
 
         public override string ToString()
         {
-            return string.Format("[{0} ± {2}]E{1} ", this.Value, this.Exponent, this.Error);
+            return string.Format("[{0} ± {2}]E{1} ", this.Significand, this.Exponent, this.Error);
         }
 
         public decimal ToDecimal()
         {
-            return this.Value * (decimal)Math.Pow(10, this.Exponent);
+            return this.Significand * (decimal)Math.Pow(10, this.Exponent);
         }
+
+        public bool Approximates(Exponential e)
+        {
+            bool expo = (this.Exponent == e.Exponent);
+            bool sigp = (e.Significand + e.Error) > (this.Significand + this.Error);
+            bool sigm = (e.Significand - e.Error) < (this.Significand - this.Error);
+
+            return expo && sigp && sigm;
+        }
+
+
+        public bool Approximates(string s)
+        {
+            Exponential e = new Exponential(s);
+            return Approximates(e);
+           
+        }
+
+
     }
 }
