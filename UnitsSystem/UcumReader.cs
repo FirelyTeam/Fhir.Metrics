@@ -47,6 +47,7 @@ namespace Fhir.UnitsSystem
             init(document);
         }
 
+        
         private void ReadPrefixes(UnitsSystem system)
         {
             foreach(XPathNavigator n in navigator.Select("u:root/prefix", ns))
@@ -57,7 +58,7 @@ namespace Fhir.UnitsSystem
 
                 p.Factor = Exponential.Exact(s);
                 p.Symbol  = n.SelectSingleNode("printSymbol").ToString();
-                system.Units.Add(p);
+                system.Metrics.Add(p);
             }
         }
 
@@ -70,7 +71,39 @@ namespace Fhir.UnitsSystem
                 string symbol = n.SelectSingleNode("@Code").ToString();
                 Unit unit = new Unit(classification, name, symbol);
 
-                system.Units.Add(unit);
+                system.Metrics.Add(unit);
+            }
+        }
+
+        private Constant BuildConstant(UnitsSystem system, string name, string formula, string number)
+        {
+            Exponential factor = Exponential.Exact(number);
+
+            foreach(Unary u in Parser.ToUnaryTokens(formula))
+            {
+                Constant c; 
+                string rest = u.Expression;
+                if (system.Metrics.ConsumeConstant(rest, out c, out rest))
+                {
+                    int power = Convert.ToInt32(rest)*u.Exponent;
+                    factor = factor * Exponential.Power(c.Value, power);
+                }
+            }
+            return new Constant(name, factor);
+        }
+
+        private void ReadConstants(UnitsSystem system)
+        {
+            foreach (XPathNavigator n in navigator.Select("u:root/unit[class='dimless']", ns))
+            {
+                string name = n.SelectSingleNode("name").ToString();
+                string classification = n.SelectSingleNode("@class", ns).ToString();
+                string symbol = n.SelectSingleNode("@Code").ToString();
+                string number = n.SelectSingleNode("value/@value").ToString();
+                string formula = n.SelectSingleNode("value/@Unit").ToString();
+
+                Constant c = BuildConstant(system, name, formula, number);
+                system.Metrics.Add(c);
             }
         }
 
@@ -81,62 +114,57 @@ namespace Fhir.UnitsSystem
                 string name = n.SelectSingleNode("name").ToString();
                 string classification = n.SelectSingleNode("@class", ns).ToString();
                 string symbol = n.SelectSingleNode("@Code").ToString();
-                Unit unit = new Unit(classification, name, symbol);
-
-                system.Units.Add(unit);
+                if (classification != "dimless")
+                {
+                    Unit unit = new Unit(classification, name, symbol);
+                    system.Metrics.Add(unit);
+                }
             }
         }
 
         public static ConversionMethod BuildConversion(string formula, Exponential number)
         {
             // NB! This method is still a (test) dummy.
-
+            Match match = Regex.Match(formula, @"(\-?\d+|)");
             ParameterExpression param = Expression.Parameter(typeof(Exponential), "value");
-            Expression body;
-            int idx = formula.IndexOfAny(new char[] { '.', '/' }); 
-            if (idx > 0)
-            {
-                body = Expression.Multiply(param, Expression.Constant(number));
-            }
-            else
-            {
-                body = Expression.Multiply(param, Expression.Constant(number));
-            }
+            Expression body = Expression.Multiply(param, Expression.Constant(number));
             
             Expression<ConversionMethod> expression = Expression.Lambda<ConversionMethod>(body, param);
             ConversionMethod method = expression.Compile();
+
             return method;
         }
-
-        public void AddConversion(UnitsSystem system, string from, string to, Exponential number)
+        
+        public void AddConversion(UnitsSystem system, string from, string formula, Exponential number)
         {
-            Metric metricfrom = system.Units.ParseMetric(from);
-            Metric metricto = system.Units.ParseMetric(to);
+            Metric metricfrom = system.Metrics.ParseMetric(from);
+            //List<string> tokens = Parser.Tokenize(formula);
+
+            Metric metricto = system.Metrics.ParseMetric(formula);
+
             if ( (metricfrom != null) && (metricto != null) )
             {
-                Exponential factor = number;
-                if (metricfrom.Prefix != null) factor *= metricfrom.Prefix.Factor;
-                if (metricto.Prefix != null) factor *= metricto.Prefix.Factor;
-
-                ConversionMethod method = BuildConversion(to, factor);
-                system.Conversions.Add(metricfrom.Unit, metricto.Unit, method);
+                Exponential factor = number * metricto.CalcFactor() / metricfrom.CalcFactor();
+                
+                ConversionMethod method = BuildConversion(formula, factor);
+                system.Conversions.Add(metricfrom, metricto, method);
             }
 
         }
-            
+
         public void ReadConversions(UnitsSystem system)
         {
             foreach (XPathNavigator n in navigator.Select("u:root/unit", ns))
             {
                 string from = n.SelectSingleNode("@Code").ToString();
-                string to = n.SelectSingleNode("value/@Unit").ToString();
+                string formula = n.SelectSingleNode("value/@Unit").ToString();
                 try
                 {
                     string value = n.SelectSingleNode("value/@value").ToString();
                     if (value.Length > 16)
                         value = value.Substring(0, 16);
                     Exponential number = Exponential.Exact(value);
-                    AddConversion(system, from, to, number);
+                    AddConversion(system, from, formula, number);
                 }
                 catch
                 {
@@ -149,12 +177,12 @@ namespace Fhir.UnitsSystem
         public UnitsSystem Read()
         {
             UnitsSystem system = new UnitsSystem();
+            ReadConstants(system);
             ReadPrefixes(system);
             ReadBaseUnits(system);
             ReadUnits(system);
             ReadConversions(system);
             return system;
         }
-
     }
 }

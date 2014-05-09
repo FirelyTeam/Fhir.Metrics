@@ -3,13 +3,17 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Fhir.UnitsSystem;
 using System.Globalization;
 using System.IO;
+using System.Text.RegularExpressions;
+using System.Diagnostics;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace UnitsOfMeasure
 {
     [TestClass]
     public class TestConversions
     {
-       static UnitsSystem system;
+        static UnitsSystem system;
 
         [ClassInitialize]
         public static void Init(TestContext context)
@@ -23,7 +27,7 @@ namespace UnitsOfMeasure
         public void SingleConversion()
         {
             Quantity quantity = system.Convert("4[in_i]", "m");
-            Assert.AreEqual(quantity.Unit.Symbol, "m");
+            Assert.AreEqual(quantity.Metric.Symbols, "m");
             Assert.AreEqual((decimal)quantity.Value, 0.1016m);
             Assert.AreEqual((decimal)quantity.Value.Error, 0.127000m);
 
@@ -36,6 +40,14 @@ namespace UnitsOfMeasure
 
             quantity = system.Convert("2.00Ci", "MBq");
             Assert.IsTrue(quantity.Approximates(target));
+            
+            quantity = system.Convert("3.000[ft_br]", "[in_br]");
+            target = system.Quantity("36.0[in_br]");
+            Assert.IsTrue(quantity.Approximates(target));
+
+            quantity = system.Convert("2[acr_br]", "[yd_br]2");
+            target = system.Quantity("9680.0[yd_br]2");
+            Assert.IsTrue(quantity.Approximates(target));
         }
 
         [TestMethod]
@@ -43,7 +55,7 @@ namespace UnitsOfMeasure
         {
             Quantity quantity = system.Convert("4[lb_av]", "g");
             Assert.AreEqual((decimal)quantity.Value, 1.81436948e3m);
-            Assert.AreEqual(quantity.Unit.Symbol, "g");
+            Assert.AreEqual(quantity.Metric.Symbols, "g");
         }
 
         [TestMethod]
@@ -58,19 +70,35 @@ namespace UnitsOfMeasure
         [TestMethod]
         public void TestUcumReader()
         {
-            Assert.IsNotNull(system.Units.FindPrefix("k"));
-            Assert.IsNotNull(system.Units.FindPrefix("y"));
-            
-            Assert.IsNotNull(system.Units.FindUnit("g"));
-            Assert.IsNotNull(system.Units.FindUnit("Cel"));
+            // Prefixes
+            Assert.IsNotNull(system.Metrics.GetPrefix("k"));
+            Assert.IsNotNull(system.Metrics.GetPrefix("y"));
+
+            // Constants
+            Assert.IsNotNull(system.Metrics.FindConstant("[pi]"));
+
+            // Base-units
+            Assert.IsNotNull(system.Metrics.FindUnit("g"));
+
+            // Units
+            Assert.IsNotNull(system.Metrics.FindUnit("Cel"));
+            Assert.IsNotNull(system.Metrics.FindUnit("Cel"));
         }
-        
+
         [TestMethod]
         public void TestExpressionBuilding()
         {
+            string pattern = @"([^\.\/]+|[\.\/])";
+            foreach (string token in Parser.Tokenize("[ft_i].[lbf_av].10*-1/s", pattern))
+            {
+                Debug.WriteLine("-" + token);
+            }
+            
+            IEnumerable<string> list = new List<string>();
+            
+            Debug.WriteLine("done");
 
-            ConversionMethod method = UcumReader.BuildConversion("nvt", 4m);
-            //Exponential result = method(2);
+            // Conversion.Add("deg", "rad", f => f * 2 * pi / 360)
         }
 
     }

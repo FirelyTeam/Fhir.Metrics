@@ -16,46 +16,43 @@ namespace Fhir.UnitsSystem
 {
     public class UnitsSystem
     {
-        public Units Units = new Units();
+        public Metrics Metrics = new Metrics();
         public Conversions Conversions = new Conversions();
         
         public Conversion AddConversion(string symbolfrom, string symbolto, ConversionMethod method)
         {
-            Unit unitfrom = Units.FindUnit(symbolfrom);
-            Unit unitto = Units.FindUnit(symbolto);
-            return Conversions.Add(unitfrom, unitto, method);
+            Metric from = Metrics.ParseMetric(symbolfrom);
+            Metric to = Metrics.ParseMetric(symbolto);
+            return Conversions.Add(from, to, method);
         }
         
         public Prefix AddPrefix(string name, string symbol, Exponential factor)
         {
-            return Units.Add(name, symbol, factor);
+            return Metrics.Add(name, symbol, factor);
         }
 
         public Unit AddUnit(string classification, string name, string symbol)
         {
-            return Units.Add(classification, name, symbol);
+            return Metrics.Add(classification, name, symbol);
         }
 
         public Quantity Quantity(string expression)
         {
-            MatchCollection matches = Regex.Matches(expression, @"(\-?\d+((\,|\.)\d+)?(e\d+)?)(.+)");
+            Match match = Regex.Match(expression, @"(\-?\d+((\,|\.)\d+)?(e\d+)?)(.+)");
+            if (match.Groups.Count < 6)
+                throw new ArgumentException("Expression cannot be parsed as a quantity");
 
-            string number = matches[0].Groups[1].Value;
-            string symbols = matches[0].Groups[5].Value;
+            string number = match.Groups[1].Value;
+            string symbols = match.Groups[5].Value;
 
             Exponential value = new Exponential(number);
-            Metric metric = Units.ParseMetric(symbols);
+            Metric metric = Metrics.ParseMetric(symbols);
 
             Quantity quantity = new Quantity(value, metric);
 
             return quantity;
         }
 
-        public Quantity Convert(Quantity quantity, Unit unit)
-        {
-            return Conversions.Convert(quantity, unit);
-        }
-        
         public Quantity Convert(Quantity quantity, Metric metric)
         {
             return Conversions.Convert(quantity, metric);
@@ -63,14 +60,14 @@ namespace Fhir.UnitsSystem
         
         public Quantity Convert(Quantity quantity, string metric)
         {
-            Metric m = Units.ParseMetric(metric);
+            Metric m = Metrics.ParseMetric(metric);
             return this.Convert(quantity, m);
         }
 
         public Quantity Convert(string expression, string metric)
         {
             Quantity q = Quantity(expression);
-            Metric m = Units.ParseMetric(metric);
+            Metric m = Metrics.ParseMetric(metric);
 
             Quantity output = this.Convert(q, m);
             return output;

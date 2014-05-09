@@ -21,23 +21,23 @@ namespace Fhir.UnitsSystem
         {
             Quantity baseq = quantity.ToBase();
             Quantity output = new Quantity();
-            output.Value = conversion.Convert(quantity.Value);
-            output.Metric = new Metric(null, conversion.To);
+            
+            output = conversion.Convert(quantity);
             return output;
         }
 
-        public List<Conversion> Path(Unit from, Func<Conversion, bool> predicate)
+        public List<Conversion> Path(Metric from, Func<Conversion, bool> predicate)
         {
-            Unit u = from;
+            Metric m = from;
 
             List<Conversion> steps = new List<Conversion>();
             Conversion step;
             bool found = false;
             do
             {
-                step = Find(u);
+                step = Find(m);
                 if (step != null) steps.Add(step);
-                u = step.To;
+                m = step.To;
                 found = predicate(step);
             }
             while (steps != null && !found);
@@ -51,11 +51,11 @@ namespace Fhir.UnitsSystem
             }
         }
 
-        public bool Path(Unit from, Unit to, out List<Conversion> list)
+        public bool Path(Metric from, Metric to, out List<Conversion> list)
         {
-
-            list = Path(from, c => c.To == to);
-            return (list != null);
+            throw new NotImplementedException();
+            //list = Path(from, c => c.To == to);
+            //return (list != null);
             /*
             Unit u = from;
 
@@ -81,10 +81,13 @@ namespace Fhir.UnitsSystem
             */
         }
 
-        public bool PathToSystem(Unit from, string systemname, out List<Conversion> list)
+
+
+        public bool PathToSystem(Metric from, string systemname, out List<Conversion> list)
         {
-            list = Path(from, c => c.To.Classification == systemname);
-            return (list != null);
+            throw new NotImplementedException();
+            //list = Path(from, c => c.To.Classification == systemname);
+            //return (list != null);
         }
         
         public Quantity ConvertViaPath(Quantity quantity, IEnumerable<Conversion> steps)
@@ -97,41 +100,34 @@ namespace Fhir.UnitsSystem
             return q;
         }
         
-        public Quantity Convert(Quantity quantity, Unit unit)
+        public Quantity Convert(Quantity quantity, Metric metric)
         {
             List<Conversion> steps;
             Quantity q = quantity.ToBase();
-            if (Path(q.Unit, unit, out steps))
+            if (Path(q.Metric, metric, out steps))
             {
                 return ConvertViaPath(q, steps);
             }
-            else throw new InvalidCastException(string.Format("Quantity {0} cannot be converted to {1}", quantity, unit));
-        }
-               
-        public Quantity Convert(Quantity quantity, Metric metric)
-        {
-            Quantity q = Convert(quantity, metric.Unit);
-            q = q.ConvertToPrefix(metric.Prefix);
-            return q;
+            else throw new InvalidCastException(string.Format("Quantity {0} cannot be converted to {1}", quantity, metric));
         }
 
         public Quantity ConvertToSystem(Quantity quantity, string systemname)
         {
             List<Conversion> steps;
             Quantity q = quantity.ToBase();
-            if (PathToSystem(q.Unit, systemname, out steps))
+            if (PathToSystem(q.Metric, systemname, out steps))
             {
                 return ConvertViaPath(q, steps);
             }
             else throw new InvalidCastException(string.Format("Quantity {0} cannot be converted to {1}", quantity, systemname));
         }
 
-        public Conversion Find(Unit from)
+        public Conversion Find(Metric from)
         {
             return conversions.FirstOrDefault(c => c.From == from);
         }
                 
-        public Conversion Find(Unit from, Unit to)
+        public Conversion Find(Metric from, Metric to)
         {
             foreach (Conversion conversion in conversions)
             {
@@ -141,7 +137,7 @@ namespace Fhir.UnitsSystem
             return null;
         }
 
-        public Conversion Add(Unit from, Unit to, ConversionMethod method)
+        public Conversion Add(Metric from, Metric to, ConversionMethod method)
         {
             Conversion conversion = new Conversion(from, to, method);
             conversions.Add(conversion);

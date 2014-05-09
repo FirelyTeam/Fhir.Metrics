@@ -16,19 +16,22 @@ namespace Fhir.UnitsSystem
   
     public class Conversion
     {
-        public Unit From;
-        public Unit To;
+        public Metric From;
+        public Metric To;
         ConversionMethod method;
 
-        public Conversion(Unit from, Unit to, ConversionMethod method)
+        public Conversion(Metric from, Metric to, ConversionMethod method)
         {
             this.From = from;
             this.To = to;
             this.method = method;
         }
-        public Exponential Convert(Exponential value)
+        public Quantity Convert(Quantity quantity)
         {
-            return method(value);
+            Quantity q = new Quantity();
+            q.Metric = this.To;
+            q.Value = this.method(quantity.Value);
+            return q;
         }
     }
 

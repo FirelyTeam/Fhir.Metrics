@@ -67,7 +67,7 @@ namespace UnitsSystemTests
         }
 
         [TestMethod]
-        public void ImplicitConversions()
+        public void ImplicitTypeConversions()
         {
             Exponential a = 60.0m;
             Assert.AreEqual(6.00m, a.Significand);
@@ -79,7 +79,7 @@ namespace UnitsSystemTests
         }
 
         [TestMethod]
-        public void ExplicitConversions()
+        public void ExplicitTypeConversions()
         {
             Exponential a;
 

@@ -284,5 +284,15 @@ namespace Fhir.UnitsSystem
            
         }
 
+        public static Exponential Power(Exponential value, int power)
+        {
+            Exponential result = value;
+            foreach(int i in Enumerable.Range(1, power))
+            {
+                result *= value;
+            }
+            return result;
+        }
+
     }
 }

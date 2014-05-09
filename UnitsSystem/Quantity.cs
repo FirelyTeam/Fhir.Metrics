@@ -23,7 +23,7 @@ namespace Fhir.UnitsSystem
         public Quantity(Exponential value, Unit unit)
         {
             this.Value = value;
-            this.Metric = new Metric(null, unit);
+            this.Metric = new Metric(unit);
         }
 
         public Quantity(Exponential value, Prefix prefix, Unit unit)
@@ -38,26 +38,6 @@ namespace Fhir.UnitsSystem
             this.Metric = metric;
         }
 
-        public Prefix Prefix
-        {
-            get
-            {
-                return this.Metric.Prefix;
-            }
-        }
-        
-        public Unit Unit
-        {
-            get
-            {
-                return this.Metric.Unit;
-            }
-            set
-            {
-                this.Metric.Unit = value;
-            }
-        }
-        
         public string Symbols
         {
             get
@@ -68,18 +48,20 @@ namespace Fhir.UnitsSystem
 
         public Quantity ToBase()
         {
-            return this.ConvertToPrefix();
+            Quantity output = new Quantity();
+            Exponential factor = this.Metric.CalcFactor();
+            output.Metric = this.Metric.ToBase();
+            output.Value = this.Value * factor;
+            return output;
         }
 
         public Quantity ConvertToPrefix(Prefix prefix = null)
         {
-            Quantity output = new Quantity();
-            Exponential fromfactor = (this.Prefix == null) ? 1 : this.Prefix.Factor;
-            Exponential tofactor = (prefix == null) ? 1 : prefix.Factor;
-            Exponential factor = fromfactor / tofactor;
-            output.Value = this.Value * factor;
-            output.Metric = new Metric(prefix, this.Unit);
-            return output;
+
+            throw new NotImplementedException();
+            //output.Metric = new Metric(prefix, this.Metric);
+
+            //return output;
         }
         
         public bool Approximates(Quantity q)
