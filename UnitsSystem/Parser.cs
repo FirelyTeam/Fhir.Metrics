@@ -56,6 +56,22 @@ namespace Fhir.UnitsSystem
             }
         }
 
+        private static Unary parseUnaryExponent(string expression)
+        {
+            int exponent = 1;
+            Match match = Regex.Match(expression, @"[\+\-]?\d+$");
+            string exp = match.Value;
+            
+            if (!string.IsNullOrEmpty(exp) && exp.Length < expression.Length)
+            {
+                exponent = Convert.ToInt16(match.Value);
+
+                expression = expression.Remove(expression.Length - exp.Length, exp.Length);
+            }
+            return new Unary(exponent, expression);
+        }
+
+       
         static IEnumerable<Unary> parseTokens(IEnumerable<string> tokens)
         {
 
@@ -68,7 +84,9 @@ namespace Fhir.UnitsSystem
                 }
                 else
                 {
-                    yield return new Unary(exponent, token);
+                    Unary u = parseUnaryExponent(token);
+                    u.Exponent *= exponent;
+                    yield return u;
                 }
             }
         }

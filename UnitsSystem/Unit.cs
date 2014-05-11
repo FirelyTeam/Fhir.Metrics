@@ -15,16 +15,23 @@ namespace Fhir.UnitsSystem
 {
     public class Unit
     {
-        public string Classification;
-        public string Dimension;
+        public string Dimension; // only for base units!
         public string Name;
         public string Symbol;
 
-        public Unit(string classification, string name, string symbol)
+        public Unit(string name, string symbol, string dimension)
         {
-            this.Classification = classification;
+            this.Dimension = dimension;
             this.Name = name;
             this.Symbol = symbol;
+        }
+
+        public bool IsBase
+        {
+            get
+            {
+                return Dimension != null;
+            }
         }
 
         public override string ToString()

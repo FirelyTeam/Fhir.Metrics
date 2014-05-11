@@ -294,5 +294,20 @@ namespace Fhir.UnitsSystem
             return result;
         }
 
+        public static Exponential One
+        {
+            get {
+                return Exponential.Exact(1);
+            }
+        }
+        
+        public static Exponential Zero
+        {
+            get {
+                return Exponential.Exact(0);
+            }
+        }
     }
+
+ 
 }

@@ -20,9 +20,10 @@ namespace Fhir.UnitsSystem
         public Quantity Convert(Quantity quantity, Conversion conversion)
         {
             Quantity baseq = quantity.ToBase();
-            Quantity output = new Quantity();
-            
-            output = conversion.Convert(quantity);
+            if (!baseq.Metric.Equals(conversion.To))
+                throw new InvalidCastException(string.Format("Quantity {0} cannot be converted to {1}", quantity, conversion.To));
+
+            Quantity output = conversion.Convert(baseq.Value);
             return output;
         }
 
@@ -49,6 +50,37 @@ namespace Fhir.UnitsSystem
             {
                 return null;
             }
+        }
+
+        public Quantity ToBaseUnits(Quantity quantity)
+        {
+            Quantity output = Quantity.CopyOf(quantity);
+
+            do
+            {
+                List<Metric.Axis> axes = new List<Metric.Axis>();
+                Exponential factor = 1;
+
+                foreach (Metric.Axis axis in output.Metric.Axes)
+                {
+                    Conversion conversion = Find(axis.Unit);
+                    if (conversion != null)
+                    {
+                        Quantity q = conversion.Convert(Exponential.One);
+                        q = q.ToBase();
+                        axes.AddRange(q.Metric.Axes);
+                        factor *= q.Value;
+                    }
+                    else
+                    {
+                        axes.Add(Metric.Axis.CopyOf(axis));
+                    }
+                }
+                Metric metric = new Metric(axes);
+                output = new Quantity(output.Value * factor, metric);
+            } while (!output.IsInBaseUnits());
+
+            return output;
         }
 
         public bool Path(Metric from, Metric to, out List<Conversion> list)
@@ -80,8 +112,6 @@ namespace Fhir.UnitsSystem
             }
             */
         }
-
-
 
         public bool PathToSystem(Metric from, string systemname, out List<Conversion> list)
         {
@@ -124,24 +154,21 @@ namespace Fhir.UnitsSystem
 
         public Conversion Find(Metric from)
         {
-            return conversions.FirstOrDefault(c => c.From == from);
-        }
-                
-        public Conversion Find(Metric from, Metric to)
-        {
-            foreach (Conversion conversion in conversions)
-            {
-                if ((conversion.From == from) && (conversion.To == to))
-                    return conversion;
-            }
-            return null;
+            return conversions.FirstOrDefault(c => c.From.Equals(from));
         }
 
+        public Conversion Find(Unit u)
+        {
+            Metric m = new Metric(u);
+            return Find(m);
+        }
+       
         public Conversion Add(Metric from, Metric to, ConversionMethod method)
         {
             Conversion conversion = new Conversion(from, to, method);
             conversions.Add(conversion);
             return conversion;
         }
+
     }
 }

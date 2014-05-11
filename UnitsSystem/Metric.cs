@@ -16,11 +16,12 @@ namespace Fhir.UnitsSystem
 
     public class Metric
     {
-        public class Component
+        public class Axis
         {
-            public Unit Unit;
             public Prefix Prefix;
+            public Unit Unit;
             public int Exponent;
+
             public string Symbols
             {
                 get
@@ -30,19 +31,19 @@ namespace Fhir.UnitsSystem
                     return prefix + Unit.Symbol + exp;
                 }
             }
-            public Component(Prefix prefix, Unit unit, int exponent = 1)
+            public Axis(Prefix prefix, Unit unit, int exponent = 1)
             {
                 this.Prefix = prefix;
                 this.Unit = unit;
                 this.Exponent = exponent;
             }
-            public Component Merge(Component a)
+            public Axis Merge(Axis other)
             {
-                if (this.Unit != a.Unit || this.Prefix != a.Prefix)
+                if (this.Unit != other.Unit || this.Prefix != other.Prefix)
                     throw new ArgumentException("Cannot merge metric components with a different unit or prefix");
 
-                int exponent = this.Exponent + a.Exponent;
-                Component target = new Component(this.Prefix, this.Unit, exponent);
+                int exponent = this.Exponent + other.Exponent;
+                Axis target = new Axis(this.Prefix, this.Unit, exponent);
                 return target;
             }
             public Exponential Factor
@@ -67,9 +68,9 @@ namespace Fhir.UnitsSystem
             }
             public override bool Equals(object obj)
             {
-                if (obj is Metric.Component)
+                if (obj is Metric.Axis)
                 {
-                    Metric.Component c = (Metric.Component)obj;
+                    Metric.Axis c = (Metric.Axis)obj;
                     return
                         (this.Prefix == c.Prefix)
                         &&
@@ -80,6 +81,10 @@ namespace Fhir.UnitsSystem
             public override int GetHashCode()
             {
                 return base.GetHashCode();
+            }
+            public static Axis CopyOf(Axis axis)
+            {
+                return new Axis(axis.Prefix, axis.Unit, axis.Exponent);
             }
         }
 
@@ -95,86 +100,109 @@ namespace Fhir.UnitsSystem
         {
             Add(prefix, unit, exponent);
         }
-        public Metric(List<Component> components)
+        public Metric(List<Axis> axes)
         {
-            this.Add(components);
+            this.Add(axes);
         }
-        public List<Component> Components = new List<Component>();
+        
+        public List<Axis> Axes = new List<Axis>();
 
         public void Add(Prefix prefix, Unit unit, int exponent = 1)
         {
-            Components.Add(new Component(prefix, unit, exponent));
+            Axes.Add(new Axis(prefix, unit, exponent));
         }
-
         public void Add(Unit unit, int exponent = 1)
         {
-            Components.Add(new Component(null, unit, exponent));
+            Axes.Add(new Axis(null, unit, exponent));
         }
-        public void Add(List<Component> components)
+        public void Add(List<Axis> axes)
         {
-            this.Components.AddRange(components);
+            this.Axes.AddRange(axes);
+
         }
 
         public string Symbols
         {
             get
             {
-                return string.Join(".", Components.Select(c => c.Symbols));
+                return string.Join(".", Axes.Select(c => c.Symbols));
             }
         }
 
         public Exponential CalcFactor()
         {
             Exponential factor = Exponential.Exact(1);
-            foreach (Component c in this.Components)
+            foreach (Axis c in this.Axes)
             {
                 factor *= c.Factor;
             }
             return factor;
         }
+        
         public Metric ToBase()
         {
-            Metric m = new Metric();
-            foreach(Component c in this.Components)
+            Metric metric = new Metric();
+            foreach(Axis axis in this.Axes)
             {
-                m.Add(null, c.Unit, c.Exponent);
+                metric.Add(null, axis.Unit, axis.Exponent);
             }
-            return m;
+            return metric;
+        }
+
+        public bool IsInBaseUnits()
+        {
+            foreach(Axis axis in Axes)
+            {
+                if (!axis.Unit.IsBase) return false;
+            }
+            return true;
+        }
+
+        public static Metric CopyOf(Metric m)
+        {
+            return new Metric(m.Axes);
+        }
+        private void reduce()
+        {
+            List<Axis> reduced = new List<Axis>();
+ 
+            foreach(Axis component in Axes)
+            {
+                Axis t = reduced.Find(c => c.Unit == component.Unit);
+                if (t != null)
+                    t.Merge(component);
+                else
+                    reduced.Add(t);
+            }
+            reduced.RemoveAll(c => c.Factor == 0);
+            this.Axes = reduced;
         }
 
         public Metric Reduced()
         {
-            List<Component> target = new List<Component>();
- 
-            foreach(Component component in Components)
-            {
-                Component t = target.Find(c => c.Unit == component.Unit);
-                if (t != null)
-                    t.Merge(component);
-            }
-            target.RemoveAll(c => c.Factor == 0);
-            return new Metric(target);
-
+            Metric m = new Metric(this.Axes);
+            m.reduce();
+            return m;
         }
 
-        private bool componentsEqual(Metric m)
+        private bool EqualAxes(Metric m)
         {
-            if (this.Components.Count != m.Components.Count)
+            if (this.Axes.Count != m.Axes.Count)
                 return false;
 
-            int i = 0;
+            
             bool equal = true;
-            while (this.Components[i] != null)
+            for (int i = 0; i <= this.Axes.Count; i++ )
             {
-                equal &= this.Components[i].Equals(m.Components[i]);
+                equal &= this.Axes[i].Equals(m.Axes[i]);
+                i++;
             }
             return equal;
         }
 
-    
         public override string ToString()
         {
-            return Symbols;
+            return Symbols ?? "(dimensionless)";
         }
 
         public override bool Equals(object obj)
@@ -186,8 +214,10 @@ namespace Fhir.UnitsSystem
                 Metric a = this.ToBase();
                 Metric b = m.ToBase();
 
-                bool equal = a.componentsEqual(b);
-                return equal;
+                bool equala = a.EqualAxes(b);
+                bool equalf = a.CalcFactor() == b.CalcFactor();
+
+                return equala && equalf;
             }
             else return false;
         }

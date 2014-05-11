@@ -55,15 +55,6 @@ namespace Fhir.UnitsSystem
             return output;
         }
 
-        public Quantity ConvertToPrefix(Prefix prefix = null)
-        {
-
-            throw new NotImplementedException();
-            //output.Metric = new Metric(prefix, this.Metric);
-
-            //return output;
-        }
-        
         public bool Approximates(Quantity q)
         {
             Quantity a = this.ToBase();
@@ -84,6 +75,10 @@ namespace Fhir.UnitsSystem
             return string.Format("{0}{1}", Value, Metric);
         }
 
+        public bool IsInBaseUnits()
+        {
+            return this.Metric.IsInBaseUnits();
+        }
 
     }
 }

@@ -13,61 +13,30 @@ using System.Threading.Tasks;
 
 namespace Fhir.UnitsSystem
 {
-
-    
     public class Metrics
     {
-        private List<Constant> constants = new List<Constant>();
-        private List<Prefix> prefixes = new List<Prefix>();
-        private List<Unit> units = new List<Unit>();
-
-        public void Add(Constant constant)
-        {
-            constants.Add(constant);
-        }
-        
-        public void Add(Unit unit)
-        {
-            units.Add(unit);
-        }
-
-        public void Add(Prefix prefix)
-        {
-            prefixes.Add(prefix);
-        }
-
-        public Unit Add(string dimension, string name, string symbol)
-        {
-            Unit u = new Unit(dimension, name, symbol);
-            units.Add(u);
-            return u;
-        }
-
-        public Prefix Add(string name, string symbol, Exponential factor)
-        {
-            Prefix p = new Prefix(name, symbol, factor);
-            prefixes.Add(p);
-            return p;
-        }
+        public List<Constant> Constants = new List<Constant>();
+        public List<Prefix> Prefixes = new List<Prefix>();
+        public List<Unit> Units = new List<Unit>();
 
         public Unit FindUnit(string symbol)
         {
-            return units.FirstOrDefault(u => u.Symbol == symbol);
+            return Units.FirstOrDefault(u => u.Symbol == symbol);
         }
 
         public Prefix GetPrefix(string symbols)
         {
-            return prefixes.FirstOrDefault(p => symbols.StartsWith(p.Symbol));
+            return Prefixes.FirstOrDefault(p => symbols.StartsWith(p.Symbol));
         }
 
         public Constant FindConstant(string symbols)
         {
-            return constants.FirstOrDefault(c => c.Symbols == symbols);
+            return Constants.FirstOrDefault(c => c.Symbols == symbols);
         }
 
         public bool ConsumeConstant(string symbols, out Constant constant, out string rest)
         {
-            constant = constants.FirstOrDefault(f => symbols.StartsWith(f.Symbols));
+            constant = Constants.FirstOrDefault(f => symbols.StartsWith(f.Symbols));
             if (constant != null)
             {
                 rest = symbols.Substring(0, constant.Symbols.Length);
@@ -79,7 +48,7 @@ namespace Fhir.UnitsSystem
                 return false;
             }
         }
-        public Metric.Component ParseComponent(string expression, int exponent)
+        public Metric.Axis ParseComponent(string expression, int exponent)
         {
             Unit unit = null;
             Prefix prefix = null;
@@ -96,17 +65,17 @@ namespace Fhir.UnitsSystem
                 string s = expression.Remove(0, count);
                 unit = FindUnit(s);
             }
-            Metric.Component component = (unit != null) ? new Metric.Component(prefix, unit, exponent) : null;
+            Metric.Axis component = (unit != null) ? new Metric.Axis(prefix, unit, exponent) : null;
             return component;
         }
 
         public Metric ParseMetric(string expression)
         {
-            List<Metric.Component> components = new List<Metric.Component>();
+            List<Metric.Axis> components = new List<Metric.Axis>();
 
             foreach(Unary u in Parser.ToUnaryTokens(expression))
             {
-                Metric.Component component = ParseComponent(u.Expression, u.Exponent);
+                Metric.Axis component = ParseComponent(u.Expression, u.Exponent);
                 components.Add(component);
             }
             return new Metric(components);

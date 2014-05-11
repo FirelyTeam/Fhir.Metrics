@@ -18,7 +18,6 @@ using System.Xml.XPath;
 
 namespace Fhir.UnitsSystem
 {
-    public delegate int ExprMethod(int value);
 
     public class UcumReader
     {
@@ -52,13 +51,12 @@ namespace Fhir.UnitsSystem
         {
             foreach(XPathNavigator n in navigator.Select("u:root/prefix", ns))
             {
-                Prefix p = new Prefix();
-                p.Name = n.SelectSingleNode("name").ToString();
+                string name = n.SelectSingleNode("name").ToString();
                 string s = n.SelectSingleNode("value/@value").ToString();
+                Exponential factor = Exponential.Exact(s);
 
-                p.Factor = Exponential.Exact(s);
-                p.Symbol  = n.SelectSingleNode("printSymbol").ToString();
-                system.Metrics.Add(p);
+                string symbol = n.SelectSingleNode("printSymbol").ToString();
+                system.AddPrefix(name, symbol, factor);
             }
         }
 
@@ -67,11 +65,10 @@ namespace Fhir.UnitsSystem
             foreach (XPathNavigator n in navigator.Select("u:root/base-unit", ns))
             {
                 string name = n.SelectSingleNode("name").ToString();
-                string classification = "si";
+                string dimension = n.SelectSingleNode("@dim").ToString();
                 string symbol = n.SelectSingleNode("@Code").ToString();
-                Unit unit = new Unit(classification, name, symbol);
 
-                system.Metrics.Add(unit);
+                system.AddUnit(name, symbol, dimension);
             }
         }
 
@@ -92,6 +89,7 @@ namespace Fhir.UnitsSystem
             return new Constant(name, factor);
         }
 
+        /*
         private void ReadConstants(UnitsSystem system)
         {
             foreach (XPathNavigator n in navigator.Select("u:root/unit[class='dimless']", ns))
@@ -106,6 +104,7 @@ namespace Fhir.UnitsSystem
                 system.Metrics.Add(c);
             }
         }
+         * */
 
         private void ReadUnits(UnitsSystem system)
         {
@@ -113,11 +112,11 @@ namespace Fhir.UnitsSystem
             {
                 string name = n.SelectSingleNode("name").ToString();
                 string classification = n.SelectSingleNode("@class", ns).ToString();
+                
                 string symbol = n.SelectSingleNode("@Code").ToString();
                 if (classification != "dimless")
                 {
-                    Unit unit = new Unit(classification, name, symbol);
-                    system.Metrics.Add(unit);
+                    system.AddUnit(name, symbol);
                 }
             }
         }
@@ -144,7 +143,7 @@ namespace Fhir.UnitsSystem
 
             if ( (metricfrom != null) && (metricto != null) )
             {
-                Exponential factor = number * metricto.CalcFactor() / metricfrom.CalcFactor();
+                Exponential factor = number;
                 
                 ConversionMethod method = BuildConversion(formula, factor);
                 system.Conversions.Add(metricfrom, metricto, method);
@@ -177,7 +176,7 @@ namespace Fhir.UnitsSystem
         public UnitsSystem Read()
         {
             UnitsSystem system = new UnitsSystem();
-            ReadConstants(system);
+            //ReadConstants(system);
             ReadPrefixes(system);
             ReadBaseUnits(system);
             ReadUnits(system);

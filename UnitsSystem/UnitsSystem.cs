@@ -18,7 +18,7 @@ namespace Fhir.UnitsSystem
     {
         public Metrics Metrics = new Metrics();
         public Conversions Conversions = new Conversions();
-        
+
         public Conversion AddConversion(string symbolfrom, string symbolto, ConversionMethod method)
         {
             Metric from = Metrics.ParseMetric(symbolfrom);
@@ -28,14 +28,19 @@ namespace Fhir.UnitsSystem
         
         public Prefix AddPrefix(string name, string symbol, Exponential factor)
         {
-            return Metrics.Add(name, symbol, factor);
+            Prefix p = new Prefix(name, symbol, factor);
+            Metrics.Prefixes.Add(p);
+            return p;
         }
-
-        public Unit AddUnit(string classification, string name, string symbol)
+        
+        public Unit AddUnit(string name, string symbol, string dimension = null)
         {
-            return Metrics.Add(classification, name, symbol);
+            Unit u = new Unit(name, symbol, dimension);
+            Metrics.Units.Add(u);
+            return u;
         }
 
+        
         public Quantity Quantity(string expression)
         {
             Match match = Regex.Match(expression, @"(\-?\d+((\,|\.)\d+)?(e\d+)?)(.+)");

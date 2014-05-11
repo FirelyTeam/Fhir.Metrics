@@ -26,12 +26,16 @@ namespace Fhir.UnitsSystem
             this.To = to;
             this.method = method;
         }
-        public Quantity Convert(Quantity quantity)
+
+        public Quantity Convert(Exponential value)
         {
-            Quantity q = new Quantity();
-            q.Metric = this.To;
-            q.Value = this.method(quantity.Value);
-            return q;
+            Exponential output = this.method(value);
+            Quantity quantity = new Quantity(output, To);
+            return quantity;
+        }
+        public override string ToString()
+        {
+            return From.ToString() + " ==> " + To.ToString();
         }
     }
 

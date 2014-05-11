@@ -18,9 +18,41 @@ namespace UnitsOfMeasure
         [ClassInitialize]
         public static void Init(TestContext context)
         {
-            //UcumReader reader = new UcumReader("http://unitsofmeasure.org/ucum-essence.xml");
             UcumReader reader = new UcumReader(Systems.UcumStream());
             system = reader.Read();
+        }
+
+        [TestMethod]
+        public void TestToBaseConversions()
+        {
+            // inch to m
+            Quantity quantity, result, expected;
+            quantity = system.Quantity("4[in_i]");
+            result = system.Conversions.ToBaseUnits(quantity);
+
+            // pound force to kg.m.s-2
+            quantity = system.Quantity("4.0[lbf_av]");
+            result = system.Conversions.ToBaseUnits(quantity);
+            expected = system.Quantity("18kg.m.s-2").ToBase();
+            Assert.IsTrue(result.Approximates(expected));
+
+            // newton
+            quantity = system.Quantity("8.0N");
+            result = system.Conversions.ToBaseUnits(quantity);
+            expected = system.Quantity("8kg.m.s-2").ToBase();
+            Assert.IsTrue(result.Approximates(expected));
+
+          
+        }
+
+        public void TestConstantConversions()
+        {
+            Quantity quantity, result, expected;
+
+            quantity = system.Quantity("2[pi]");
+            result = system.Conversions.ToBaseUnits(quantity);
+            expected = system.Quantity("8kg.m.s-2").ToBase();
+            Assert.IsTrue(result.Approximates(expected));
         }
 
         [TestMethod]
