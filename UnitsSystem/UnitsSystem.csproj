@@ -39,7 +39,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Constant.cs" />
     <Compile Include="Conversion.cs" />
     <Compile Include="Metric.cs" />
     <Compile Include="Parser.cs" />

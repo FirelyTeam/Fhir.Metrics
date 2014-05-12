@@ -58,6 +58,12 @@ namespace Fhir.UnitsSystem
             return quantity;
         }
 
+        public Metric Metric(string expression)
+        {
+            Metric metric = Metrics.ParseMetric(expression);
+            return metric;
+        }
+
         public Quantity ToBase(Quantity quantity)
         {
             return Conversions.ToBaseUnits(quantity);

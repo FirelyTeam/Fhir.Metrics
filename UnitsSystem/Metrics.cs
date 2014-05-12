@@ -15,7 +15,7 @@ namespace Fhir.UnitsSystem
 {
     public class Metrics
     {
-        public List<Constant> Constants = new List<Constant>();
+        //public List<Constant> Constants = new List<Constant>();
         public List<Prefix> Prefixes = new List<Prefix>();
         public List<Unit> Units = new List<Unit>();
 
@@ -29,11 +29,12 @@ namespace Fhir.UnitsSystem
             return Prefixes.FirstOrDefault(p => symbols.StartsWith(p.Symbol));
         }
 
+        /*
         public Constant FindConstant(string symbols)
         {
             return Constants.FirstOrDefault(c => c.Symbols == symbols);
         }
-
+        
         public bool ConsumeConstant(string symbols, out Constant constant, out string rest)
         {
             constant = Constants.FirstOrDefault(f => symbols.StartsWith(f.Symbols));
@@ -48,6 +49,7 @@ namespace Fhir.UnitsSystem
                 return false;
             }
         }
+         */ 
         public Metric.Axis ParseAxis(string expression, int exponent)
         {
             Unit unit = null;

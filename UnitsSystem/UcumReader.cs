@@ -71,41 +71,7 @@ namespace Fhir.UnitsSystem
                 system.AddUnit(name, symbol, dimension);
             }
         }
-
-        private Constant BuildConstant(SystemOfUnits system, string name, string formula, string number)
-        {
-            Exponential factor = Exponential.Exact(number);
-
-            foreach(Unary u in Parser.ToUnaryTokens(formula))
-            {
-                Constant c; 
-                string rest = u.Expression;
-                if (system.Metrics.ConsumeConstant(rest, out c, out rest))
-                {
-                    int power = Convert.ToInt32(rest)*u.Exponent;
-                    factor = factor * Exponential.Power(c.Value, power);
-                }
-            }
-            return new Constant(name, factor);
-        }
-
-        /*
-        private void ReadConstants(UnitsSystem system)
-        {
-            foreach (XPathNavigator n in navigator.Select("u:root/unit[class='dimless']", ns))
-            {
-                string name = n.SelectSingleNode("name").ToString();
-                string classification = n.SelectSingleNode("@class", ns).ToString();
-                string symbol = n.SelectSingleNode("@Code").ToString();
-                string number = n.SelectSingleNode("value/@value").ToString();
-                string formula = n.SelectSingleNode("value/@Unit").ToString();
-
-                Constant c = BuildConstant(system, name, formula, number);
-                system.Metrics.Add(c);
-            }
-        }
-         * */
-
+      
         private void ReadUnits(SystemOfUnits system)
         {
             foreach (XPathNavigator n in navigator.Select("u:root/unit", ns))

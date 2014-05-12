@@ -17,13 +17,15 @@ namespace UnitsOfMeasure
         }
 
         [TestMethod]
-        public void TestMethod1()
+        public void TestMetricParsing()
         {
-            Quantity quantity;
+            Metric metric;
             
-            quantity = system.Quantity("4J/s");
-            quantity = system.Quantity("1[ft_i].[lbf_av]/s");
+            metric = system.Metric("J/s");
+            Assert.AreEqual(2, metric.Axes.Count);
 
+            metric = system.Metric("[ft_i].[lbf_av]/s");
+            Assert.AreEqual(3, metric.Axes.Count);
         }
     }
 }
