@@ -18,8 +18,7 @@ namespace UnitsOfMeasure
         [ClassInitialize]
         public static void Init(TestContext context)
         {
-            UcumReader reader = new UcumReader(Systems.UcumStream());
-            system = reader.Read();
+            system = UCUM.Load();
         }
 
         [TestMethod]
