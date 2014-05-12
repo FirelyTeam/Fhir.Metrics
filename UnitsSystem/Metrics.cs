@@ -48,7 +48,7 @@ namespace Fhir.UnitsSystem
                 return false;
             }
         }
-        public Metric.Axis ParseComponent(string expression, int exponent)
+        public Metric.Axis ParseAxis(string expression, int exponent)
         {
             Unit unit = null;
             Prefix prefix = null;
@@ -71,11 +71,16 @@ namespace Fhir.UnitsSystem
 
         public Metric ParseMetric(string expression)
         {
+            return ParseMetric(Parser.ToUnaryTokens(expression));
+        }
+
+        public Metric ParseMetric(IEnumerable<Unary> tokens)
+        {
             List<Metric.Axis> components = new List<Metric.Axis>();
 
-            foreach(Unary u in Parser.ToUnaryTokens(expression))
+            foreach (Unary u in tokens)
             {
-                Metric.Axis component = ParseComponent(u.Expression, u.Exponent);
+                Metric.Axis component = ParseAxis(u.Expression, u.Exponent);
                 components.Add(component);
             }
             return new Metric(components);

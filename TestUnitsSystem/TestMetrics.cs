@@ -7,7 +7,7 @@ namespace UnitsOfMeasure
     [TestClass]
     public class TestMetrics
     {
-        static UnitsSystem system;
+        static SystemOfUnits system;
 
         [ClassInitialize]
         public static void Init(TestContext context)

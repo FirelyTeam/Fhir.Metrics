@@ -20,9 +20,25 @@ namespace Fhir.UnitsSystem
         {
             return Expression + "^" + Exponent.ToString();
         }
+        public Exponential Factor()
+        {
+            return Exponential.Power(Exponential.Exact(Expression), Exponent);
+        }
+        public Exponential Numeric()
+        {
+            return Exponential.Exact(Expression);
+        }
+        public bool IsNumeric
+        {
+            get
+            {
+                double dummy;
+                return double.TryParse(this.Expression, out dummy);
+            }
+        }
     }
 
-    public class Parser
+    public static class Parser
     {
         public static IEnumerable<string> Tokenize(string s, string pattern)
         {
@@ -70,7 +86,6 @@ namespace Fhir.UnitsSystem
             }
             return new Unary(exponent, expression);
         }
-
        
         static IEnumerable<Unary> parseTokens(IEnumerable<string> tokens)
         {
@@ -94,6 +109,16 @@ namespace Fhir.UnitsSystem
         public static IEnumerable<Unary> ToUnaryTokens(string expression)
         {
             return parseTokens(Tokenize(expression));
+        }
+        
+        public static IEnumerable<Unary> Numerics(this IEnumerable<Unary> tokens)
+        {
+            return tokens.Where(u => u.IsNumeric);
+        }
+
+        public static IEnumerable<Unary> NonNumerics(this IEnumerable<Unary> tokens)
+        {
+            return tokens.Where(u => !u.IsNumeric);
         }
 
     }

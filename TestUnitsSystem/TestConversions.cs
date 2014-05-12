@@ -13,7 +13,7 @@ namespace UnitsOfMeasure
     [TestClass]
     public class TestConversions
     {
-        static UnitsSystem system;
+        static SystemOfUnits system;
 
         [ClassInitialize]
         public static void Init(TestContext context)
@@ -35,28 +35,49 @@ namespace UnitsOfMeasure
             result = system.Conversions.ToBaseUnits(quantity);
             expected = system.Quantity("18kg.m.s-2").ToBase();
             Assert.IsTrue(result.Approximates(expected));
-
+            
             // newton
             quantity = system.Quantity("8.0N");
             result = system.Conversions.ToBaseUnits(quantity);
             expected = system.Quantity("8kg.m.s-2").ToBase();
             Assert.IsTrue(result.Approximates(expected));
-
-          
+            
         }
 
-        public void TestConstantConversions()
+        [TestMethod]
+        public void TestUnPrefixed()
         {
             Quantity quantity, result, expected;
 
-            quantity = system.Quantity("2[pi]");
-            result = system.Conversions.ToBaseUnits(quantity);
-            expected = system.Quantity("8kg.m.s-2").ToBase();
+            quantity = system.Quantity("8dm3");
+            result = quantity.ToBase();
+            expected = system.Quantity("0.008m3");
+            Assert.IsTrue(result.Approximates(expected));
+
+            quantity = system.Quantity("4g");
+            result = quantity.ToBase();
+            expected = system.Quantity("4g");
             Assert.IsTrue(result.Approximates(expected));
         }
 
         [TestMethod]
-        public void SingleConversion()
+        public void TestConstantConversions()
+        {
+            Quantity quantity, result, expected;
+
+            quantity = system.Quantity("2.000[pi].kg");
+            result = system.ToBase(quantity);
+            expected = system.Quantity("6.3kg").ToBase();
+            Assert.IsTrue(result.Approximates(expected));
+
+            quantity = system.Quantity("180.00deg");
+            result = system.ToBase(quantity);
+            expected = system.Quantity("3.14rad").ToBase();
+            Assert.IsTrue(result.Approximates(expected));
+        }
+
+        [TestMethod]
+        public void ConversionToTargetUnit()
         {
             Quantity quantity = system.Convert("4[in_i]", "m");
             Assert.AreEqual(quantity.Metric.Symbols, "m");
@@ -83,23 +104,6 @@ namespace UnitsOfMeasure
         }
 
         [TestMethod]
-        public void ShortestPathTest()
-        {
-            Quantity quantity = system.Convert("4[lb_av]", "g");
-            Assert.AreEqual((decimal)quantity.Value, 1.81436948e3m);
-            Assert.AreEqual(quantity.Metric.Symbols, "g");
-        }
-
-        [TestMethod]
-        public void ConversionToSystemTest()
-        {
-            Quantity quantity = system.ConvertToSsytem("4.00[lb_av]", "si");
-
-            Quantity approx = system.Quantity("1.8e3g");
-            Assert.IsTrue(quantity.Approximates(approx));
-        }
-    
-        [TestMethod]
         public void TestUcumReader()
         {
             // Prefixes
@@ -107,7 +111,7 @@ namespace UnitsOfMeasure
             Assert.IsNotNull(system.Metrics.GetPrefix("y"));
 
             // Constants
-            Assert.IsNotNull(system.Metrics.FindConstant("[pi]"));
+            //Assert.IsNotNull(system.Metrics.FindConstant("[pi]"));
 
             // Base-units
             Assert.IsNotNull(system.Metrics.FindUnit("g"));

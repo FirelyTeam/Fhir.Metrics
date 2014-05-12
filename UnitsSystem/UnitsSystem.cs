@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace Fhir.UnitsSystem
 {
-    public class UnitsSystem
+    public class SystemOfUnits
     {
         public Metrics Metrics = new Metrics();
         public Conversions Conversions = new Conversions();
@@ -58,6 +58,16 @@ namespace Fhir.UnitsSystem
             return quantity;
         }
 
+        public Quantity ToBase(Quantity quantity)
+        {
+            return Conversions.ToBaseUnits(quantity);
+        }
+
+        public Quantity ToBase(string expression)
+        {
+            Quantity quantity = this.Quantity(expression);
+            return this.ToBase(quantity);
+        }
         public Quantity Convert(Quantity quantity, Metric metric)
         {
             return Conversions.Convert(quantity, metric);
@@ -79,11 +89,6 @@ namespace Fhir.UnitsSystem
             
         }
 
-        public Quantity ConvertToSsytem(string expression, string system)
-        {
-            Quantity q = Quantity(expression);
-            return Conversions.ConvertToSystem(q, system);
-        }
 
     }
 }

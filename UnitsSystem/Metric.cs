@@ -46,11 +46,26 @@ namespace Fhir.UnitsSystem
                 Axis target = new Axis(this.Prefix, this.Unit, exponent);
                 return target;
             }
-            public Exponential Factor
+
+            public Exponential ToBase(Exponential value)
+            {
+                if (Prefix != null) 
+                {
+                    Exponential factor = Exponential.Power(Prefix.Factor, this.Exponent);
+                    return value * factor;
+                }
+                else return value;
+            }
+
+            public Axis Base()
+            {
+                return new Axis(null, this.Unit, this.Exponent);
+            }
+            public bool IsVoid
             {
                 get
                 {
-                    return (Prefix != null) ? Prefix.Factor : 1;
+                    return Exponent == 0; 
                 }
             }
             public override string ToString()
@@ -129,17 +144,16 @@ namespace Fhir.UnitsSystem
             }
         }
 
-        public Exponential CalcFactor()
+        public Exponential ToBase(Exponential value)
         {
-            Exponential factor = Exponential.Exact(1);
-            foreach (Axis c in this.Axes)
+            foreach (Axis axis in this.Axes)
             {
-                factor *= c.Factor;
+                value = axis.ToBase(value);
             }
-            return factor;
+            return value;
         }
         
-        public Metric ToBase()
+        public Metric Base()
         {
             Metric metric = new Metric();
             foreach(Axis axis in this.Axes)
@@ -162,27 +176,33 @@ namespace Fhir.UnitsSystem
         {
             return new Metric(m.Axes);
         }
-        private void reduce()
+        
+        public Metric Merge(Axis axis)
         {
-            List<Axis> reduced = new List<Axis>();
- 
-            foreach(Axis component in Axes)
-            {
-                Axis t = reduced.Find(c => c.Unit == component.Unit);
-                if (t != null)
-                    t.Merge(component);
-                else
-                    reduced.Add(t);
-            }
-            reduced.RemoveAll(c => c.Factor == 0);
-            this.Axes = reduced;
+            List<Axis> axes = this.Axes.ToList();
+            Axis target = axes.Find(c => c.Unit == axis.Unit);
+            if (target != null)
+                target.Merge(axis);
+            else
+                this.Axes.Add(axis);
+            return new Metric(axes);
+        }
+
+        private void clearVoids()
+        {
+            this.Axes.RemoveAll(a => a.IsVoid);
         }
 
         public Metric Reduced()
         {
-            Metric m = new Metric(this.Axes);
-            m.reduce();
-            return m;
+            Metric result = new Metric();
+
+            foreach (Axis axis in Axes)
+            {
+                result.Merge(axis);
+            }
+            result.clearVoids();
+            return result;
         }
 
         private bool EqualAxes(Metric m)
@@ -211,12 +231,11 @@ namespace Fhir.UnitsSystem
             {
                 Metric m = (Metric)obj;
                 
-                Metric a = this.ToBase();
-                Metric b = m.ToBase();
+                Metric a = this.Base();
+                Metric b = m.Base();
 
                 bool equala = a.EqualAxes(b);
-                bool equalf = a.CalcFactor() == b.CalcFactor();
-
+                bool equalf = a.ToBase(1) == b.ToBase(1); 
                 return equala && equalf;
             }
             else return false;
@@ -226,6 +245,8 @@ namespace Fhir.UnitsSystem
         {
             return base.GetHashCode();
         }
+
+     
     }
 
 }

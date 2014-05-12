@@ -47,7 +47,7 @@ namespace Fhir.UnitsSystem
         }
 
         
-        private void ReadPrefixes(UnitsSystem system)
+        private void ReadPrefixes(SystemOfUnits system)
         {
             foreach(XPathNavigator n in navigator.Select("u:root/prefix", ns))
             {
@@ -60,7 +60,7 @@ namespace Fhir.UnitsSystem
             }
         }
 
-        private void ReadBaseUnits(UnitsSystem system)
+        private void ReadBaseUnits(SystemOfUnits system)
         {
             foreach (XPathNavigator n in navigator.Select("u:root/base-unit", ns))
             {
@@ -72,7 +72,7 @@ namespace Fhir.UnitsSystem
             }
         }
 
-        private Constant BuildConstant(UnitsSystem system, string name, string formula, string number)
+        private Constant BuildConstant(SystemOfUnits system, string name, string formula, string number)
         {
             Exponential factor = Exponential.Exact(number);
 
@@ -106,7 +106,7 @@ namespace Fhir.UnitsSystem
         }
          * */
 
-        private void ReadUnits(UnitsSystem system)
+        private void ReadUnits(SystemOfUnits system)
         {
             foreach (XPathNavigator n in navigator.Select("u:root/unit", ns))
             {
@@ -114,7 +114,7 @@ namespace Fhir.UnitsSystem
                 string classification = n.SelectSingleNode("@class", ns).ToString();
                 
                 string symbol = n.SelectSingleNode("@Code").ToString();
-                if (classification != "dimless")
+                //if (classification != "dimless")
                 {
                     system.AddUnit(name, symbol);
                 }
@@ -123,35 +123,48 @@ namespace Fhir.UnitsSystem
 
         public static ConversionMethod BuildConversion(string formula, Exponential number)
         {
-            // NB! This method is still a (test) dummy.
-            Match match = Regex.Match(formula, @"(\-?\d+|)");
             ParameterExpression param = Expression.Parameter(typeof(Exponential), "value");
-            Expression body = Expression.Multiply(param, Expression.Constant(number));
-            
+
+            Expression body = Expression.Multiply(param, Expression.Constant(number)); 
+            foreach (Unary u in Parser.ToUnaryTokens(formula).Numerics())
+            {
+                Exponential factor = u.Numeric();
+                if (u.Exponent == 1)
+                    body = Expression.Multiply(body, Expression.Constant(factor));
+                else if (u.Exponent == -1)
+                    body = Expression.Divide(body, Expression.Constant(factor));
+            }
+
             Expression<ConversionMethod> expression = Expression.Lambda<ConversionMethod>(body, param);
             ConversionMethod method = expression.Compile();
 
             return method;
         }
         
-        public void AddConversion(UnitsSystem system, string from, string formula, Exponential number)
+        public Exponential FactorFromFormula(string formula)
+        {
+            Exponential f = Exponential.One;
+            foreach (Unary u in Parser.ToUnaryTokens(formula))
+            {
+                f *= u.Factor();
+            }
+            return f;
+        }
+
+        public void AddConversion(SystemOfUnits system, string from, string formula, Exponential number)
         {
             Metric metricfrom = system.Metrics.ParseMetric(from);
-            //List<string> tokens = Parser.Tokenize(formula);
-
-            Metric metricto = system.Metrics.ParseMetric(formula);
+            Metric metricto = system.Metrics.ParseMetric(Parser.ToUnaryTokens(formula).NonNumerics());
 
             if ( (metricfrom != null) && (metricto != null) )
             {
-                Exponential factor = number;
-                
-                ConversionMethod method = BuildConversion(formula, factor);
+                ConversionMethod method = BuildConversion(formula, number);
                 system.Conversions.Add(metricfrom, metricto, method);
             }
 
         }
 
-        public void ReadConversions(UnitsSystem system)
+        public void ReadConversions(SystemOfUnits system)
         {
             foreach (XPathNavigator n in navigator.Select("u:root/unit", ns))
             {
@@ -173,9 +186,9 @@ namespace Fhir.UnitsSystem
             }
         }
        
-        public UnitsSystem Read()
+        public SystemOfUnits Read()
         {
-            UnitsSystem system = new UnitsSystem();
+            SystemOfUnits system = new SystemOfUnits();
             //ReadConstants(system);
             ReadPrefixes(system);
             ReadBaseUnits(system);

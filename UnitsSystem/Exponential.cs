@@ -17,7 +17,7 @@ namespace Fhir.UnitsSystem
 {
     public struct Exponential
     {
-        public decimal Significand;
+        public decimal Significand; // decimal is working for now, or should we use a float?
         public int Exponent;
         public decimal Error;
         
@@ -266,13 +266,28 @@ namespace Fhir.UnitsSystem
         public decimal ToDecimal()
         {
             return this.Significand * (decimal)Math.Pow(10, this.Exponent);
+            // todo: remove precision to reflect real error
         }
 
+        public double ValueToFloat()
+        {
+            return (double)this.Significand * Math.Pow(10, this.Exponent);
+        }
+
+        public double ErrorToFloat()
+        {
+            return (double)this.Error * Math.Pow(10, this.Exponent);
+        }
+
+        /// <summary>
+        /// Tests if the an number including error margin lies within the error margin of the given value.
+        /// </summary>
+        /// <param name="e">the value that determines the range</param>
         public bool Approximates(Exponential e)
         {
             bool expo = (this.Exponent == e.Exponent);
-            bool sigp = (e.Significand + e.Error) > (this.Significand + this.Error);
-            bool sigm = (e.Significand - e.Error) < (this.Significand - this.Error);
+            bool sigp = (e.Significand + e.Error) >= (this.Significand + this.Error);
+            bool sigm = (e.Significand - e.Error) <= (this.Significand - this.Error);
 
             return expo && sigp && sigm;
         }
@@ -286,14 +301,24 @@ namespace Fhir.UnitsSystem
 
         public static Exponential Power(Exponential value, int power)
         {
-            Exponential result = value;
-            foreach(int i in Enumerable.Range(1, power))
-            {
-                result *= value;
-            }
-            return result;
+            double f = Math.Pow(value.ValueToFloat(), power);
+            double e = Math.Pow(value.ErrorToFloat(), power);
+
+            return new Exponential((decimal)f, 0, (decimal)e); ;
+            
         }
 
+        /// <summary>
+        /// Raise value with 10^digits.
+        /// </summary>
+        public static Exponential Raise(Exponential value, int digits)
+        {
+            return value.Raised(digits);
+        }
+
+        /// <summary>
+        /// Returns Exponential of exactly 1 with no measurement error.
+        /// </summary>
         public static Exponential One
         {
             get {
@@ -301,6 +326,9 @@ namespace Fhir.UnitsSystem
             }
         }
         
+        /// <summary>
+        /// Returns Exponential of exactly 0 with no measurement error.
+        /// </summary>
         public static Exponential Zero
         {
             get {

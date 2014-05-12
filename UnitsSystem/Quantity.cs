@@ -48,11 +48,9 @@ namespace Fhir.UnitsSystem
 
         public Quantity ToBase()
         {
-            Quantity output = new Quantity();
-            Exponential factor = this.Metric.CalcFactor();
-            output.Metric = this.Metric.ToBase();
-            output.Value = this.Value * factor;
-            return output;
+            Exponential value = this.Metric.ToBase(this.Value);
+            Metric metric = this.Metric.Base();
+            return new Quantity(value, metric);
         }
 
         public bool Approximates(Quantity q)

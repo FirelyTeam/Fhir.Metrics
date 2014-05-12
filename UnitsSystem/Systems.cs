@@ -15,9 +15,9 @@ namespace Fhir.UnitsSystem
 {
     public static class Systems
     {
-        private static UnitsSystem getMetric()
+        private static SystemOfUnits getMetric()
         {
-            UnitsSystem system = new UnitsSystem();
+            SystemOfUnits system = new SystemOfUnits();
 
             system.AddPrefix("Micro", "µ", 1e-6m);
             system.AddPrefix("Kilo", "k", 1e3m);
@@ -42,9 +42,9 @@ namespace Fhir.UnitsSystem
             return system;
         }
 
-        private static UnitsSystem metric = null;
+        private static SystemOfUnits metric = null;
 
-        public static UnitsSystem Metric
+        public static SystemOfUnits Metric
         {
             get
             {
@@ -60,11 +60,11 @@ namespace Fhir.UnitsSystem
             return s;
         }
 
-        public static UnitsSystem LoadUcum()
+        public static SystemOfUnits LoadUcum()
         {
 
             UcumReader reader = new UcumReader("http://unitsofmeasure.org/ucum-essence.xml");
-            UnitsSystem system = reader.Read();
+            SystemOfUnits system = reader.Read();
             return system;
         }
 
