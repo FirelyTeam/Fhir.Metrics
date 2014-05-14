@@ -40,15 +40,17 @@ namespace Fhir.UnitsSystem
             return u;
         }
 
+        private Regex quant = new Regex(@"^(\-?\d+(?:\.\d+)?(?:e\d+)?)(.+)?$");
         
         public Quantity Quantity(string expression)
         {
-            Match match = Regex.Match(expression, @"^(\-?\d+((\.)\d+)?(e\d+)?)(.+)?$");
-            if (match.Groups.Count != 6)
+            Match match = quant.Match(expression);
+            string[] result = quant.Split(expression);
+            if (match.Groups.Count != 3)
                 throw new ArgumentException("Expression cannot be parsed as a quantity");
 
             string number = match.Groups[1].Value;
-            string symbols = match.Groups[5].Value;
+            string symbols = match.Groups[2].Value;
 
             Exponential value = new Exponential(number);
             Metric metric = Metrics.ParseMetric(symbols);

@@ -26,6 +26,9 @@ namespace UnitsOfMeasure
         {
             Quantity quantity;
 
+            //Valid:
+            quantity = system.Quantity("4.3[in_i]");
+
             // Invalid number
             try
             {
