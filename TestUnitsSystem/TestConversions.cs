@@ -81,6 +81,8 @@ namespace UnitsOfMeasure
             result = system.Conversions.ToBaseUnits(quantity);
             expected = system.Quantity("18kg.m.s-2").ToBase();
             Assert.IsTrue(result.Approximates(expected));
+
+
             
             // newton
             quantity = system.Quantity("8.0N");
@@ -88,6 +90,17 @@ namespace UnitsOfMeasure
             expected = system.Quantity("8kg.m.s-2").ToBase();
             Assert.IsTrue(result.Approximates(expected));
             
+        }
+
+        [TestMethod]
+        public void ReductionTest()
+        {
+            Quantity quantity, result, expected;
+            // psi to kg.m.s-2/m2 = kg.m-1.s-2. 
+            quantity = system.Quantity("2.00[psi]");
+            result = system.Conversions.ToBaseUnits(quantity);
+            expected = system.Quantity("2.3e2g.m-1.s-2").ToBase();
+            Assert.IsTrue(result.Approximates(expected));
         }
 
         [TestMethod]

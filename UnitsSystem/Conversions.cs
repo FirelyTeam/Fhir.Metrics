@@ -65,6 +65,7 @@ namespace Fhir.UnitsSystem
                 {
                     Quantity part = conversion.Convert(value);
                     part = part.ToBase();
+                    part.Metric = part.Metric.MultiplyExponent(axis.Exponent);
                     axes.AddRange(part.Metric.Axes);
                     value = part.Value;
                     modified = true;
@@ -94,6 +95,7 @@ namespace Fhir.UnitsSystem
             if (!output.IsInBaseUnits())
                 throw new InvalidCastException("Quantity could not be converted to base units");
 
+            output.Metric = output.Metric.Reduced();
             return output;
         }
               

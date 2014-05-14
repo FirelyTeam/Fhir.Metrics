@@ -16,7 +16,7 @@ namespace Fhir.UnitsSystem
 
     public class Metric
     {
-        public class Axis
+        public class Axis : IComparable<Axis>
         {
             public Prefix Prefix;
             public Unit Unit;
@@ -95,11 +95,17 @@ namespace Fhir.UnitsSystem
             }
             public override int GetHashCode()
             {
-                return base.GetHashCode();
+                int i = this.ToString().GetHashCode();
+                return i;
             }
             public static Axis CopyOf(Axis axis)
             {
                 return new Axis(axis.Prefix, axis.Unit, axis.Exponent);
+            }
+
+            public int CompareTo(Axis other)
+            {
+                return this.ToString().CompareTo(other.ToString());
             }
         }
 
@@ -179,13 +185,22 @@ namespace Fhir.UnitsSystem
         
         public Metric Merge(Axis axis)
         {
-            List<Axis> axes = this.Axes.ToList();
-            Axis target = axes.Find(c => c.Unit == axis.Unit);
-            if (target != null)
-                target.Merge(axis);
-            else
-                this.Axes.Add(axis);
-            return new Metric(axes);
+            Metric m = Metric.CopyOf(this);
+
+            foreach (Axis a in this.Axes)
+            {
+                Axis b;
+                if (a.Unit == axis.Unit)
+                {
+                    b = a.Merge(axis);
+                }
+                else
+                {
+                    b = Axis.CopyOf(axis);
+                }
+                m.Axes.Add(b);
+            }
+            return m;
         }
 
         private void clearVoids()
@@ -193,28 +208,59 @@ namespace Fhir.UnitsSystem
             this.Axes.RemoveAll(a => a.IsVoid);
         }
 
+        private void sort()
+        {
+            this.Axes.Sort();
+        }
         public Metric Reduced()
         {
             Metric result = new Metric();
 
-            foreach (Axis axis in Axes)
+            foreach (Axis a in this.Axes)
             {
-                result.Merge(axis);
+                Axis b = result.Axes.FirstOrDefault(x => x.Unit == a.Unit);
+                if (b != null)
+                {
+                    result.Axes.Remove(b);
+                    b = b.Merge(a);
+                    result.Axes.Add(b);
+                }
+                else
+                {
+                    result.Axes.Add(Axis.CopyOf(a));
+                }
             }
             result.clearVoids();
+            result.sort();
             return result;
         }
 
-        private bool EqualAxes(Metric m)
+        
+
+        public Metric MultiplyExponent(int exponent)
         {
-            if (this.Axes.Count != m.Axes.Count)
+            // N^-1 => (kg.m.s-2)^-1
+            var axes = new List<Axis>();
+            foreach(Axis axis in Axes)
+            {
+                Axis a = new Axis(axis.Prefix, axis.Unit, axis.Exponent * exponent);
+                axes.Add(a);
+            }
+            return new Metric(axes);
+        }
+
+        private bool EqualAxes(Metric other)
+        {
+            Metric a = this.Reduced();
+            Metric b = other.Reduced();
+
+            if (a.Axes.Count != b.Axes.Count)
                 return false;
 
-            
             bool equal = true;
-            for (int i = 0; i <= this.Axes.Count; i++ )
+            for (int i = 0; i <= a.Axes.Count; i++ )
             {
-                equal &= this.Axes[i].Equals(m.Axes[i]);
+                equal &= a.Axes[i].Equals(b.Axes[i]);
                 i++;
             }
             return equal;
