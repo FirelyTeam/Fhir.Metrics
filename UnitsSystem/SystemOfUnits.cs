@@ -43,8 +43,8 @@ namespace Fhir.UnitsSystem
         
         public Quantity Quantity(string expression)
         {
-            Match match = Regex.Match(expression, @"(\-?\d+((\,|\.)\d+)?(e\d+)?)(.+)");
-            if (match.Groups.Count < 6)
+            Match match = Regex.Match(expression, @"^(\-?\d+((\.)\d+)?(e\d+)?)(.+)?$");
+            if (match.Groups.Count != 6)
                 throw new ArgumentException("Expression cannot be parsed as a quantity");
 
             string number = match.Groups[1].Value;

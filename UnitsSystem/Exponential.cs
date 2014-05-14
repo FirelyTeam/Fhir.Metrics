@@ -21,7 +21,7 @@ namespace Fhir.UnitsSystem
         public int Exponent;
         public decimal Error;
         
-        private static readonly string regex = @"(\d+(\.\d+)?)(e([+-]?\d+))?";
+        private static readonly string regex = @"^(\d+(\.\d+)?)(e([+-]?\d+))?$";
         private static readonly IFormatProvider format = new CultureInfo("en-US");
 
         public Exponential(decimal value, int exponent, decimal error)
@@ -53,6 +53,9 @@ namespace Fhir.UnitsSystem
             GroupCollection groups = Regex.Match(s, regex).Groups;
             string value = groups[1].Value;
             string exp = groups[4].Value;
+            if (string.IsNullOrEmpty(value))
+                throw new ArgumentException(string.Format("Expression '{0}' is not a valid exponential number ", s));
+
             if (string.IsNullOrEmpty(exp)) exp = "0";
             
             this.Significand = StringToDecimal(value);

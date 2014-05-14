@@ -22,6 +22,50 @@ namespace UnitsOfMeasure
         }
 
         [TestMethod]
+        public void FaultyFormatting()
+        {
+            Quantity quantity;
+
+            // Invalid number
+            try
+            {
+                quantity = system.Quantity("4,4[in_i]");
+                Assert.Fail("Should have thrown an error");
+            }
+            catch (Exception e)
+            {
+                Assert.IsInstanceOfType(e, typeof(ArgumentException));
+            }
+
+            // Missing number
+            try
+            {
+                quantity = system.Quantity("[in_i]");
+                Assert.Fail("Should have thrown an error");
+            }
+            catch (Exception e)
+            {
+                Assert.IsInstanceOfType(e, typeof(ArgumentException));
+            }
+
+            // Quantity without a unit
+            quantity = system.Quantity("4");
+            Assert.IsTrue(quantity.IsDimless);
+
+            // Non existent unit
+            try
+            {
+                quantity = system.Quantity("4[nonexistent]");
+                Assert.Fail("Should have thrown an error");
+            }
+            catch (Exception e)
+            {
+                Assert.IsInstanceOfType(e, typeof(ArgumentException));
+            }
+
+        }
+
+        [TestMethod]
         public void TestToBaseConversions()
         {
             // inch to m

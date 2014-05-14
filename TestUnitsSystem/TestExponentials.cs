@@ -60,7 +60,7 @@ namespace UnitsSystemTests
             Assert.AreEqual(4.9m, a.Significand);
             Assert.AreEqual(-3, a.Exponent);
 
-            a = new Exponential("9.1093822e-31m");
+            a = new Exponential("9.1093822e-31");
             Assert.AreEqual(9.1093822m, a.Significand);
             Assert.AreEqual(-31, a.Exponent);
 

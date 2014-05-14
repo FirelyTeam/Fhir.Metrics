@@ -52,7 +52,6 @@ namespace Fhir.UnitsSystem
             }
         }
 
-
         private bool singlePassConversion(ref Quantity quantity)
         {
             List<Metric.Axis> axes = new List<Metric.Axis>();

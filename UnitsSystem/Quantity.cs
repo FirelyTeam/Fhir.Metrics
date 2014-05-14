@@ -63,6 +63,13 @@ namespace Fhir.UnitsSystem
             return met && val;
         }
 
+        public bool IsDimless
+        {
+            get
+            {
+                return Metric.Axes.Count == 0;
+            }
+        }
         public static Quantity CopyOf(Quantity q)
         {
             return new Quantity(q.Value, q.Metric);
