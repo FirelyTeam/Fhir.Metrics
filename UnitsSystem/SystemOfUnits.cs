@@ -42,6 +42,14 @@ namespace Fhir.UnitsSystem
 
         private Regex quant = new Regex(@"^(\-?\d+(?:\.\d+)?(?:e\d+)?)(.+)?$");
         
+        /// <summary>
+        /// Parses a string to a quantity with all units interpreted.
+        /// The string must be of format number followed by a unit expression (metric).
+        /// The units are separated by a multiplication '.' or division '/' and can be followed 
+        /// by a power. <para> For example: 1.2e4kg.m.s-2 </para>
+        /// </summary>
+        /// <param name="expression"></param>
+        /// <returns></returns>
         public Quantity Quantity(string expression)
         {
             Match match = quant.Match(expression);
@@ -76,6 +84,7 @@ namespace Fhir.UnitsSystem
             Quantity quantity = this.Quantity(expression);
             return this.ToBase(quantity);
         }
+
         public Quantity Convert(Quantity quantity, Metric metric)
         {
             return Conversions.Convert(quantity, metric);
@@ -96,7 +105,6 @@ namespace Fhir.UnitsSystem
             return output;
             
         }
-
 
     }
 }

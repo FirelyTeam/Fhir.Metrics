@@ -70,6 +70,7 @@ namespace Fhir.UnitsSystem
                 return Metric.Axes.Count == 0;
             }
         }
+
         public static Quantity CopyOf(Quantity q)
         {
             return new Quantity(q.Value, q.Metric);

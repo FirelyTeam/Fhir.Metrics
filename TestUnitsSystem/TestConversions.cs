@@ -81,15 +81,12 @@ namespace UnitsOfMeasure
             result = system.Conversions.ToBaseUnits(quantity);
             expected = system.Quantity("18kg.m.s-2").ToBase();
             Assert.IsTrue(result.Approximates(expected));
-
-
             
             // newton
             quantity = system.Quantity("8.0N");
             result = system.Conversions.ToBaseUnits(quantity);
             expected = system.Quantity("8kg.m.s-2").ToBase();
             Assert.IsTrue(result.Approximates(expected));
-            
         }
 
         [TestMethod]
@@ -169,9 +166,6 @@ namespace UnitsOfMeasure
             Assert.IsNotNull(system.Metrics.GetPrefix("k"));
             Assert.IsNotNull(system.Metrics.GetPrefix("y"));
 
-            // Constants
-            //Assert.IsNotNull(system.Metrics.FindConstant("[pi]"));
-
             // Base-units
             Assert.IsNotNull(system.Metrics.FindUnit("g"));
 
@@ -179,22 +173,5 @@ namespace UnitsOfMeasure
             Assert.IsNotNull(system.Metrics.FindUnit("Cel"));
             Assert.IsNotNull(system.Metrics.FindUnit("Cel"));
         }
-
-        [TestMethod]
-        public void TestExpressionBuilding()
-        {
-            string pattern = @"([^\.\/]+|[\.\/])";
-            foreach (string token in Parser.Tokenize("[ft_i].[lbf_av].10*-1/s", pattern))
-            {
-                Debug.WriteLine("-" + token);
-            }
-            
-            IEnumerable<string> list = new List<string>();
-            
-            Debug.WriteLine("done");
-
-            // Conversion.Add("deg", "rad", f => f * 2 * pi / 360)
-        }
-
     }
 }

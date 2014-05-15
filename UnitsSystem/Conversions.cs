@@ -65,7 +65,7 @@ namespace Fhir.UnitsSystem
                 {
                     Quantity part = conversion.Convert(value);
                     part = part.ToBase();
-                    part.Metric = part.Metric.MultiplyExponent(axis.Exponent);
+                    part.Metric = part.Metric.MultiplyExponents(axis.Exponent);
                     axes.AddRange(part.Metric.Axes);
                     value = part.Value;
                     modified = true;

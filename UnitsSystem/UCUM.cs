@@ -32,6 +32,5 @@ namespace Fhir.UnitsSystem
              system = reader.Read();
              return system;
         }
-
     }
 }

@@ -18,7 +18,6 @@ using System.Xml.XPath;
 
 namespace Fhir.UnitsSystem
 {
-
     public class UcumReader
     {
         string docname;
@@ -65,7 +64,7 @@ namespace Fhir.UnitsSystem
             foreach (XPathNavigator n in navigator.Select("u:root/base-unit", ns))
             {
                 string name = n.SelectSingleNode("name").ToString();
-                string dimension = n.SelectSingleNode("@dim").ToString();
+                string dimension = n.SelectSingleNode("property").ToString();
                 string symbol = n.SelectSingleNode("@Code").ToString();
 
                 system.AddUnit(name, symbol, dimension);

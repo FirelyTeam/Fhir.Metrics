@@ -18,23 +18,28 @@ namespace Fhir.UnitsSystem
     {
         public int Exponent;
         public string Expression;
+        
         public Unary(int exponent, string expression)
         {
             this.Exponent = exponent;
             this.Expression = expression;
         }
+        
         public override string ToString()
         {
             return Expression + "^" + Exponent.ToString();
         }
+        
         public Exponential Factor()
         {
             return Exponential.Power(Exponential.Exact(Expression), Exponent);
         }
+        
         public Exponential Numeric()
         {
             return Exponential.Exact(Expression);
         }
+        
         public bool IsNumeric
         {
             get
@@ -56,8 +61,6 @@ namespace Fhir.UnitsSystem
                 yield return g.Value;
             }
         }
-
-
 
         public static List<string> Tokenize(string expression)
         {

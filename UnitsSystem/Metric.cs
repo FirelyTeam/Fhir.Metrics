@@ -13,7 +13,6 @@ using System.Threading.Tasks;
 
 namespace Fhir.UnitsSystem
 {
-
     public class Metric
     {
         public class Axis : IComparable<Axis>
@@ -31,12 +30,14 @@ namespace Fhir.UnitsSystem
                     return prefix + Unit.Symbol + exp;
                 }
             }
+
             public Axis(Prefix prefix, Unit unit, int exponent = 1)
             {
                 this.Prefix = prefix;
                 this.Unit = unit;
                 this.Exponent = exponent;
             }
+
             public Axis Merge(Axis other)
             {
                 if (this.Unit != other.Unit || this.Prefix != other.Prefix)
@@ -61,6 +62,7 @@ namespace Fhir.UnitsSystem
             {
                 return new Axis(null, this.Unit, this.Exponent);
             }
+
             public bool IsVoid
             {
                 get
@@ -68,6 +70,7 @@ namespace Fhir.UnitsSystem
                     return Exponent == 0; 
                 }
             }
+
             public override string ToString()
             {
                 string prefix = (Prefix != null) ? Prefix.ToString() : "";
@@ -81,6 +84,7 @@ namespace Fhir.UnitsSystem
                 }
                 return prefix + unit + exp;
             }
+
             public override bool Equals(object obj)
             {
                 if (obj is Metric.Axis)
@@ -93,11 +97,13 @@ namespace Fhir.UnitsSystem
                 }
                 else return false;
             }
+
             public override int GetHashCode()
             {
                 int i = this.ToString().GetHashCode();
                 return i;
             }
+
             public static Axis CopyOf(Axis axis)
             {
                 return new Axis(axis.Prefix, axis.Unit, axis.Exponent);
@@ -109,33 +115,38 @@ namespace Fhir.UnitsSystem
             }
         }
 
+        public List<Axis> Axes = new List<Axis>();
+
         private Metric()
         {
 
         }
+
         public Metric(Unit unit)
         {
             Add(null, unit);
         }
+
         public Metric(Prefix prefix, Unit unit, int exponent = 1)
         {
             Add(prefix, unit, exponent);
         }
+
         public Metric(List<Axis> axes)
         {
             this.Add(axes);
         }
         
-        public List<Axis> Axes = new List<Axis>();
-
         public void Add(Prefix prefix, Unit unit, int exponent = 1)
         {
             Axes.Add(new Axis(prefix, unit, exponent));
         }
+
         public void Add(Unit unit, int exponent = 1)
         {
             Axes.Add(new Axis(null, unit, exponent));
         }
+        
         public void Add(List<Axis> axes)
         {
             this.Axes.AddRange(axes);
@@ -149,6 +160,15 @@ namespace Fhir.UnitsSystem
                 return string.Join(".", Axes.Select(c => c.Symbols));
             }
         }
+
+        public string DimensionText
+        {
+            get
+            {
+                return string.Join(".", Axes.Select(a => string.Format("{0}^{1}", a.Unit.Dimension, a.Exponent)));
+            }
+        }
+
 
         public Exponential ToBase(Exponential value)
         {
@@ -202,16 +222,7 @@ namespace Fhir.UnitsSystem
             }
             return m;
         }
-
-        private void clearVoids()
-        {
-            this.Axes.RemoveAll(a => a.IsVoid);
-        }
-
-        private void sort()
-        {
-            this.Axes.Sort();
-        }
+       
         public Metric Reduced()
         {
             Metric result = new Metric();
@@ -235,9 +246,7 @@ namespace Fhir.UnitsSystem
             return result;
         }
 
-        
-
-        public Metric MultiplyExponent(int exponent)
+        public Metric MultiplyExponents(int exponent)
         {
             // N^-1 => (kg.m.s-2)^-1
             var axes = new List<Axis>();
@@ -248,24 +257,7 @@ namespace Fhir.UnitsSystem
             }
             return new Metric(axes);
         }
-
-        private bool EqualAxes(Metric other)
-        {
-            Metric a = this.Reduced();
-            Metric b = other.Reduced();
-
-            if (a.Axes.Count != b.Axes.Count)
-                return false;
-
-            bool equal = true;
-            for (int i = 0; i <= a.Axes.Count; i++ )
-            {
-                equal &= a.Axes[i].Equals(b.Axes[i]);
-                i++;
-            }
-            return equal;
-        }
-
+     
         public override string ToString()
         {
             return Symbols ?? "(dimensionless)";
@@ -292,7 +284,31 @@ namespace Fhir.UnitsSystem
             return base.GetHashCode();
         }
 
-     
-    }
+        private void clearVoids()
+        {
+            this.Axes.RemoveAll(a => a.IsVoid);
+        }
 
+        private void sort()
+        {
+            this.Axes.Sort();
+        }
+
+        private bool EqualAxes(Metric other)
+        {
+            Metric a = this.Reduced();
+            Metric b = other.Reduced();
+
+            if (a.Axes.Count != b.Axes.Count)
+                return false;
+
+            bool equal = true;
+            for (int i = 0; i <= a.Axes.Count; i++)
+            {
+                equal &= a.Axes[i].Equals(b.Axes[i]);
+                i++;
+            }
+            return equal;
+        }
+    }
 }

@@ -34,10 +34,10 @@ namespace Fhir.UnitsSystem
             Quantity quantity = new Quantity(output, To);
             return quantity;
         }
+
         public override string ToString()
         {
             return From.ToString() + " ==> " + To.ToString();
         }
     }
-
 }

@@ -26,5 +26,14 @@ namespace UnitsOfMeasure
             metric = system.Metric("[ft_i].[lbf_av]/s");
             Assert.AreEqual(3, metric.Axes.Count);
         }
+
+        [TestMethod]
+        public void TestMetricDimensions()
+        {
+            Quantity q = system.Quantity("2.3[psi]");
+            q = system.ToBase(q);
+            Console.WriteLine(q.Metric.DimensionText);
+            Assert.AreEqual("mass^1.length^-1.time^-2", q.Metric.DimensionText);
+        }
     }
 }
