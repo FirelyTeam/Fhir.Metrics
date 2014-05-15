@@ -12,7 +12,7 @@ Classes:
 - Metric (A composite set of (prefixed) units like m/s, kg.m/s2)
 - Quantity (a measurement: Exponential + Metric)
 - UcumReader (reader of the XML essence of UCUM)
-- 
+ 
 
 TODO:
 - UcumReader doesn't implement special cases (like fahrenheid/celcius conversion formulas)
