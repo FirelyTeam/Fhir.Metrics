@@ -4,9 +4,13 @@ Unified Code for Units of Measure (UCUM) implementation for FHIR.
 
 UcumReader now reads UCM essence xml set. And parses basic conversions and more Complex conversions 
 Example:
-  system.Convert("4.3[psi]'") will result in
-  {[2,25 ± 0,005649]E2 g.m-1.s-2} (approximated)
-
+```  
+Quantity q = system.Convert("4.3[psi]'");
+```
+will result in
+```
+{[2,25 ± 0,005649]E2 g.m-1.s-2} (approximated)
+```
 Classes:
 - Exponential (Normalized Scientific Notation number, with error propagation)
 - Unit (measurable dimensions like gram, meter, Kelvin, pound force, etc.)
