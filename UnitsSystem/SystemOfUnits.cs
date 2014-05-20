@@ -40,20 +40,20 @@ namespace Fhir.UnitsSystem
             return u;
         }
 
-        private Regex quant = new Regex(@"^(\-?\d+(?:\.\d+)?(?:e\d+)?)(.+)?$");
+        private Regex regex = new Regex(@"^(\-?\d+(?:\.\d+)?(?:e\d+)?)(.+)?$");
         
         /// <summary>
-        /// Parses a string to a quantity with all units interpreted.
-        /// The string must be of format number followed by a unit expression (metric).
-        /// The units are separated by a multiplication '.' or division '/' and can be followed 
-        /// by a power. <para> For example: 1.2e4kg.m.s-2 </para>
+        /// Parses a string expression containing a number and a set of units to a quantity.
         /// </summary>
-        /// <param name="expression"></param>
-        /// <returns></returns>
+        /// <param name="expression">
+        /// Must be a number followed by a unit expression (metric).
+        /// The units are separated by a multiplication '.' or division '/' and can be followed 
+        /// by a power. <para> For example: 1.2e4kg.m.s-2 or 1.2e4kg.m/s2</para>
+        /// </param>
         public Quantity Quantity(string expression)
         {
-            Match match = quant.Match(expression);
-            string[] result = quant.Split(expression);
+            Match match = regex.Match(expression);
+            string[] result = regex.Split(expression);
             if (match.Groups.Count != 3)
                 throw new ArgumentException("Expression cannot be parsed as a quantity");
 
@@ -68,6 +68,13 @@ namespace Fhir.UnitsSystem
             return quantity;
         }
 
+        /// <summary>
+        /// Parses a string containing a set of units to a metric.
+        /// </summary>
+        /// <param name="expression">
+        /// Must be a set of known units separated by a multiplication '.' or division '/' and can be followed 
+        /// by a power. <para> For example: 1.2e4kg.m.s-2 or 1.2e4kg.m/s2 </para>
+        /// </param>
         public Metric Metric(string expression)
         {
             Metric metric = Metrics.ParseMetric(expression);
