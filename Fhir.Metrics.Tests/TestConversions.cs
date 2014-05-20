@@ -69,7 +69,7 @@ namespace Fhir.Metrics.Tests
         }
 
         [TestMethod]
-        public void TestToBaseConversions()
+        public void ToBaseConversions()
         {
             // inch to m
             Quantity quantity, result, expected;
@@ -90,7 +90,7 @@ namespace Fhir.Metrics.Tests
         }
 
         [TestMethod]
-        public void ReductionTest()
+        public void Reductions()
         {
             Quantity quantity, result, expected;
             // psi to kg.m.s-2/m2 = kg.m-1.s-2. 
@@ -101,7 +101,7 @@ namespace Fhir.Metrics.Tests
         }
 
         [TestMethod]
-        public void TestUnPrefixed()
+        public void UnPrefixed()
         {
             Quantity quantity, result, expected;
 
@@ -117,7 +117,7 @@ namespace Fhir.Metrics.Tests
         }
 
         [TestMethod]
-        public void TestConstantConversions()
+        public void ConstantConversions()
         {
             Quantity quantity, result, expected;
 
@@ -161,7 +161,7 @@ namespace Fhir.Metrics.Tests
         }
 
         [TestMethod]
-        public void TestUcumReader()
+        public void UcumReader()
         {
             // Prefixes
             Assert.IsNotNull(system.Metrics.GetPrefix("k"));

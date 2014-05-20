@@ -9,7 +9,7 @@ namespace UnitsSystemTests
     public class TestExponentials
     {
         [TestMethod]
-        public void TestStringConversion()
+        public void StringConversion()
         {
             Exponential e;
 
@@ -93,7 +93,7 @@ namespace UnitsSystemTests
         }
 
         [TestMethod]
-        public void TestAdd()
+        public void Add()
         {
             Exponential a, b, c;
 
@@ -121,7 +121,7 @@ namespace UnitsSystemTests
         }
 
         [TestMethod]
-        public void TestSubstract()
+        public void Substracting()
         {
             Exponential a, b, c;
 
@@ -129,19 +129,27 @@ namespace UnitsSystemTests
             b = 2.0m;
             c = a - b;
             Assert.AreEqual(2.0m, c.Significand);
-            Assert.AreEqual(0.00m, c.Error);
+            Assert.AreEqual(0.10m, c.Error);
             Assert.AreEqual(0, c.Exponent);
 
             a = 12.0m;
             b = 8.0m;
             c = a - b;
             Assert.AreEqual(4.0m, c.Significand);
-            Assert.AreEqual(0.0m, c.Error);
+            Assert.AreEqual(0.1m, c.Error);
             Assert.AreEqual(0, c.Exponent);
+
+            // We have to use string here, because float translates 12.0e3 to 12000 (loses precision information)
+            a = new Exponential("12.0e3");
+            b = new Exponential("8.0e3");
+            c = a - b;
+            Assert.AreEqual(4.0m, c.Significand);
+            Assert.AreEqual(0.1m, c.Error); 
+            Assert.AreEqual(3, c.Exponent);
         }
 
         [TestMethod]
-        public void TestMultiplication()
+        public void Multiplication()
         {
             Exponential a, b, c;
             a = 4.0m;
@@ -161,7 +169,7 @@ namespace UnitsSystemTests
         }
 
         [TestMethod]
-        public void TestDivision()
+        public void Division()
         {
             Exponential a, b, c;
             a = 200.00m;

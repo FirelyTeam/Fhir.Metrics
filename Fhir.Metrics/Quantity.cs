@@ -70,6 +70,11 @@ namespace Fhir.Metrics
                 return Metric.Axes.Count == 0;
             }
         }
+        
+        public static bool SameDimension(Quantity a, Quantity b)
+        {
+            return a.Metric.Equals(b.Metric);
+        }
 
         public static Quantity CopyOf(Quantity q)
         {
@@ -86,5 +91,64 @@ namespace Fhir.Metrics
             return this.Metric.IsInBaseUnits();
         }
 
+        public static Quantity Multiply(Quantity a, Quantity b)
+        {
+            Exponential value = Exponential.Multiply(a.Value, b.Value);
+            Metric metric = Metric.Multiply(a.Metric, b.Metric);
+            return new Quantity(value, metric);
+        }
+
+        public static Quantity Divide(Quantity a, Quantity b)
+        {
+            Exponential value = Exponential.Divide(a.Value, b.Value);
+            Metric metric = Metric.Divide(a.Metric, b.Metric);
+            return new Quantity(value, metric);
+        }
+
+        public static Quantity Add(Quantity a, Quantity b)
+        {
+
+            if (!Quantity.SameDimension(a, b))
+                throw new ArgumentException("Quantities of a different dimension cannot be added ");
+
+            a = a.ToBase();
+            b = b.ToBase();
+
+            Exponential value = Exponential.Add(a.Value, b.Value);
+            return new Quantity(value, a.Metric);
+        }
+
+        public static Quantity Substract(Quantity a, Quantity b)
+        {
+
+            if (!Quantity.SameDimension(a, b))
+                throw new ArgumentException("Quantities of a different dimension cannot be added ");
+
+            a = a.ToBase();
+            b = b.ToBase();
+
+            Exponential value = Exponential.Substract(a.Value, b.Value);
+            return new Quantity(value, a.Metric);
+        }
+
+        public static Quantity operator *(Quantity a, Quantity b)
+        {
+            return Quantity.Multiply(a, b);
+        }
+
+        public static Quantity operator /(Quantity a, Quantity b)
+        {
+            return Quantity.Divide(a, b);
+        }
+
+        public static Quantity operator +(Quantity a, Quantity b)
+        {
+            return Quantity.Add(a, b);
+        }
+
+        public static Quantity operator -(Quantity a, Quantity b)
+        {
+            return Quantity.Substract(a, b);
+        }
     }
 }

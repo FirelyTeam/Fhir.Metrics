@@ -16,7 +16,7 @@ namespace Fhir.Metrics.Tests
         }
 
         [TestMethod]
-        public void TestLeftSearchableString()
+        public void LeftSearchableString()
         {
             Quantity q = system.Quantity("41.234567kg.m/s2");
             string s = q.LeftSearchableString();

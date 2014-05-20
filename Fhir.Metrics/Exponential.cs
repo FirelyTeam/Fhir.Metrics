@@ -174,8 +174,8 @@ namespace Fhir.Metrics
             a = rebase(a, b);
 
             result.Significand = a.Significand - b.Significand;
-            result.Exponent = a.Exponent + b.Exponent;
-            result.Error = a.Error - b.Error;
+            result.Exponent = a.Exponent;
+            result.Error = a.Error + b.Error; 
             result.Normalize();
             return result;
         }

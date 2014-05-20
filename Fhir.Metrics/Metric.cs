@@ -150,7 +150,6 @@ namespace Fhir.Metrics
         public void Add(List<Axis> axes)
         {
             this.Axes.AddRange(axes);
-
         }
 
         public string Symbols
@@ -303,12 +302,36 @@ namespace Fhir.Metrics
                 return false;
 
             bool equal = true;
-            for (int i = 0; i <= a.Axes.Count; i++)
+            for (int i = 0; i <= a.Axes.Count-1; i++)
             {
                 equal &= a.Axes[i].Equals(b.Axes[i]);
                 i++;
             }
             return equal;
+        }
+
+        public static Metric Multiply(Metric a, Metric b)
+        {
+            Metric metric = Metric.CopyOf(a);
+            metric.Add(b.Axes);
+            return metric.Reduced();
+        }
+
+        public static Metric Divide(Metric a, Metric b)
+        {
+            a = Metric.CopyOf(a);
+            b = b.MultiplyExponents(-1);
+            return Metric.Multiply(a, b);
+        }
+
+        public static Metric operator *(Metric a, Metric b)
+        {
+            return Metric.Multiply(a, b);
+        }
+
+        public static Metric operator /(Metric a, Metric b)
+        {
+            return Metric.Divide(a, b);
         }
     }
 }

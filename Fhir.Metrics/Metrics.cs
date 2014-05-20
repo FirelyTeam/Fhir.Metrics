@@ -44,6 +44,9 @@ namespace Fhir.Metrics
                 int count = prefix.Symbol.Length;
                 string s = expression.Remove(0, count);
                 unit = FindUnit(s);
+                
+                if (unit == null)
+                    throw new ArgumentException(string.Format("Unknown Unit or prefix in expression '{0}'", expression));
             }
             Metric.Axis component = (unit != null) ? new Metric.Axis(prefix, unit, exponent) : null;
             return component;
