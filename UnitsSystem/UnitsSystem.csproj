@@ -45,6 +45,7 @@
     <Compile Include="Prefix.cs" />
     <Compile Include="Quantity.cs" />
     <Compile Include="Exponential.cs" />
+    <Compile Include="SearchExtensions.cs" />
     <Compile Include="Unit.cs" />
     <Compile Include="Metrics.cs" />
     <Compile Include="Conversions.cs" />

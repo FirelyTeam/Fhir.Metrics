@@ -45,7 +45,6 @@ namespace Fhir.UnitsSystem
             init(document);
         }
 
-        
         private void ReadPrefixes(SystemOfUnits system)
         {
             foreach(XPathNavigator n in navigator.Select("u:root/prefix", ns))

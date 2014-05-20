@@ -54,6 +54,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestExponentials.cs" />
     <Compile Include="TestMetrics.cs" />
+    <Compile Include="TestSearchableQuantity.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\UnitsSystem\UnitsSystem.csproj">
