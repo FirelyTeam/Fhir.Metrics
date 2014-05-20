@@ -1,8 +1,8 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Fhir.UnitsSystem;
+using Fhir.Metrics;
 
-namespace UnitsOfMeasure
+namespace Fhir.Metrics.Tests
 {
     [TestClass]
     public class QuantityExtensionsTest

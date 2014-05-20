@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 using System.Globalization;
 
-namespace Fhir.UnitsSystem
+namespace Fhir.Metrics
 {
     public struct Exponential
     {

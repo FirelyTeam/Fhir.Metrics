@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.XPath;
 
-namespace Fhir.UnitsSystem
+namespace Fhir.Metrics
 {
     public class UcumReader
     {

@@ -1,6 +1,6 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Fhir.UnitsSystem;
+using Fhir.Metrics;
 using System.Globalization;
 using System.IO;
 using System.Text.RegularExpressions;
@@ -8,7 +8,7 @@ using System.Diagnostics;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace UnitsOfMeasure
+namespace Fhir.Metrics.Tests
 {
     [TestClass]
     public class TestConversions
@@ -135,6 +135,7 @@ namespace UnitsOfMeasure
         [TestMethod]
         public void ConversionToTargetUnit()
         {
+            // Feature is not built. Unit test should fail here with NotImplementedException
             Quantity quantity = system.Convert("4[in_i]", "m");
             Assert.AreEqual(quantity.Metric.Symbols, "m");
             Assert.AreEqual((decimal)quantity.Value, 0.1016m);

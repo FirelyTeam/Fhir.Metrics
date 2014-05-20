@@ -11,7 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Fhir.UnitsSystem
+namespace Fhir.Metrics
 {
     public delegate Exponential ConversionMethod(Exponential value);
   

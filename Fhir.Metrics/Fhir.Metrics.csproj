@@ -7,7 +7,7 @@
     <ProjectGuid>{597327AB-127E-4F5E-B464-6D5E456976B9}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Fhir.UnitsSystem</RootNamespace>
+    <RootNamespace>Fhir.Metrics</RootNamespace>
     <AssemblyName>MeasurementSystems</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>

@@ -12,7 +12,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Fhir.UnitsSystem
+namespace Fhir.Metrics
 {
     public static class UCUM
     {
@@ -20,7 +20,7 @@ namespace Fhir.UnitsSystem
         {
             get
             {
-                Stream s = typeof(UCUM).Assembly.GetManifestResourceStream("Fhir.UnitsSystem.Data.ucum-essence.xml");
+                Stream s = typeof(UCUM).Assembly.GetManifestResourceStream("Fhir.Metrics.Data.ucum-essence.xml");
                 return s;
             }
         }
