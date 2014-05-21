@@ -333,5 +333,17 @@ namespace Fhir.Metrics
         {
             return Metric.Divide(a, b);
         }
+
+        public static Quantity operator *(Exponential e, Metric m)
+        {
+            return new Quantity(e, m);
+        }
+
+        public static Quantity operator /(Quantity q, Metric m)
+        {
+            Metric metric = q.Metric / m;
+            return new Quantity(q.Value, metric);
+
+        }
     }
 }

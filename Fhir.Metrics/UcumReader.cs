@@ -53,7 +53,8 @@ namespace Fhir.Metrics
                 string s = n.SelectSingleNode("value/@value").ToString();
                 Exponential factor = Exponential.Exact(s);
 
-                string symbol = n.SelectSingleNode("printSymbol").ToString();
+                //string symbol = n.SelectSingleNode("printSymbol").ToString();
+                string symbol = n.SelectSingleNode("@Code").ToString();
                 system.AddPrefix(name, symbol, factor);
             }
         }

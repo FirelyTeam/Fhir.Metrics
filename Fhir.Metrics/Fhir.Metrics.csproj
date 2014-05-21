@@ -39,12 +39,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Algebra.cs" />
     <Compile Include="Conversion.cs" />
     <Compile Include="Metric.cs" />
     <Compile Include="Parser.cs" />
     <Compile Include="Prefix.cs" />
     <Compile Include="Quantity.cs" />
     <Compile Include="Exponential.cs" />
+    <Compile Include="RegexLinq.cs" />
     <Compile Include="SearchExtensions.cs" />
     <Compile Include="Unit.cs" />
     <Compile Include="Metrics.cs" />

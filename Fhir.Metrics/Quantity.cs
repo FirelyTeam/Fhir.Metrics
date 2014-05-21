@@ -150,5 +150,6 @@ namespace Fhir.Metrics
         {
             return Quantity.Substract(a, b);
         }
+
     }
 }

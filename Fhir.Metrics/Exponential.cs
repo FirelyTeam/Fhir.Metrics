@@ -305,9 +305,9 @@ namespace Fhir.Metrics
         public static Exponential Power(Exponential value, int power)
         {
             double f = Math.Pow(value.ValueToFloat(), power);
-            double e = Math.Pow(value.ErrorToFloat(), power);
+            double e = (value.Error != 0) ? Math.Pow(value.ErrorToFloat(), power) : 0;
 
-            return new Exponential((decimal)f, 0, (decimal)e); ;
+            return new Exponential((decimal)f, 0, (decimal)e); 
             
         }
 

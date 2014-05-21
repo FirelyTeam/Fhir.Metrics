@@ -83,7 +83,8 @@ namespace Fhir.Metrics
 
         public Quantity ToBase(Quantity quantity)
         {
-            return Conversions.ToBaseUnits(quantity);
+            Quantity outcome = Conversions.ToBaseUnits(quantity);
+            return outcome.ToBase();
         }
 
         public Quantity ToBase(string expression)

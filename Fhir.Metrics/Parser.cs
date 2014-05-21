@@ -52,20 +52,18 @@ namespace Fhir.Metrics
 
     public static class Parser
     {
-        public static IEnumerable<string> Tokenize(string s, string pattern)
-        {
-            MatchCollection matches = Regex.Matches(s, pattern);
 
-            foreach (Group g in matches)
-            {
-                yield return g.Value;
-            }
-        }
+        public static string TokenPattern = @"^(((?<m>[\.\/])?(?<m>[^\.\/]+))*)?$";
 
         public static List<string> Tokenize(string expression)
         {
-            string pattern = @"([^\.\/]+|[\.\/])";
-            return Parser.Tokenize(expression, pattern).ToList();
+            bool valid = Regex.IsMatch(expression, TokenPattern);
+            if (!valid)
+                throw new ArgumentException("Invalid metric expression");
+
+            Match match = Regex.Match(expression, TokenPattern);
+            return match.Captures("m").ToList();
+
         }
 
         static bool IsOperator(string token)

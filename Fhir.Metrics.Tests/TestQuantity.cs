@@ -71,7 +71,6 @@ namespace Fhir.Metrics.Tests
             Quantity b = system.Quantity("8kg.m/s-2");
             bool same = Quantity.SameDimension(a, b);
             Assert.IsTrue(same);
-
         }
 
         [TestMethod]
@@ -122,5 +121,19 @@ namespace Fhir.Metrics.Tests
             Assert.IsTrue(result.Approximates(expected));
 
         }
+
+        [TestMethod]
+        public void MixedAlgebra()
+        {
+            Metric meter = system.Metric("m");
+            Metric second = system.Metric("s");
+            
+            Quantity q = 4.0m * meter / second;
+
+            Metric speed = meter / second;
+            Assert.AreEqual(speed, q.Metric);
+            
+        }
     }
+
 }

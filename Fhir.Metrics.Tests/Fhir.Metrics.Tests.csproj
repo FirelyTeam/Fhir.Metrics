@@ -36,6 +36,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.XML" />
   </ItemGroup>
   <Choose>
     <When Condition="('$(VisualStudioVersion)' == '10.0' or '$(VisualStudioVersion)' == '') and '$(TargetFrameworkVersion)' == 'v3.5'">
@@ -56,12 +57,20 @@
     <Compile Include="TestMetrics.cs" />
     <Compile Include="TestQuantity.cs" />
     <Compile Include="TestSearchableQuantity.cs" />
+    <Compile Include="TestUcum.cs" />
+    <Compile Include="UcumTestReader.cs" />
+    <Compile Include="TestParser.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Fhir.Metrics\Fhir.Metrics.csproj">
       <Project>{597327ab-127e-4f5e-b464-6d5e456976b9}</Project>
       <Name>Fhir.Metrics</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Data\ucum-tests.xml">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
