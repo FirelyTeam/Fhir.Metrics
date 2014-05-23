@@ -19,7 +19,7 @@ namespace Fhir.Metrics
 
         public Quantity Convert(Quantity quantity, Conversion conversion)
         {
-            Quantity baseq = quantity.ToBase();
+            Quantity baseq = quantity.UnPrefixed();
             if (!baseq.Metric.Equals(conversion.To))
                 throw new InvalidCastException(string.Format("Quantity {0} cannot be converted to {1}", quantity, conversion.To));
 
@@ -52,7 +52,21 @@ namespace Fhir.Metrics
             }
         }
 
-        private bool singlePassConversion(ref Quantity quantity)
+        private Exponential multiply(Exponential a, Exponential b, int exponent)
+        {
+            if (exponent > 0)
+                return Exponential.Multiply(a, b);
+            else if (exponent < 0)
+                return Exponential.Divide(a, b);
+            else // (exponent == 0)
+                return a;
+        }
+
+        /// <summary>
+        /// Tries to convert each axis of the metric of the quantity once.
+        /// </summary>
+        /// <returns>true if a change has been made</returns>
+        private bool canonicalize(ref Quantity quantity)
         {
             List<Metric.Axis> axes = new List<Metric.Axis>();
             Exponential value = quantity.Value;
@@ -63,11 +77,11 @@ namespace Fhir.Metrics
                 Conversion conversion = Find(axis.Unit);
                 if (conversion != null)
                 {
-                    Quantity part = conversion.Convert(value);
-                    part = part.ToBase();
+                    Quantity part = conversion.Convert(1);
                     part.Metric = part.Metric.MultiplyExponents(axis.Exponent);
+                    part.Value = Exponential.Power(part.Value, axis.Exponent);
                     axes.AddRange(part.Metric.Axes);
-                    value = part.Value;
+                    value *= part.Value;
                     modified = true;
                 }
                 else
@@ -77,20 +91,24 @@ namespace Fhir.Metrics
             }
             Metric metric = new Metric(axes);
             if (modified)
-                quantity = new Quantity(value, metric);
+                quantity = new Quantity(value, new Metric(axes));
 
             return modified;
         }
 
-        public Quantity ToBaseUnits(Quantity quantity)
+        /// <summary>
+        /// Converts a Quantity to it's canonical form in base units without prefixes
+        /// </summary>
+        public Quantity Canonical(Quantity quantity)
         {
-            Quantity output = Quantity.CopyOf(quantity);
-            bool modified;
+            Quantity output = Quantity.CopyOf(quantity).UnPrefixed();
+            bool canonicalized;
             do
             {
-                modified = singlePassConversion(ref output);
+                canonicalized = canonicalize(ref output);
+                output = output.UnPrefixed();
             }
-            while (modified);
+            while (canonicalized);
 
             if (!output.IsInBaseUnits())
                 throw new InvalidCastException("Quantity could not be converted to base units");

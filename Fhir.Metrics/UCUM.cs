@@ -14,9 +14,17 @@ using System.Threading.Tasks;
 
 namespace Fhir.Metrics
 {
+    /// <summary>
+    /// Static class to give access to UCUM properties 
+    /// </summary>
     public static class UCUM
     {
-        public static Stream Stream
+        /// <summary>
+        /// THe identifying URI for the UCUM system
+        /// </summary>
+        public static Uri Uri = new Uri("http://unitsofmeasure.org");
+
+        private static Stream Stream
         {
             get
             {
@@ -25,6 +33,9 @@ namespace Fhir.Metrics
             }
         }
 
+        /// <summary>
+        /// Loads the internal resource with UCUM data into a <b>SystemOfUnits</b> class
+        /// </summary>
         public static SystemOfUnits Load()
         {
              SystemOfUnits system;

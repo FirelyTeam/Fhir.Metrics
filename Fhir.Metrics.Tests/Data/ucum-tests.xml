@@ -351,6 +351,8 @@
     <Fcase id="3-103"  value="6.3"      srcUnit="mm"          dstUnit="cm"            outcome="0.63"/>
     <case id="3-104"  value="6.3"      srcUnit="s.m-1"       dstUnit="s/m"           outcome="6.3"/>
     <case id="3-105" value="6.3"      srcUnit="s.mm-1"      dstUnit="s.m-1"         outcome="6300"/>
+    <!-- mh: this is not a correct test. The outcome has more precision that should -->
+    
     <case id="3-106" value="6.3"      srcUnit="s.mm-2"      dstUnit="s.m-2"         outcome="6300000"/>
     <case id="3-107" value="6.3"      srcUnit="s.mm-2"      dstUnit="s.m-2"         outcome="6300000"/>
     <case id="3-108" value="6.3"      srcUnit="s/m/g"       dstUnit="s.m-1.g"       outcome="6.3"/>

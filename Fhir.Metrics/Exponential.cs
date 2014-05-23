@@ -129,7 +129,7 @@ namespace Fhir.Metrics
                 return;
 
             int E = 0;
-            while (Math.Abs(value) > 10)
+            while (Math.Abs(value) >= 10)
             {
                 value /=  10;
                 E += 1;
@@ -168,6 +168,10 @@ namespace Fhir.Metrics
             return result;
         }
 
+        private static decimal FactorError(Exponential a, Exponential b)
+        {
+            return (a.Error / a.Significand) + (b.Error / b.Significand) + (a.Error * b.Error);
+        }
         public static Exponential Substract(Exponential a, Exponential b)
         {
             Exponential result;
@@ -185,7 +189,7 @@ namespace Fhir.Metrics
             Exponential result;
             result.Significand = a.Significand * b.Significand;
             result.Exponent = a.Exponent + b.Exponent;
-            result.Error = a.Significand * b.Error + b.Significand * a.Error;
+            result.Error = result.Significand * FactorError(a, b);
             result.Normalize();
             return result;
         }
@@ -195,7 +199,8 @@ namespace Fhir.Metrics
             Exponential result;
             result.Significand = a.Significand / b.Significand;
             result.Exponent = a.Exponent - b.Exponent;
-            result.Error = a.Significand * b.Error + b.Significand * a.Error;
+            result.Error = result.Significand * FactorError(a, b);
+
             result.Normalize();
             return result; 
         }
@@ -261,9 +266,69 @@ namespace Fhir.Metrics
             return value.ToDecimal();
         }
 
+        private static int numberIndex(string s)
+        {
+            int i = 0;
+            while (i < s.Length-1 && ( (s[i] == '0') || s[i] == '.') )
+            {
+                i++;
+            }
+            return i;
+        }
+        private static string round(string s, int pos)
+        {
+            int reminder = 0;
+            StringBuilder b = new StringBuilder(s);
+
+            for (int i = s.Length - 1; i >= pos - 1; i--) //pos-1 for the period
+            {
+                if (b[i] == '.') continue;
+                int n = (int)Char.GetNumericValue(b[i]);
+                n += reminder;
+
+                reminder = n / 10;
+                n = n % 10;
+                reminder += (n > 5) ? 1 : 0;
+                char c = Convert.ToString(n)[0];
+                b[i] = c;
+
+            }
+            string output = b.ToString();
+            return (pos > output.Length) ? output : output.Substring(0, pos);
+        }
+        
+        public string SignificandText
+        {
+            get
+            {
+                string significand = DecimalToString(this.Significand);
+                if (this.Error != 0)
+                {
+                    string error = DecimalToString(this.Error);
+                    int p = numberIndex(error);
+                    significand = round(significand, p + 1);
+                }
+                return significand;
+            }
+        }
+
         public override string ToString()
         {
-            return string.Format("[{0} ± {2}]E{1} ", this.Significand, this.Exponent, this.Error);
+            string significand = DecimalToString(this.Significand);
+            string error = DecimalToString(this.Error);
+            if (this.Error != 0)
+            {
+                int p = numberIndex(error);
+                significand = round(significand, p + 1);
+                error = round(error, p + 1);
+            }
+            
+            return string.Format("[{0}±{2}]e{1}", significand, this.Exponent, error);
+        }
+        
+        public static bool Similar(Exponential a ,Exponential b)
+        {
+            return a.ToString() == b.ToString();
         }
 
         public decimal ToDecimal()
@@ -310,7 +375,7 @@ namespace Fhir.Metrics
             return new Exponential((decimal)f, 0, (decimal)e); 
             
         }
-
+       
         /// <summary>
         /// Raise value with 10^digits.
         /// </summary>

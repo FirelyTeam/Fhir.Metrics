@@ -14,17 +14,18 @@ using System.Threading.Tasks;
 
 namespace Fhir.Metrics
 {
+    /// <summary>
+    /// Extensions to convert Quantity components to a searchable string
+    /// </summary>
     public static class SearchExtensions
     {
         ///<summary>
         /// Creates a string from a decimal that allows compare-from-left string searching 
         /// for finding values that fall within a the precision of a given string representing a decimal .
         ///</summary>
-        public static string LeftSearchableString(decimal value)
+        private static string LeftSearchableNumberString(string s)
         {
-            string s = Convert.ToString(value, new CultureInfo("en-US"));
             StringBuilder b = new StringBuilder(s);
-
             int reminder = 0;
 
             for (int i = b.Length - 1; i >= 0; i--)
@@ -43,15 +44,38 @@ namespace Fhir.Metrics
             return b.ToString();
         }
 
+
+        /// <summary>
+        /// Transforms the value of a quantity to a string that can be compared from the left.
+        /// Each Digit caries the significance of the original digits more to the right.
+        /// </summary>
+        public static string ValueAsSearchablestring(this Quantity quantity)
+        {
+            quantity = quantity.UnPrefixed();
+            
+            StringBuilder b = new StringBuilder();
+            b.Append("E");
+            b.Append(quantity.Value.Exponent.ToString());
+            b.Append("+");
+            string value = quantity.Value.SignificandText;
+            b.Append(LeftSearchableNumberString(value));
+            return b.ToString();
+        }
+
+        /// <summary>
+        /// Transforms the units and the value of a quantity to a single string that can be compared from the left.
+        /// Each Digit caries the significance of the original digits more to the right.
+        /// </summary>
         public static string LeftSearchableString(this Quantity quantity)
         {
-            decimal value = quantity.Value.Significand;
+            quantity = quantity.UnPrefixed();
             StringBuilder b = new StringBuilder();
             b.Append(quantity.Metric);
             b.Append("E");
             b.Append(quantity.Value.Exponent.ToString());
             b.Append("+");
-            b.Append(LeftSearchableString(value));
+            string value = quantity.Value.SignificandText;
+            b.Append(LeftSearchableNumberString(value));
             return b.ToString();
         }
     }

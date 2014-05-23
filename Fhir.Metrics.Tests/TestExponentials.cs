@@ -156,7 +156,7 @@ namespace UnitsSystemTests
             b = 2.0m;
             c = a * b;
             Assert.AreEqual(8.0m, c.Significand);
-            Assert.AreEqual(0.3m, c.Error);
+            Assert.AreEqual(0.32m, c.Error);
             Assert.AreEqual(0, c.Exponent);
 
             // Normalization test:
@@ -164,7 +164,7 @@ namespace UnitsSystemTests
             b = 30m;
             c = a * b;
             Assert.AreEqual(1.2m, c.Significand);
-            Assert.AreEqual(0.035m, c.Error);
+            Assert.AreEqual(0.038m, c.Error);
             Assert.AreEqual(3, c.Exponent);
         }
 
@@ -176,8 +176,43 @@ namespace UnitsSystemTests
             b = 50.0m;
             c = a / b;
             Assert.AreEqual(4.0m, c.Significand);
-            Assert.AreEqual(0.1025m, c.Error);
+            Assert.AreEqual(0.004101m, c.Error);
             Assert.AreEqual(0, c.Exponent);
+        }
+
+        [TestMethod]
+        public void DivisionWithDifferentExponents()
+        {
+            Exponential a, b, c, d, expected;
+            
+            a = new Exponential("10.0");
+            b = Exponential.Exact("60");
+            c = a / b;
+            d = c / b; // divide twice by 60
+            expected = new Exponential("2.8e-3");
+            Assert.IsTrue(d.Approximates(expected));
+        }
+
+        [TestMethod]
+        public void ExponentialToString()
+        {
+            Exponential value;
+            string s;
+
+            value = new Exponential(4.55555m, 0, 0.07m);
+            s = value.ToString();
+            Assert.AreEqual("[4.55±0.07]e0", s);
+
+            value = new Exponential(4.666666666m, 0, 0.01234m);
+            s = value.ToString();
+            Assert.AreEqual("[4.67±0.01]e0", s);
+
+            Exponential a, b;
+            a = 200.00m;
+            b = 50.0m;
+            value = a / b;
+            s = value.ToString();
+            Assert.AreEqual("[4.0±0.004]e0", s);
         }
     }
 }

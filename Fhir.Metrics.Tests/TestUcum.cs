@@ -46,14 +46,14 @@ namespace Fhir.Metrics.Tests
             foreach (UcumTestSet.Conversion conversion in reader.Conversions())
             {
                 string expression = conversion.Value + conversion.SourceUnit;
-                Quantity quantity = system.ToBase(expression);
+                Quantity quantity = system.Canonical(expression);
 
                 Exponential value = new Exponential(conversion.Outcome);
                 Metric metric = system.Metric(conversion.DestUnit);
                 try
                 {
                     Assert.AreEqual(metric, quantity.Metric);
-                    Assert.AreEqual(value, quantity.Value);
+                    Assert.IsTrue(Exponential.Similar(value, quantity.Value));
                 }
                 catch (Exception e)
                 {

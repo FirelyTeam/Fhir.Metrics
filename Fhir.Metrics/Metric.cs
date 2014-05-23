@@ -48,7 +48,11 @@ namespace Fhir.Metrics
                 return target;
             }
 
-            public Exponential ToBase(Exponential value)
+            /// <summary>
+            /// Converts an number value to represent the value of the axis unit without a prefix.
+            /// </summary>
+            /// <returns></returns>
+            public Exponential UnPrefix(Exponential value)
             {
                 if (Prefix != null) 
                 {
@@ -58,11 +62,29 @@ namespace Fhir.Metrics
                 else return value;
             }
 
-            public Axis Base()
+            /// <summary>
+            /// Return the axis without it's prefix. To be used in combination of ToBase 
+            /// </summary>
+            /// <returns></returns>
+            public Axis UnPrefixed()
             {
                 return new Axis(null, this.Unit, this.Exponent);
             }
 
+            /// <summary>
+            /// Returns true if the axis has no prefix
+            /// </summary>
+            public bool Prefixed
+            {
+                get
+                {
+                    return this.Prefix != null;
+                }
+            }
+
+            /// <summary>
+            /// Returns true if the axis has no meaning (exponent is zero)
+            /// </summary>
             public bool IsVoid
             {
                 get
@@ -117,7 +139,7 @@ namespace Fhir.Metrics
 
         public List<Axis> Axes = new List<Axis>();
 
-        private Metric()
+        internal Metric()
         {
 
         }
@@ -134,7 +156,7 @@ namespace Fhir.Metrics
 
         public Metric(List<Axis> axes)
         {
-            this.Add(axes);
+            this.Axes.AddRange(axes);
         }
         
         public void Add(Prefix prefix, Unit unit, int exponent = 1)
@@ -147,7 +169,11 @@ namespace Fhir.Metrics
             Axes.Add(new Axis(null, unit, exponent));
         }
         
-        public void Add(List<Axis> axes)
+        public void Add(params Axis[] axes)
+        {
+            this.Axes.AddRange(axes);
+        }
+        public void Add(IEnumerable<Axis> axes)
         {
             this.Axes.AddRange(axes);
         }
@@ -169,16 +195,16 @@ namespace Fhir.Metrics
         }
 
 
-        public Exponential ToBase(Exponential value)
+        public Exponential UnPrefix(Exponential value)
         {
             foreach (Axis axis in this.Axes)
             {
-                value = axis.ToBase(value);
+                value = axis.UnPrefix(value);
             }
             return value;
         }
         
-        public Metric Base()
+        public Metric UnPrefixed()
         {
             Metric metric = new Metric();
             foreach(Axis axis in this.Axes)
@@ -268,11 +294,11 @@ namespace Fhir.Metrics
             {
                 Metric m = (Metric)obj;
                 
-                Metric a = this.Base();
-                Metric b = m.Base();
+                Metric a = this.UnPrefixed();
+                Metric b = m.UnPrefixed();
 
                 bool equala = a.EqualAxes(b);
-                bool equalf = a.ToBase(1) == b.ToBase(1); 
+                bool equalf = a.UnPrefix(1) == b.UnPrefix(1); 
                 return equala && equalf;
             }
             else return false;

@@ -46,17 +46,17 @@ namespace Fhir.Metrics
             }
         }
 
-        public Quantity ToBase()
+        public Quantity UnPrefixed()
         {
-            Exponential value = this.Metric.ToBase(this.Value);
-            Metric metric = this.Metric.Base();
+            Exponential value = this.Metric.UnPrefix(this.Value);
+            Metric metric = this.Metric.UnPrefixed();
             return new Quantity(value, metric);
         }
 
         public bool Approximates(Quantity q)
         {
-            Quantity a = this.ToBase();
-            Quantity b = q.ToBase();
+            Quantity a = this.UnPrefixed();
+            Quantity b = q.UnPrefixed();
             
             bool met = a.Metric.Equals(b.Metric);
             bool val = a.Value.Approximates(b.Value);
@@ -111,8 +111,8 @@ namespace Fhir.Metrics
             if (!Quantity.SameDimension(a, b))
                 throw new ArgumentException("Quantities of a different dimension cannot be added ");
 
-            a = a.ToBase();
-            b = b.ToBase();
+            a = a.UnPrefixed();
+            b = b.UnPrefixed();
 
             Exponential value = Exponential.Add(a.Value, b.Value);
             return new Quantity(value, a.Metric);
@@ -124,8 +124,8 @@ namespace Fhir.Metrics
             if (!Quantity.SameDimension(a, b))
                 throw new ArgumentException("Quantities of a different dimension cannot be added ");
 
-            a = a.ToBase();
-            b = b.ToBase();
+            a = a.UnPrefixed();
+            b = b.UnPrefixed();
 
             Exponential value = Exponential.Substract(a.Value, b.Value);
             return new Quantity(value, a.Metric);
