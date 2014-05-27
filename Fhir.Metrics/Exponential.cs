@@ -168,10 +168,14 @@ namespace Fhir.Metrics
             return result;
         }
 
-        private static decimal FactorError(Exponential a, Exponential b)
+        private static decimal factorError(decimal significant, Exponential a, Exponential b)
         {
-            return (a.Error / a.Significand) + (b.Error / b.Significand) + (a.Error * b.Error);
+            decimal delta_a = (a.Significand != 0) ? (a.Error / a.Significand) : 0;
+            decimal delta_b = (b.Significand != 0) ? (b.Error / b.Significand) : 0;
+            decimal factor = delta_a + (delta_b) + (a.Error * b.Error);
+            return significant * factor;
         }
+
         public static Exponential Substract(Exponential a, Exponential b)
         {
             Exponential result;
@@ -189,17 +193,33 @@ namespace Fhir.Metrics
             Exponential result;
             result.Significand = a.Significand * b.Significand;
             result.Exponent = a.Exponent + b.Exponent;
-            result.Error = result.Significand * FactorError(a, b);
+
+            result.Error = factorError(result.Significand, a, b);
+
             result.Normalize();
             return result;
         }
 
+        /// <summary>
+        /// Divides two exponentials
+        /// </summary>
+        /// <param name="a">numerator</param>
+        /// <param name="b">denominator</param>
+        /// <returns></returns>
         public static Exponential Divide(Exponential a, Exponential b)
         {
             Exponential result;
             result.Significand = a.Significand / b.Significand;
             result.Exponent = a.Exponent - b.Exponent;
-            result.Error = result.Significand * FactorError(a, b);
+            if (a.Significand == 0)
+            {
+                result.Error = a.Error / b.Significand;
+            }
+            else
+            {
+                result.Error = factorError(result.Significand, a, b);
+            }
+            
 
             result.Normalize();
             return result; 

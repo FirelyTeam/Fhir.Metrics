@@ -117,6 +117,13 @@ namespace Fhir.Metrics.Tests
         }
 
         [TestMethod]
+        public void Sentinels()
+        {
+            Quantity a = system.Quantity("0/min");
+            Quantity b = system.Canonical(a);
+        }
+
+        [TestMethod]
         public void Mercury()
         {
             Quantity quantity, result, expected;
