@@ -56,7 +56,7 @@ namespace Fhir.Metrics
             StringBuilder b = new StringBuilder();
             b.Append("E");
             b.Append(quantity.Value.Exponent.ToString());
-            b.Append("+");
+            b.Append("x");
             string value = quantity.Value.SignificandText;
             b.Append(LeftSearchableNumberString(value));
             return b.ToString();
@@ -73,7 +73,7 @@ namespace Fhir.Metrics
             b.Append(quantity.Metric);
             b.Append("E");
             b.Append(quantity.Value.Exponent.ToString());
-            b.Append("+");
+            b.Append("x");
             string value = quantity.Value.SignificandText;
             b.Append(LeftSearchableNumberString(value));
             return b.ToString();

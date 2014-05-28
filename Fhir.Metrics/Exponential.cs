@@ -172,7 +172,7 @@ namespace Fhir.Metrics
         {
             decimal delta_a = (a.Significand != 0) ? (a.Error / a.Significand) : 0;
             decimal delta_b = (b.Significand != 0) ? (b.Error / b.Significand) : 0;
-            decimal factor = delta_a + (delta_b) + (a.Error * b.Error);
+            decimal factor = delta_a + delta_b + (a.Error * b.Error);
             return significant * factor;
         }
 
@@ -295,12 +295,17 @@ namespace Fhir.Metrics
             }
             return i;
         }
+
         private static string round(string s, int pos)
         {
             int reminder = 0;
             StringBuilder b = new StringBuilder(s);
-
-            for (int i = s.Length - 1; i >= pos - 1; i--) //pos-1 for the period
+            while (b.Length <= pos)
+            {
+                if (b.Length == 1) b.Append('.');
+                b.Append('0');
+            }
+            for (int i = b.Length - 1; i >= pos - 1; i--) //pos-1 for the period
             {
                 if (b[i] == '.') continue;
                 int n = (int)Char.GetNumericValue(b[i]);
@@ -311,10 +316,13 @@ namespace Fhir.Metrics
                 reminder += (n > 5) ? 1 : 0;
                 char c = Convert.ToString(n)[0];
                 b[i] = c;
-
             }
+            
             string output = b.ToString();
-            return (pos > output.Length) ? output : output.Substring(0, pos);
+            
+            output = (pos > output.Length) ? output : output.Substring(0, pos);
+            if (output.EndsWith(".")) output = output.Remove(output.Length - 1);
+            return output;
         }
         
         public string SignificandText
@@ -326,7 +334,22 @@ namespace Fhir.Metrics
                 {
                     string error = DecimalToString(this.Error);
                     int p = numberIndex(error);
-                    significand = round(significand, p + 1);
+                    if (Char.GetNumericValue(error[p]) > 5) p++;
+                    significand = round(significand, p);
+                }
+                return significand;
+            }
+        }
+        public string ValueText
+        {
+            get
+            {
+                string significand = DecimalToString(this.Significand);
+                if (this.Error != 0)
+                {
+                    string error = DecimalToString(this.Error);
+                    int p = numberIndex(error);
+                    significand = round(significand, p);
                 }
                 return significand;
             }
