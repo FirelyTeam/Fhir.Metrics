@@ -348,7 +348,7 @@
    
 	<case id="3-101"  value="6.3"      srcUnit="m"           dstUnit="m"             outcome="6.3"/>
     <case id="3-102"  value="6.3"      srcUnit="mm"          dstUnit="m"             outcome="0.0063"/>
-    <Fcase id="3-103"  value="6.3"      srcUnit="mm"          dstUnit="cm"            outcome="0.63"/>
+    <case id="3-103"  value="6.3"      srcUnit="mm"          dstUnit="cm"            outcome="0.63"/>
     <case id="3-104"  value="6.3"      srcUnit="s.m-1"       dstUnit="s/m"           outcome="6.3"/>
     <case id="3-105" value="6.3"      srcUnit="s.mm-1"      dstUnit="s.m-1"         outcome="6300"/>
     <!-- mh: this is not a correct test. The outcome has more precision that should -->
@@ -356,9 +356,9 @@
     <case id="3-106" value="6.3"      srcUnit="s.mm-2"      dstUnit="s.m-2"         outcome="6300000"/>
     <case id="3-107" value="6.3"      srcUnit="s.mm-2"      dstUnit="s.m-2"         outcome="6300000"/>
     <case id="3-108" value="6.3"      srcUnit="s/m/g"       dstUnit="s.m-1.g"       outcome="6.3"/>
-    <case id="3-109" value="6.3"      srcUnit="ms/m/g"      dstUnit="s.m-1.g"       outcome="0.0063"/>
-    <case id="3-110" value="6.3"      srcUnit="s/mm/g"      dstUnit="s.m-1.g"       outcome="6300"/>
-    <case id="3-111" value="6.3"      srcUnit="s/m/mg"      dstUnit="s.m-1.g"       outcome="0.0063"/>
+    <case id="3-109" value="6.3"      srcUnit="ms/m/g"      dstUnit="s.m-1.g-1"       outcome="0.0063"/>
+    <case id="3-110" value="6.3"      srcUnit="s/mm/g"      dstUnit="s.m-1.g-1"       outcome="6300"/>
+    <case id="3-111" value="6.3"      srcUnit="s/m/mg"      dstUnit="s.m-1.g-1"       outcome="6300"/>
     <case id="3-112" value="6.3"      srcUnit="ms/m"        dstUnit="s/m"           outcome="0.0063"/> 
     <case id="3-113" value="6.3"      srcUnit="4.s/m"       dstUnit="s/m"           outcome="25"/>
     <case id="3-114" value="6.30"     srcUnit="4.s/m"       dstUnit="s/m"           outcome="25.2"/>
@@ -394,9 +394,9 @@
       C2.g-1.m-2.s	(alphabetical)    0.001
 	-->
 	<case id="3-127" value="1"   srcUnit="[ly]"     dstUnit="cm"            outcome="946073047258080000"/>
-	<case id="3-128" value="1"   srcUnit="1/[ly]"   dstUnit="cm-1"          outcome="1.0570008340246e-18"/>
+  <case id="3-128" value="1"   srcUnit="1/[ly]"   dstUnit="cm-1"          outcome="1.0570008340246e-18"/>
 	<case id="3-129"  value="1.2" srcUnit="g.m"      dstUnit="m.g"           outcome="1.2"/>
-    <case id="3-130"  value="0.02502"      srcUnit="[oz_av]/[gal_us]"       dstUnit="g/L"           outcome="0.1877"/>
+    <!--case id="3-130"  value="0.02502"      srcUnit="[oz_av]/[gal_us]"       dstUnit="g/L"           outcome="0.1877"/-->
   </conversion>
 
   <multiplication>

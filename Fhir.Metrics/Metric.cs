@@ -194,7 +194,6 @@ namespace Fhir.Metrics
             }
         }
 
-
         public Exponential UnPrefix(Exponential value)
         {
             foreach (Axis axis in this.Axes)
@@ -282,7 +281,7 @@ namespace Fhir.Metrics
             }
             return new Metric(axes);
         }
-     
+
         public override string ToString()
         {
             return Symbols ?? "(dimensionless)";
@@ -307,33 +306,6 @@ namespace Fhir.Metrics
         public override int GetHashCode()
         {
             return base.GetHashCode();
-        }
-
-        private void clearVoids()
-        {
-            this.Axes.RemoveAll(a => a.IsVoid);
-        }
-
-        private void sort()
-        {
-            this.Axes.Sort();
-        }
-
-        private bool EqualAxes(Metric other)
-        {
-            Metric a = this.Reduced();
-            Metric b = other.Reduced();
-
-            if (a.Axes.Count != b.Axes.Count)
-                return false;
-
-            bool equal = true;
-            for (int i = 0; i <= a.Axes.Count-1; i++)
-            {
-                equal &= a.Axes[i].Equals(b.Axes[i]);
-                i++;
-            }
-            return equal;
         }
 
         public static Metric Multiply(Metric a, Metric b)
@@ -370,6 +342,33 @@ namespace Fhir.Metrics
             Metric metric = q.Metric / m;
             return new Quantity(q.Value, metric);
 
+        }
+
+        private void clearVoids()
+        {
+            this.Axes.RemoveAll(a => a.IsVoid);
+        }
+
+        private void sort()
+        {
+            this.Axes.Sort();
+        }
+
+        private bool EqualAxes(Metric other)
+        {
+            Metric a = this.Reduced();
+            Metric b = other.Reduced();
+
+            if (a.Axes.Count != b.Axes.Count)
+                return false;
+
+            bool equal = true;
+            for (int i = 0; i <= a.Axes.Count - 1; i++)
+            {
+                equal &= a.Axes[i].Equals(b.Axes[i]);
+                i++;
+            }
+            return equal;
         }
     }
 }

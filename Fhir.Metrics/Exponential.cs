@@ -20,9 +20,9 @@ namespace Fhir.Metrics
         public decimal Significand; // decimal is working for now, or should we use a float?
         public int Exponent;
         public decimal Error;
-        
-        private static readonly string regex = @"^(\d+(\.\d+)?)(e([+-]?\d+))?$";
-        private static readonly IFormatProvider format = new CultureInfo("en-US");
+
+        private static readonly string regex = @"^(\-?\d*(\.\d*)?)(e([+-]?\d+))?$";
+
 
         public Exponential(decimal value, int exponent, decimal error)
         {
@@ -36,7 +36,7 @@ namespace Fhir.Metrics
         {
             this.Significand = value;
             this.Exponent = exponent;
-            this.Error = notationError(value);
+            this.Error = MetricUtils.NotationError(value);
             this.Normalize();
         }
 
@@ -44,7 +44,7 @@ namespace Fhir.Metrics
         {
             this.Significand = value;
             this.Exponent = 0;
-            this.Error = notationError(value);
+            this.Error = MetricUtils.NotationError(value);
             this.Normalize();
         }
 
@@ -57,10 +57,10 @@ namespace Fhir.Metrics
                 throw new ArgumentException(string.Format("Expression '{0}' is not a valid exponential number ", s));
 
             if (string.IsNullOrEmpty(exp)) exp = "0";
-            
-            this.Significand = StringToDecimal(value);
+
+            this.Significand = MetricUtils.StringToDecimal(value);
             this.Exponent = Convert.ToInt32(exp);
-            this.Error = notationError(this.Significand);
+            this.Error = MetricUtils.NotationError(this.Significand);
             this.Normalize();
         }
 
@@ -76,21 +76,6 @@ namespace Fhir.Metrics
             return e;
         }
 
-        public static string DecimalToString(decimal d)
-        {
-            return d.ToString(format);
-        }
-
-        public static decimal StringToDecimal(string s)
-        {
-            return (string.IsNullOrEmpty(s)) ? 0 : Convert.ToDecimal(s, format);
-        }
-
-        public static decimal Shift(decimal d, int digits)
-        {
-            return d * (decimal)Math.Pow(10, digits);
-        }
-
         public Exponential Raised(int n)
         {
             Exponential e = Exponential.CopyOf(this);
@@ -98,17 +83,6 @@ namespace Fhir.Metrics
             return e;
         }
 
-        private static decimal notationError(decimal value)
-        {
-            // this function ASSUMES there are no exponents 
-            string s = DecimalToString(value);
-            int c = s.Length;
-            int pt = s.IndexOf('.');
-            int precision = (pt >= 0) ? c - pt : 1;
-
-            decimal error = Shift(5m, -precision); 
-            return error;
-        }
 
         public static Exponential CopyOf(Exponential e)
         {
@@ -121,7 +95,7 @@ namespace Fhir.Metrics
             result.Normalize();
             return result;
         }
-        
+
         public void Normalize()
         {
             decimal value = this.Significand;
@@ -131,7 +105,7 @@ namespace Fhir.Metrics
             int E = 0;
             while (Math.Abs(value) >= 10)
             {
-                value /=  10;
+                value /= 10;
                 E += 1;
             }
             while (Math.Abs(value) < 1)
@@ -139,23 +113,15 @@ namespace Fhir.Metrics
                 value *= 10;
                 E -= 1;
             }
-            this.Significand = value;
             this.Exponent += E;
-            this.Error = Shift(this.Error, -E);
+            this.Error = MetricUtils.Shift(this.Error, -E);
+            // NOTE (ER): we only round up when we want a representation of the number.
+            // This leads us to use the significand at a possibly wrong level of precision while operating on it.
+            // We could alternatively round here the error and consequently the significand as follows:
+            //this.Error = MetricUtils.RoundUncertainty(MetricUtils.Shift(this.Error, -E));
+            this.Significand = MetricUtils.StringToDecimal(MetricUtils.DecimalToString(value, this.Error));
         }
 
-        private static Exponential rebase(Exponential a, Exponential b)
-        {
-            // base the value of a to the exponent of b
-            Exponential result;
-            
-            int dex = b.Exponent - a.Exponent; // dex = decimal exponent
-            result.Significand = Shift(a.Significand, -dex);
-            result.Error = Shift(a.Error, -dex);
-            result.Exponent = a.Exponent + dex;
-            return result;
-        }
-        
         public static Exponential Add(Exponential a, Exponential b)
         {
             Exponential result;
@@ -163,17 +129,9 @@ namespace Fhir.Metrics
 
             result.Significand = a.Significand + b.Significand;
             result.Exponent = a.Exponent;
-            result.Error = a.Error + b.Error;
+            result.Error = sumErrorProp(a, b);
             result.Normalize();
             return result;
-        }
-
-        private static decimal factorError(decimal significant, Exponential a, Exponential b)
-        {
-            decimal delta_a = (a.Significand != 0) ? (a.Error / a.Significand) : 0;
-            decimal delta_b = (b.Significand != 0) ? (b.Error / b.Significand) : 0;
-            decimal factor = delta_a + delta_b + (a.Error * b.Error);
-            return significant * factor;
         }
 
         public static Exponential Substract(Exponential a, Exponential b)
@@ -183,7 +141,7 @@ namespace Fhir.Metrics
 
             result.Significand = a.Significand - b.Significand;
             result.Exponent = a.Exponent;
-            result.Error = a.Error + b.Error; 
+            result.Error = sumErrorProp(a,b);
             result.Normalize();
             return result;
         }
@@ -194,7 +152,7 @@ namespace Fhir.Metrics
             result.Significand = a.Significand * b.Significand;
             result.Exponent = a.Exponent + b.Exponent;
 
-            result.Error = factorError(result.Significand, a, b);
+            result.Error = factorErrorProp(result.Significand, a, b);
 
             result.Normalize();
             return result;
@@ -211,18 +169,10 @@ namespace Fhir.Metrics
             Exponential result;
             result.Significand = a.Significand / b.Significand;
             result.Exponent = a.Exponent - b.Exponent;
-            if (a.Significand == 0)
-            {
-                result.Error = a.Error / b.Significand;
-            }
-            else
-            {
-                result.Error = factorError(result.Significand, a, b);
-            }
+            result.Error = factorErrorProp(result.Significand, a, b);
             
-
             result.Normalize();
-            return result; 
+            return result;
         }
 
         public static Exponential operator +(Exponential a, Exponential b)
@@ -249,7 +199,7 @@ namespace Fhir.Metrics
         {
             return (a.Significand == b.Significand) && (a.Exponent == b.Exponent) && (a.Error == b.Error);
         }
-        
+
         public static bool operator !=(Exponential a, Exponential b)
         {
             return !(a == b);
@@ -286,92 +236,18 @@ namespace Fhir.Metrics
             return value.ToDecimal();
         }
 
-        private static int numberIndex(string s)
-        {
-            int i = 0;
-            while (i < s.Length-1 && ( (s[i] == '0') || s[i] == '.') )
-            {
-                i++;
-            }
-            return i;
-        }
-
-        private static string round(string s, int pos)
-        {
-            int reminder = 0;
-            StringBuilder b = new StringBuilder(s);
-            while (b.Length <= pos)
-            {
-                if (b.Length == 1) b.Append('.');
-                b.Append('0');
-            }
-            for (int i = b.Length - 1; i >= pos - 1; i--) //pos-1 for the period
-            {
-                if (b[i] == '.') continue;
-                int n = (int)Char.GetNumericValue(b[i]);
-                n += reminder;
-
-                reminder = n / 10;
-                n = n % 10;
-                reminder += (n > 5) ? 1 : 0;
-                char c = Convert.ToString(n)[0];
-                b[i] = c;
-            }
-            
-            string output = b.ToString();
-            
-            output = (pos > output.Length) ? output : output.Substring(0, pos);
-            if (output.EndsWith(".")) output = output.Remove(output.Length - 1);
-            return output;
-        }
-        
         public string SignificandText
         {
             get
             {
-                string significand = DecimalToString(this.Significand);
-                if (this.Error != 0)
-                {
-                    string error = DecimalToString(this.Error);
-                    int p = numberIndex(error);
-                    if (Char.GetNumericValue(error[p]) > 5) p++;
-                    significand = round(significand, p);
-                }
-                return significand;
-            }
-        }
-        public string ValueText
-        {
-            get
-            {
-                string significand = DecimalToString(this.Significand);
-                if (this.Error != 0)
-                {
-                    string error = DecimalToString(this.Error);
-                    int p = numberIndex(error);
-                    significand = round(significand, p);
-                }
-                return significand;
+                return MetricUtils.DecimalToString(this.Significand, MetricUtils.RoundUncertainty(this.Error));
             }
         }
 
         public override string ToString()
         {
-            string significand = DecimalToString(this.Significand);
-            string error = DecimalToString(this.Error);
-            if (this.Error != 0)
-            {
-                int p = numberIndex(error);
-                significand = round(significand, p + 1);
-                error = round(error, p + 1);
-            }
-            
-            return string.Format("[{0}±{2}]e{1}", significand, this.Exponent, error);
-        }
-        
-        public static bool Similar(Exponential a ,Exponential b)
-        {
-            return a.ToString() == b.ToString();
+            string error = MetricUtils.DecimalToString(MetricUtils.RoundUncertainty(this.Error));
+            return string.Format("[{0}±{2}]e{1}", SignificandText, this.Exponent, error);
         }
 
         public decimal ToDecimal()
@@ -391,7 +267,7 @@ namespace Fhir.Metrics
         }
 
         /// <summary>
-        /// Tests if the an number including error margin lies within the error margin of the given value.
+        /// Tests if this number including error margin lies within the error margin of the given value.
         /// </summary>
         /// <param name="e">the value that determines the range</param>
         public bool Approximates(Exponential e)
@@ -407,18 +283,16 @@ namespace Fhir.Metrics
         {
             Exponential e = new Exponential(s);
             return Approximates(e);
-           
         }
 
-        public static Exponential Power(Exponential value, int power)
+        public static Exponential Power(Exponential value, decimal power)
         {
-            double f = Math.Pow(value.ValueToFloat(), power);
-            double e = (value.Error != 0) ? Math.Pow(value.ErrorToFloat(), power) : 0;
+            decimal f = (decimal)Math.Pow(value.ValueToFloat(), (double)power);
+            decimal e = powerErrorProp(f, value, power);
 
-            return new Exponential((decimal)f, 0, (decimal)e); 
-            
+            return new Exponential(f, 0, e);
         }
-       
+
         /// <summary>
         /// Raise value with 10^digits.
         /// </summary>
@@ -432,21 +306,47 @@ namespace Fhir.Metrics
         /// </summary>
         public static Exponential One
         {
-            get {
-                return Exponential.Exact(1);
-            }
+            get { return Exponential.Exact(1); }
         }
-        
+
         /// <summary>
         /// Returns Exponential of exactly 0 with no measurement error.
         /// </summary>
         public static Exponential Zero
         {
-            get {
-                return Exponential.Exact(0);
-            }
+            get { return Exponential.Exact(0); }
         }
-    }
 
- 
+        private static Exponential rebase(Exponential a, Exponential b)
+        {
+            // base the value of a to the exponent of b
+            Exponential result;
+
+            int dex = b.Exponent - a.Exponent; // dex = decimal exponent
+            result.Significand = MetricUtils.Shift(a.Significand, -dex);
+            result.Error = MetricUtils.Shift(a.Error, -dex);
+            result.Exponent = a.Exponent + dex;
+            return result;
+        }
+
+        private static decimal sumErrorProp(Exponential a, Exponential b)
+        {
+            return a.Error + b.Error;
+        }
+
+        private static decimal factorErrorProp(decimal significant, Exponential a, Exponential b)
+        {
+            decimal delta_a = (a.Significand != 0) ? (a.Error / a.Significand) : 0;
+            decimal delta_b = (b.Significand != 0) ? (b.Error / b.Significand) : 0;
+            decimal factor = delta_a + delta_b;
+            return significant * factor;
+        }
+
+        private static decimal powerErrorProp(decimal significant, Exponential a, decimal power)
+        {
+            if (significant == 0) return 0;
+            return significant * power * a.Error / a.Significand;
+        }
+
+    }
 }

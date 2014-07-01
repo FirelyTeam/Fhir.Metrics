@@ -28,7 +28,7 @@ namespace Fhir.Metrics.Tests
         }
 
         [TestMethod]
-        public void TestMetricDimensions()
+        public void MetricDimensions()
         {
             Quantity q = system.Quantity("2.3[psi]");
             q = system.Canonical(q);

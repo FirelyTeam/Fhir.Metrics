@@ -21,12 +21,12 @@ namespace Fhir.Metrics.Tests
         public void Validation()
         {
             UcumTestSet reader = new UcumTestSet();
-            foreach (UcumTestSet.Validation v in reader.Validations())
+            foreach (UcumTestSet.ValidationTest v in reader.Validations())
             {
                 try
                 {
                     Metric m = system.Metric(v.Unit);
-                    
+
                     if (!v.Valid) throw new AssertFailedException(string.Format("Test {0} succeeded, but should not have", v.Id));
                 }
                 catch (Exception e)
@@ -39,25 +39,49 @@ namespace Fhir.Metrics.Tests
             }
         }
 
+
+        /** This testcase comes from UCUM and: 
+         * (1) UCUM does not manage errors and error propagation yet; 
+         * (2) UCUM can convert from one to another unit of measure, while Fhir.Metrics can currently convert to canonical
+         * (3) in error propagation Fhir.Metrics uses the standard rule that if first error digit is 1, two significant digits 
+         * of the significand will be used instead of 1.
+         **/
+        //[Ignore]
         [TestMethod]
         public void Conversion()
         {
             UcumTestSet reader = new UcumTestSet();
-            foreach (UcumTestSet.Conversion conversion in reader.Conversions())
+            foreach (UcumTestSet.ConversionTest conversion in reader.Conversions())
             {
-                string expression = conversion.Value + conversion.SourceUnit;
-                Quantity quantity = system.Canonical(expression);
+                // Source:
+                Metric sourceMetric = UcumReader.FormulaToMetric(system, conversion.SourceUnit);
+                Exponential sourcefactor = UcumReader.FactorFromFormula(conversion.SourceUnit);
+                //Exponential value = new Exponential(conversion.Value);
+                Exponential value = Exponential.Exact(conversion.Value);
+                value *= sourcefactor;
+                Quantity source = new Quantity(value, sourceMetric);
+                Exponential outcomeExp = new Exponential(conversion.Outcome);
+                // if last error digit==1, two significant digits would be used in the assert, 
+                // while the expected value comes from a system where this rule is not used. 
+                outcomeExp.Error *= 2.0m; 
+                Metric outcomeMetric = system.Metric(conversion.DestUnit).Reduced();
 
-                Exponential value = new Exponential(conversion.Outcome);
-                Metric metric = system.Metric(conversion.DestUnit);
+                // Conversion to base
+                Quantity canonicalConverted = system.Canonical(source);
+                Quantity canonicalExpectedQuantity = system.Canonical(new Quantity(outcomeExp, outcomeMetric));
+                canonicalConverted.Value.Error = canonicalExpectedQuantity.Value.Error; // use same precision as what used to compute expected value
+
                 try
                 {
-                    Assert.AreEqual(metric, quantity.Metric);
-                    Assert.IsTrue(Exponential.Similar(value, quantity.Value));
+                    Assert.AreEqual(outcomeMetric, canonicalConverted.Metric);
+                    //Assert.AreEqual(canonicalExpectedQuantity.Value.Error, canonicalConverted.Value.Error);
+                    Assert.AreEqual(canonicalExpectedQuantity.Value.Exponent, canonicalConverted.Value.Exponent);
+                    Assert.AreEqual(canonicalExpectedQuantity.Value.SignificandText, canonicalConverted.Value.SignificandText);
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
-                    throw new AssertFailedException(string.Format("Test {0} failed", conversion.Id), e);
+                    Console.Error.WriteLine(string.Format("Test {0} failed, expected:{1} got {2}", conversion.Id, canonicalExpectedQuantity.Value.SignificandText, canonicalConverted.Value.SignificandText));
+                    throw new AssertFailedException(string.Format("Test {0} failed, expected:{1} got {2}", conversion.Id, canonicalExpectedQuantity.Value.SignificandText, canonicalConverted.Value.SignificandText));
                 }
             }
         }

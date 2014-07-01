@@ -57,6 +57,7 @@
     <Compile Include="UCUM.cs" />
     <Compile Include="UcumReader.cs" />
     <Compile Include="SystemOfUnits.cs" />
+    <Compile Include="MetricUtils.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Data\ucum-essence.xml">

@@ -17,7 +17,8 @@ namespace Fhir.Metrics
     {
         private List<Conversion> conversions = new List<Conversion>();
 
-        public Quantity Convert(Quantity quantity, Conversion conversion)
+        // Convert a quantity using an instance of Conversion
+        public static Quantity Convert(Quantity quantity, Conversion conversion)
         {
             Quantity baseq = quantity.UnPrefixed();
             if (!baseq.Metric.Equals(conversion.To))
@@ -27,6 +28,7 @@ namespace Fhir.Metrics
             return output;
         }
 
+        // TODO (er): remove if not used
         public List<Conversion> Path(Metric from, Func<Conversion, bool> predicate)
         {
             Metric m = from;
@@ -50,16 +52,6 @@ namespace Fhir.Metrics
             {
                 return null;
             }
-        }
-
-        private Exponential multiply(Exponential a, Exponential b, int exponent)
-        {
-            if (exponent > 0)
-                return Exponential.Multiply(a, b);
-            else if (exponent < 0)
-                return Exponential.Divide(a, b);
-            else // (exponent == 0)
-                return a;
         }
 
         /// <summary>
@@ -117,9 +109,31 @@ namespace Fhir.Metrics
             return output;
         }
               
-        public Quantity Convert(Quantity quantity, Metric metric)
+        public Quantity Convert(Quantity quantity, Metric toMetric)
         {
-            throw new NotImplementedException();
+            // TODO (er): implement it.
+            // toquantity => quantity -> cannonical
+            // test same dimensions: toquantity.metric , toMetric 
+            // je weet dat het al in base staat (door cannonical)
+            // foreach toquantity.axis 
+                // exponential *= toAxis ConvertFromBase
+            // toquantity . metric = tometric
+
+            var buQuantity=Canonical(quantity); // in base units
+            Exponential value = buQuantity.Value;
+            Exponential exp=1;
+
+            foreach(Metric.Axis fromAxis in quantity.Metric.Axes) {
+                foreach(Metric.Axis toAxis in toMetric.Axes) {
+                    if (fromAxis.Unit.Equals(toAxis.Unit) && toAxis.Prefixed)
+                    {
+                        toAxis.Prefix.ConvertFromBase(value);
+                         
+                        // toAxis.prefix = ...
+                    }
+                }
+            }
+            return new Quantity(value, toMetric);
         }
 
         public Conversion Find(Metric from)
@@ -132,7 +146,12 @@ namespace Fhir.Metrics
             Metric m = new Metric(u);
             return Find(m);
         }
-       
+
+        public void Add(Conversion conversion)
+        {
+            conversions.Add(conversion);
+        }
+
         public Conversion Add(Metric from, Metric to, ConversionMethod method)
         {
             Conversion conversion = new Conversion(from, to, method);

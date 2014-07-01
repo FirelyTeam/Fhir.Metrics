@@ -21,7 +21,7 @@ namespace Fhir.Metrics
     {
         ///<summary>
         /// Creates a string from a decimal that allows compare-from-left string searching 
-        /// for finding values that fall within a the precision of a given string representing a decimal .
+        /// for finding values that fall within the precision of a given string representing a decimal .
         ///</summary>
         private static string LeftSearchableNumberString(string s)
         {
@@ -71,12 +71,15 @@ namespace Fhir.Metrics
             quantity = quantity.UnPrefixed();
             StringBuilder b = new StringBuilder();
             b.Append(quantity.Metric);
-            b.Append("E");
-            b.Append(quantity.Value.Exponent.ToString());
-            b.Append("x");
-            string value = quantity.Value.SignificandText;
-            b.Append(LeftSearchableNumberString(value));
+            b.Append(quantity.ValueAsSearchablestring());
             return b.ToString();
+        }
+
+        public static bool SearchLeft(this Quantity needle, Quantity haystack)
+        {
+            string n = needle.LeftSearchableString();
+            string h = haystack.LeftSearchableString();
+            return h.StartsWith(n);
         }
     }
 }

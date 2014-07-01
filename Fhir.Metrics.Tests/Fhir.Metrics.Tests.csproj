@@ -60,6 +60,7 @@
     <Compile Include="TestUcum.cs" />
     <Compile Include="UcumTestReader.cs" />
     <Compile Include="TestParser.cs" />
+    <Compile Include="TestMetricUtils.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Fhir.Metrics\Fhir.Metrics.csproj">

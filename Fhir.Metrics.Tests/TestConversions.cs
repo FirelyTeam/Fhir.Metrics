@@ -69,22 +69,26 @@ namespace Fhir.Metrics.Tests
         }
 
         [TestMethod]
-        public void ToBaseConversions()
+        public void ToCanonical()
         {
             // inch to m
             Quantity quantity, result, expected;
-            quantity = system.Quantity("4[in_i]");
-            result = system.Conversions.Canonical(quantity);
+            quantity = system.Quantity("4.0[in_i]");
+            result = system.Canonical(quantity);
+            var x=result.Value.SignificandText;
+            expected = system.Quantity("1.0e-1m").UnPrefixed();
+            
+            Assert.IsTrue(result.Approximates(expected));
 
             // pound force to kg.m.s-2
             quantity = system.Quantity("4.0[lbf_av]");
-            result = system.Conversions.Canonical(quantity);
+            result = system.Canonical(quantity);
             expected = system.Quantity("18kg.m.s-2").UnPrefixed();
             Assert.IsTrue(result.Approximates(expected));
             
             // newton
             quantity = system.Quantity("8.0N");
-            result = system.Conversions.Canonical(quantity);
+            result = system.Canonical(quantity);
             expected = system.Quantity("8kg.m.s-2").UnPrefixed();
             Assert.IsTrue(result.Approximates(expected));
         }
@@ -229,5 +233,6 @@ namespace Fhir.Metrics.Tests
             Assert.IsNotNull(system.Metrics.FindUnit("[psi]"));
             Assert.IsNotNull(system.Metrics.FindUnit("[psi]"));
         }
+
     }
 }

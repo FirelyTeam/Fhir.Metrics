@@ -14,7 +14,7 @@ namespace Fhir.Metrics.Tests
     {
         private XmlDocument document;
 
-        public struct Validation 
+        public struct ValidationTest
         {
             public string Id;
             public string Unit;
@@ -22,7 +22,7 @@ namespace Fhir.Metrics.Tests
             public string Reason;
         }
 
-        public struct Conversion
+        public struct ConversionTest
         {
             public string Id;
             public string Value;
@@ -45,12 +45,12 @@ namespace Fhir.Metrics.Tests
             document = Load();
         }
 
-        public IEnumerable<Validation> Validations()
+        public IEnumerable<ValidationTest> Validations()
         {
             XPathNavigator nav = document.CreateNavigator();
             foreach(XPathNavigator n in nav.Select("ucumTests/validation/case"))
             {
-                Validation validation = new Validation();
+                ValidationTest validation = new ValidationTest();
                 validation.Id = n.SelectSingleNode("@id").Value;
                 validation.Unit = n.SelectSingleNode("@unit").Value;
                 validation.Valid = n.SelectSingleNode("@valid").Value == "true";
@@ -60,12 +60,12 @@ namespace Fhir.Metrics.Tests
             }
         }
 
-        public IEnumerable<Conversion> Conversions()
+        public IEnumerable<ConversionTest> Conversions()
         {
             XPathNavigator nav = document.CreateNavigator();
             foreach (XPathNavigator n in nav.Select("ucumTests/conversion/case"))
             {
-                Conversion conversion = new Conversion();
+                ConversionTest conversion = new ConversionTest();
                 conversion.Id = n.SelectSingleNode("@id").Value;
                 conversion.Value = n.SelectSingleNode("@value").Value;
                 conversion.SourceUnit = n.SelectSingleNode("@srcUnit").Value;

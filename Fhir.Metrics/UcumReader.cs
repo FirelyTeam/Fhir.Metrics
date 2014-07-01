@@ -86,7 +86,7 @@ namespace Fhir.Metrics
             }
         }
 
-        public static ConversionMethod BuildConversion(string formula, Exponential number)
+        public static ConversionMethod FormulaToConversionMethod(string formula, Exponential number)
         {
             ParameterExpression param = Expression.Parameter(typeof(Exponential), "value");
 
@@ -105,28 +105,39 @@ namespace Fhir.Metrics
 
             return method;
         }
+
+        public static Metric FormulaToMetric(SystemOfUnits system, string formula)
+        {
+            return system.Metrics.ParseMetric(Parser.ToUnaryTokens(formula).NonNumerics());
+        }
         
-        public Exponential FactorFromFormula(string formula)
+        public static Exponential FactorFromFormula(string formula)
         {
             Exponential f = Exponential.One;
-            foreach (Unary u in Parser.ToUnaryTokens(formula))
+            foreach (Unary u in Parser.ToUnaryTokens(formula).Numerics())
             {
                 f *= u.Factor();
             }
             return f;
         }
 
-        public void AddConversion(SystemOfUnits system, string from, string formula, Exponential number)
+        public static Conversion ParseConversion(SystemOfUnits system, string from, string formula)
+        {
+            return ParseConversion(system, from, formula, Exponential.One);
+        }
+
+        public static Conversion ParseConversion(SystemOfUnits system, string from, string formula, Exponential number)
         {
             Metric metricfrom = system.Metrics.ParseMetric(from);
-            Metric metricto = system.Metrics.ParseMetric(Parser.ToUnaryTokens(formula).NonNumerics());
+            Metric metricto = FormulaToMetric(system, formula);
 
             if ( (metricfrom != null) && (metricto != null) )
             {
-                ConversionMethod method = BuildConversion(formula, number);
-                system.Conversions.Add(metricfrom, metricto, method);
+                ConversionMethod method = FormulaToConversionMethod(formula, number);
+                Conversion conversion = new Conversion(metricfrom, metricto, method);
+                return conversion;
             }
-
+            return null;
         }
 
         public void ReadConversions(SystemOfUnits system)
@@ -141,7 +152,9 @@ namespace Fhir.Metrics
                     if (value.Length > 16)
                         value = value.Substring(0, 16);
                     Exponential number = Exponential.Exact(value);
-                    AddConversion(system, from, formula, number);
+
+                    Conversion conversion = ParseConversion(system, from, formula, number);
+                    system.Conversions.Add(conversion);
                 }
                 catch
                 {
