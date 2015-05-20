@@ -38,7 +38,7 @@ namespace Fhir.Metrics.Tests
             Quantity acceleration = system.Quantity("2.0m/s2");
             Quantity force = mass * acceleration;
             s = force.LeftSearchableString();
-            Assert.AreEqual("g.m.s-2E3x8.0", s);
+            Assert.AreEqual("g.m.s-2E3x8", s);
 
 
             q = system.Quantity("4000g");

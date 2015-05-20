@@ -58,6 +58,7 @@
     <Compile Include="TestQuantity.cs" />
     <Compile Include="TestSearchableQuantity.cs" />
     <Compile Include="TestUcum.cs" />
+    <Compile Include="TestValidation.cs" />
     <Compile Include="UcumTestReader.cs" />
     <Compile Include="TestParser.cs" />
   </ItemGroup>
