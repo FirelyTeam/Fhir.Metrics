@@ -36,3 +36,7 @@ using System.Resources;
 [assembly: AssemblyVersion("0.9.6.0")]
 [assembly: AssemblyFileVersion("0.9.0.0")]
 [assembly: NeutralResourcesLanguageAttribute("")]
+
+#if RELEASE
+[assembly:AssemblyKeyFileAttribute("..\\FhirNetApi.snk")]
+#endif
