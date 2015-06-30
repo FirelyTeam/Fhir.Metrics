@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>Fhir.Metrics</id>
+    <version>0.9.6</version>
+    <authors>Martijn Harthoorn</authors>
+    <owners>Furore (http://fhir.furore.com)</owners>
+    <licenseUrl>https://github.com/mharthoorn/Fhir.Metrics/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/mharthoorn/Fhir.Metrics</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Conversion system for physical units, with UCUM implementation</description>
+    <releaseNotes>Significand text improved with padding zeros (part 2)</releaseNotes>
+	<iconUrl>https://raw.githubusercontent.com/ewoutkramer/fhir-net-api/master/icon-fhir-32.png</iconUrl>
+    <copyright>Copyright 2014 Furore</copyright>
+    <tags>FHIR UCUM Metrics conversion unit units</tags>
+    <dependencies>
+    </dependencies>
+  </metadata>
+  <files>
+		<file src="Fhir.Metrics\bin\Release\Fhir.Metrics.dll" target="lib\net40\" />
+		<file src="Fhir.Metrics\bin\Release\Fhir.Metrics.pdb" target="lib\net40\" />
+		<file src="Fhir.Metrics\bin\Release\Fhir.Metrics.xml" target="lib\net40\" />
+  </files>
+</package>
