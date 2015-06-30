@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Fhir.Metrics</id>
-    <version>0.9.6</version>
+    <version>0.9.7</version>
     <authors>Martijn Harthoorn</authors>
     <owners>Furore (http://fhir.furore.com)</owners>
     <licenseUrl>https://github.com/mharthoorn/Fhir.Metrics/blob/master/LICENSE</licenseUrl>
