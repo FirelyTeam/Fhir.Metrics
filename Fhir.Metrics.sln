@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.30501.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fhir.Metrics", "Fhir.Metrics\Fhir.Metrics.csproj", "{597327AB-127E-4F5E-B464-6D5E456976B9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fhir.Metrics", "src\Fhir.Metrics\Fhir.Metrics.csproj", "{597327AB-127E-4F5E-B464-6D5E456976B9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fhir.Metrics.Tests", "Fhir.Metrics.Tests\Fhir.Metrics.Tests.csproj", "{764E2CD6-BB49-419C-92D4-39FF04E25316}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fhir.Metrics.Tests", "src\Fhir.Metrics.Tests\Fhir.Metrics.Tests.csproj", "{764E2CD6-BB49-419C-92D4-39FF04E25316}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
