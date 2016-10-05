@@ -1,0 +1,30 @@
+{
+  "version": "1.0.0-*",
+  "buildOptions": {
+    "debugType": "portable",
+    "embed": [ "Data/*.xml" ]
+  },
+  "dependencies": {
+    "System.Runtime.Serialization.Primitives": "4.1.1",
+    "Fhir.Metrics": {
+      "target": "project"
+    },
+    "xunit": "2.1.0",
+    "dotnet-test-xunit": "2.2.0-preview2-build1029"
+  },
+  "testRunner": "xunit",
+  "frameworks": {
+    "netcoreapp1.0": {
+      "dependencies": {
+        "Microsoft.NETCore.App": {
+          "type": "platform",
+          "version": "1.0.1"
+        }
+      },
+      "imports": [
+        "dotnet5.4",
+        "portable-net451+win8"
+      ]
+    }
+  }
+}
