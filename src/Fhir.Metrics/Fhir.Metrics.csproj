@@ -1,0 +1,44 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>Conversion system for physical units, with UCUM implementation - The Unified Code for Units of Measure</Description>
+    <Copyright>Copyright 2015, 2016 Furore Health Informatics</Copyright>
+    <VersionPrefix>1.0.1-beta1</VersionPrefix>
+    <Authors>Martijn Harthoorn</Authors>
+    <TargetFrameworks>netstandard1.3;net45</TargetFrameworks>
+    <DebugType>portable</DebugType>
+    <AssemblyName>Fhir.Metrics</AssemblyName>
+    <OutputType>Library</OutputType>
+    <PackageId>Fhir.Metrics</PackageId>
+    <PackageTags>FHIR UCUM Metrics conversion unit units</PackageTags>
+    <PackageIconUrl>https://raw.githubusercontent.com/ewoutkramer/fhir-net-api/master/icon-fhir-32.png</PackageIconUrl>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Data\*.xml" Exclude="bin\**;obj\**;**\*.xproj;packages\**;@(EmbeddedResource)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NETStandard.Library" Version="1.6.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
+    <PackageReference Include="System.Globalization" Version="4.0.11" />
+    <PackageReference Include="System.IO.FileSystem" Version="4.0.1" />
+    <PackageReference Include="System.Linq" Version="4.1.0" />
+    <PackageReference Include="System.Linq.Expressions" Version="4.1.0" />
+    <PackageReference Include="System.Runtime.Extensions" Version="4.1.0" />
+    <PackageReference Include="System.Text.RegularExpressions" Version="4.1.0" />
+    <PackageReference Include="System.Xml.XmlDocument" Version="4.0.1" />
+    <PackageReference Include="System.Xml.XPath" Version="4.0.1" />
+    <PackageReference Include="System.Xml.XPath.XDocument" Version="4.0.1" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System" />
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+
+</Project>
