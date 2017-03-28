@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Description>Conversion system for physical units, with UCUM implementation - The Unified Code for Units of Measure</Description>
     <Copyright>Copyright 2015, 2016 Furore Health Informatics</Copyright>
-    <VersionPrefix>1.0.1-beta1</VersionPrefix>
+    <VersionPrefix>1.0.2</VersionPrefix>
     <Authors>Martijn Harthoorn</Authors>
     <DebugType>portable</DebugType>
     <AssemblyName>Fhir.Metrics</AssemblyName>
@@ -10,7 +10,7 @@
     <PackageId>Fhir.Metrics</PackageId>
     <PackageTags>FHIR UCUM Metrics conversion unit units</PackageTags>
     <PackageIconUrl>https://raw.githubusercontent.com/ewoutkramer/fhir-net-api/master/icon-fhir-32.png</PackageIconUrl>
-    <TargetFrameworks>netstandard1.3;net45</TargetFrameworks>
+    <TargetFrameworks>netstandard1.3;net46</TargetFrameworks>
   </PropertyGroup>
   <ItemGroup>
     <EmbeddedResource Include="Data\*.xml" Exclude="bin\**;obj\**;**\*.xproj;packages\**;@(EmbeddedResource)" />
