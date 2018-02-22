@@ -134,6 +134,8 @@ namespace Fhir.Metrics.Tests
             Assert.Equal(speed, q.Metric);
             
         }
+
+       
     }
 
 }

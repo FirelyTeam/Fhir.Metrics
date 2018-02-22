@@ -51,7 +51,7 @@ namespace Fhir.Metrics
     public static class Parser
     {
 
-        public static string TokenPattern = @"^(((?<m>[\.\/])?(?<m>[^\.\/]+))*)?$";
+        public static string TokenPattern = @"(((?<m>[\.\/])?(?<m>[^\.\/]+))*)?";
 
         public static List<string> Tokenize(string expression)
         {

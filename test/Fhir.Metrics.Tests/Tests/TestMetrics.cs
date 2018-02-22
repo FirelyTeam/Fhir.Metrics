@@ -77,5 +77,18 @@ namespace Fhir.Metrics.Tests
             Assert.Equal(ms2, t);
 
         }
+
+        [Fact]
+        public void BugfixAvoidLoop()
+        {
+            // #3 - this case caused infinite work in Regex.IsMatch with our previous regex pattern
+            // https://github.com/FirelyTeam/Fhir.Metrics/issues/3
+            // ^(((?[./])?(?[^./]+)))?$
+            // Is now replaced with: (((?[./])?(?[^./]+)))?
+            string unit = "ForinterpretationofeGFRseehttp://www.kidney.org.au";
+            Assert.Throws<ArgumentException>(() => system.Metric(unit));
+            
+            
+        }
     }
 }
