@@ -14,12 +14,12 @@ namespace Fhir.Metrics
 {
     public struct Exponential
     {
-        public decimal Significand; // decimal is working for now, or should we use a float?
+        public decimal Significand; 
         public int Exponent;
         public decimal Error;
         
-        private static readonly string regex = @"^(\d+(\.\d+)?)(e([+-]?\d+))?$";
-        private static readonly IFormatProvider format = new CultureInfo("en-US");
+        private static readonly string REGEX = @"^(\d+(\.\d+)?)(e([+-]?\d+))?$";
+        private static readonly IFormatProvider FORMAT = new CultureInfo("en-US");
 
         public Exponential(decimal value, int exponent, decimal error)
         {
@@ -47,7 +47,7 @@ namespace Fhir.Metrics
 
         public Exponential(string s)
         {
-            GroupCollection groups = Regex.Match(s, regex).Groups;
+            GroupCollection groups = Regex.Match(s, REGEX).Groups;
             string value = groups[1].Value;
             string exp = groups[4].Value;
             if (string.IsNullOrEmpty(value))
@@ -75,12 +75,12 @@ namespace Fhir.Metrics
 
         public static string DecimalToString(decimal d)
         {
-            return d.ToString(format);
+            return d.ToString(FORMAT);
         }
 
         public static decimal StringToDecimal(string s)
         {
-            return (string.IsNullOrEmpty(s)) ? 0 : Convert.ToDecimal(s, format);
+            return (string.IsNullOrEmpty(s)) ? 0 : Convert.ToDecimal(s, FORMAT);
         }
 
         public static decimal Shift(decimal d, int digits)
@@ -107,6 +107,7 @@ namespace Fhir.Metrics
             return error;
         }
 
+        [Obsolete("Structs don't need a copy method")]
         public static Exponential CopyOf(Exponential e)
         {
             return new Exponential(e.Significand, e.Exponent, e.Error);
@@ -114,7 +115,7 @@ namespace Fhir.Metrics
 
         public static Exponential Normalize(Exponential e)
         {
-            Exponential result = Exponential.CopyOf(e);
+            Exponential result = e;
             result.Normalize();
             return result;
         }

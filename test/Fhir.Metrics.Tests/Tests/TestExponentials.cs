@@ -47,6 +47,18 @@ namespace UnitsSystemTests
         }
 
         [Fact]
+        public void Copy()
+        {
+            // we used to have a copy method, but that's not necesary with structs.
+            var a = new Exponential(0.3m, 2, 0.02m);
+            var b = a;
+            Assert.Equal(a, b);
+
+            b.Significand = 0.4m;
+            Assert.NotEqual(a, b);
+        }
+
+        [Fact]
         public void Normalizing()
         {
             Exponential a;
