@@ -1,24 +1,24 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Xunit;
 
 namespace Fhir.Metrics.Tests
 {
-    [TestClass]
+    
     public class TestQuantity
     {
-        static SystemOfUnits system;
+        SystemOfUnits system;
 
-        [ClassInitialize]
-        public static void Init(TestContext context)
+        
+        public TestQuantity()
         {
             system = UCUM.Load();
         }
 
-        [TestMethod]
+        [Fact]
         public void FaultyFormatting()
         {
             Quantity quantity;
@@ -30,50 +30,50 @@ namespace Fhir.Metrics.Tests
             try
             {
                 quantity = system.Quantity("4,4[in_i]");
-                Assert.Fail("Should have thrown an error");
+                Assert.True(false, "Should have thrown an error");
             }
             catch (Exception e)
             {
-                Assert.IsInstanceOfType(e, typeof(ArgumentException));
+                Assert.IsType<ArgumentException>(e);
             }
 
             // Missing number
             try
             {
                 quantity = system.Quantity("[in_i]");
-                Assert.Fail("Should have thrown an error");
+                Assert.True(false, "Should have thrown an error");
             }
             catch (Exception e)
             {
-                Assert.IsInstanceOfType(e, typeof(ArgumentException));
+                Assert.IsType<ArgumentException>(e);
             }
 
             // Quantity without a unit
             quantity = system.Quantity("4");
-            Assert.IsTrue(quantity.IsDimless);
+            Assert.True(quantity.IsDimless);
 
             // Non existent unit
             try
             {
                 quantity = system.Quantity("4[nonexistent]");
-                Assert.Fail("Should have thrown an error");
+                Assert.True(false, "Should have thrown an error");
             }
             catch (Exception e)
             {
-                Assert.IsInstanceOfType(e, typeof(ArgumentException));
+                Assert.IsType<ArgumentException>(e);
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void Dimensions()
         {
             Quantity a = system.Quantity("4kg.m.s-2");
             Quantity b = system.Quantity("8kg.m/s-2");
             bool same = Quantity.SameDimension(a, b);
-            Assert.IsTrue(same);
+            Assert.True(same);
         }
 
-        [TestMethod]
+        [Fact]
         public void Algebra()
         {
             Quantity a, b, result, expected;
@@ -84,45 +84,45 @@ namespace Fhir.Metrics.Tests
             result = a * b;
             expected = system.Quantity("8e6m3");
             same = Quantity.SameDimension(a, b);
-            Assert.IsTrue(same);
-            Assert.IsTrue(result.Approximates(expected));
+            Assert.True(same);
+            Assert.True(result.Approximates(expected));
 
             a = system.Quantity("4.0km");
             b = system.Quantity("2.0km");
             result = a / b; 
             expected = system.Quantity("2e0");
-            Assert.IsTrue(result.IsDimless);
+            Assert.True(result.IsDimless);
             same = Quantity.SameDimension(a, b);
-            Assert.IsTrue(same);
-            Assert.IsTrue(result.Approximates(expected));
+            Assert.True(same);
+            Assert.True(result.Approximates(expected));
 
             a = system.Quantity("4.0km");
             b = system.Quantity("2.0km");
             result = a + b;
             expected = system.Quantity("6e3m");
             same = Quantity.SameDimension(a, expected);
-            Assert.IsTrue(same);
-            Assert.IsTrue(result.Approximates(expected));
+            Assert.True(same);
+            Assert.True(result.Approximates(expected));
 
             a = system.Quantity("4.0kg.m/s2");
             b = system.Quantity("2.0e3g.m.s-2");
             result = a + b;
             expected = system.Quantity("6e3g.m.s-2");
             same = Quantity.SameDimension(a, expected);
-            Assert.IsTrue(same);
-            Assert.IsTrue(result.Approximates(expected));
+            Assert.True(same);
+            Assert.True(result.Approximates(expected));
 
             a = system.Quantity("4.0kg.m/s2");
             b = system.Quantity("2.0e3g.m.s-2");
             result = a - b;
             expected = system.Quantity("2e3g.m.s-2");
             same = Quantity.SameDimension(a, expected);
-            Assert.IsTrue(same);
-            Assert.IsTrue(result.Approximates(expected));
+            Assert.True(same);
+            Assert.True(result.Approximates(expected));
 
         }
 
-        [TestMethod]
+        [Fact]
         public void MixedAlgebra()
         {
             Metric meter = system.Metric("m");
@@ -131,9 +131,11 @@ namespace Fhir.Metrics.Tests
             Quantity q = 4.0m * meter / second;
 
             Metric speed = meter / second;
-            Assert.AreEqual(speed, q.Metric);
+            Assert.Equal(speed, q.Metric);
             
         }
+
+       
     }
 
 }

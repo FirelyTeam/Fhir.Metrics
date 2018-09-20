@@ -1,5 +1,4 @@
 ﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Fhir.Metrics;
 using System.Globalization;
 using System.IO;
@@ -7,21 +6,21 @@ using System.Text.RegularExpressions;
 using System.Diagnostics;
 using System.Collections.Generic;
 using System.Linq;
+using Xunit;
 
 namespace Fhir.Metrics.Tests
 {
-    [TestClass]
     public class TestConversions
     {
-        static SystemOfUnits system;
+        SystemOfUnits system;
 
-        [ClassInitialize]
-        public static void Init(TestContext context)
+        
+        public TestConversions()
         {
             system = UCUM.Load();
         }
 
-        [TestMethod]
+        [Fact]
         public void FaultyFormatting()
         {
             Quantity quantity;
@@ -33,42 +32,46 @@ namespace Fhir.Metrics.Tests
             try
             {
                 quantity = system.Quantity("4,4[in_i]");
-                Assert.Fail("Should have thrown an error");
+                Assert.True(false, "Should have thrown an error");
             }
             catch (Exception e)
             {
-                Assert.IsInstanceOfType(e, typeof(ArgumentException));
+                Assert.IsType<ArgumentException>(e);
             }
 
             // Missing number
             try
             {
                 quantity = system.Quantity("[in_i]");
-                Assert.Fail("Should have thrown an error");
+                Assert.True(false, "Should have thrown an error");
             }
             catch (Exception e)
             {
-                Assert.IsInstanceOfType(e, typeof(ArgumentException));
+                Assert.IsType<ArgumentException>(e);
             }
 
             // Quantity without a unit
             quantity = system.Quantity("4");
-            Assert.IsTrue(quantity.IsDimless);
+            Assert.True(quantity.IsDimless);
 
             // Non existent unit
             try
             {
                 quantity = system.Quantity("4[nonexistent]");
-                Assert.Fail("Should have thrown an error");
+                Assert.True(false, "Should have thrown an error");
             }
-            catch (Exception e)
+            catch (ArgumentException)
             {
-                Assert.IsInstanceOfType(e, typeof(ArgumentException));
+
+            }
+            catch (Exception)
+            {
+                Assert.True(false, "It should have been an ArgumentException");
             }
 
         }
 
-        [TestMethod]
+        [Fact]
         public void ToBaseConversions()
         {
             // inch to m
@@ -80,16 +83,16 @@ namespace Fhir.Metrics.Tests
             quantity = system.Quantity("4.0[lbf_av]");
             result = system.Conversions.Canonical(quantity);
             expected = system.Quantity("18kg.m.s-2").UnPrefixed();
-            Assert.IsTrue(result.Approximates(expected));
+            Assert.True(result.Approximates(expected));
             
             // newton
             quantity = system.Quantity("8.0N");
             result = system.Conversions.Canonical(quantity);
             expected = system.Quantity("8kg.m.s-2").UnPrefixed();
-            Assert.IsTrue(result.Approximates(expected));
+            Assert.True(result.Approximates(expected));
         }
 
-        [TestMethod]
+        [Fact]
         public void UnitDivisions()
         {
             Quantity quantity, result, expected;
@@ -97,13 +100,13 @@ namespace Fhir.Metrics.Tests
             quantity = system.Quantity("10.0km/h");
             result = system.Canonical(quantity);
             expected = system.Quantity("2.8m/s").UnPrefixed();
-            Assert.IsTrue(result.Approximates(expected));
+            Assert.True(result.Approximates(expected));
 
 
             quantity = system.Quantity(60m, "/min");
             result = system.Canonical(quantity);
             expected = system.Quantity("1/s").UnPrefixed();
-            Assert.IsTrue(result.Approximates(expected));
+            Assert.True(result.Approximates(expected));
 
 
 
@@ -116,45 +119,45 @@ namespace Fhir.Metrics.Tests
 
         }
 
-        [TestMethod]
+        [Fact]
         public void Sentinels()
         {
             Quantity a = system.Quantity("0/min");
             Quantity b = system.Canonical(a);
         }
 
-        [TestMethod]
+        [Fact]
         public void Mercury()
         {
             Quantity quantity, result, expected;
             quantity = system.Quantity("120mm[Hg]");
             result = system.Canonical(quantity);
             expected = system.Quantity("1.6e7g.m-1.s-2");
-            Assert.IsTrue(result.Approximates(expected));
+            Assert.True(result.Approximates(expected));
         }
 
-        [TestMethod]
+        [Fact]
         public void Reductions()
         {
             Quantity quantity, result, expected;
             quantity = system.Quantity("2.00/[in_i]");
             result = system.Canonical(quantity);
             expected = system.Quantity("0.8/cm").UnPrefixed();
-            Assert.IsTrue(result.Approximates(expected));
+            Assert.True(result.Approximates(expected));
 
             quantity = system.Quantity("2.00/[in_i]2");
             result = system.Canonical(quantity);
             expected = system.Quantity("3.1e3/m2");
-            Assert.IsTrue(result.Approximates(expected));
+            Assert.True(result.Approximates(expected));
 
             // psi => kg.m.s-2/m2 => g.m-1.s-2. 
             quantity = system.Quantity("2.000[psi]");
             result = system.Canonical(quantity);
             expected = system.Quantity("1.379e7g.m-1.s-2").UnPrefixed();
-            Assert.IsTrue(result.Approximates(expected));
+            Assert.True(result.Approximates(expected));
         }
 
-        [TestMethod]
+        [Fact]
         public void UnPrefixed()
         {
             Quantity quantity, result, expected;
@@ -162,15 +165,15 @@ namespace Fhir.Metrics.Tests
             quantity = system.Quantity("8dm3");
             result = quantity.UnPrefixed();
             expected = system.Quantity("0.008m3");
-            Assert.IsTrue(result.Approximates(expected));
+            Assert.True(result.Approximates(expected));
 
             quantity = system.Quantity("4g");
             result = quantity.UnPrefixed();
             expected = system.Quantity("4g");
-            Assert.IsTrue(result.Approximates(expected));
+            Assert.True(result.Approximates(expected));
         }
 
-        [TestMethod]
+        [Fact]
         public void ConstantConversions()
         {
             Quantity quantity, result, expected;
@@ -178,56 +181,57 @@ namespace Fhir.Metrics.Tests
             quantity = system.Quantity("2.000[pi].kg");
             result = system.Canonical(quantity);
             expected = system.Quantity("6.3kg").UnPrefixed();
-            Assert.IsTrue(result.Approximates(expected));
+            Assert.True(result.Approximates(expected));
 
             quantity = system.Quantity("180.00deg");
             result = system.Canonical(quantity);
             expected = system.Quantity("3.14rad").UnPrefixed();
-            Assert.IsTrue(result.Approximates(expected));
+            Assert.True(result.Approximates(expected));
         }
 
-        //[TestMethod]
+        //[Fact]
         public void ConversionToTargetUnit()
         {
             // Feature is not built. Unit test should fail here with NotImplementedException
             Quantity quantity = system.Convert("4[in_i]", "m");
-            Assert.AreEqual(quantity.Metric.Symbols, "m");
-            Assert.AreEqual((decimal)quantity.Value, 0.1016m);
-            Assert.AreEqual((decimal)quantity.Value.Error, 0.127000m);
+            Assert.Equal(quantity.Metric.Symbols, "m");
+            Assert.Equal((decimal)quantity.Value, 0.1016m);
+            Assert.Equal((decimal)quantity.Value.Error, 0.127000m);
 
             Quantity target = system.Quantity("74e9Bq");
             quantity = system.Convert("2.00Ci", "Bq");
-            Assert.IsTrue(quantity.Approximates(target));
+            Assert.True(quantity.Approximates(target));
 
             quantity = system.Convert("2.00Ci", "mBq");
-            Assert.IsTrue(quantity.Approximates(target));
+            Assert.True(quantity.Approximates(target));
 
             quantity = system.Convert("2.00Ci", "MBq");
-            Assert.IsTrue(quantity.Approximates(target));
+            Assert.True(quantity.Approximates(target));
             
             quantity = system.Convert("3.000[ft_br]", "[in_br]");
             target = system.Quantity("36.0[in_br]");
-            Assert.IsTrue(quantity.Approximates(target));
+            Assert.True(quantity.Approximates(target));
 
             quantity = system.Convert("2[acr_br]", "[yd_br]2");
             target = system.Quantity("9680.0[yd_br]2");
-            Assert.IsTrue(quantity.Approximates(target));
+            Assert.True(quantity.Approximates(target));
         }
 
-        [TestMethod]
+        [Fact]
         public void UcumReader()
         {
             // Prefixes
-            Assert.IsNotNull(system.Metrics.GetPrefix("k"));
-            Assert.IsNotNull(system.Metrics.GetPrefix("y"));
+            Assert.NotNull(system.Metrics.GetPrefix("k"));
+            
+            Assert.NotNull(system.Metrics.GetPrefix("y"));
 
             // Base-units
-            Assert.IsNotNull(system.Metrics.FindUnit("g"));
+            Assert.NotNull(system.Metrics.FindUnit("g"));
 
             // Units
-            Assert.IsNotNull(system.Metrics.FindUnit("Cel"));
-            Assert.IsNotNull(system.Metrics.FindUnit("[psi]"));
-            Assert.IsNotNull(system.Metrics.FindUnit("[psi]"));
+            Assert.NotNull(system.Metrics.FindUnit("Cel"));
+            Assert.NotNull(system.Metrics.FindUnit("[psi]"));
+            Assert.NotNull(system.Metrics.FindUnit("[psi]"));
         }
     }
 }

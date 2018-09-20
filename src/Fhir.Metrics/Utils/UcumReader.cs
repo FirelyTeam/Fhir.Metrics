@@ -5,44 +5,36 @@
 * This file is licensed under the BSD 3-Clause license
 */
 
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Xml;
+using System.Xml.Linq;
 using System.Xml.XPath;
 
 namespace Fhir.Metrics
 {
     public class UcumReader
     {
-        string docname;
         XPathNavigator navigator;
-        XmlDocument document = new XmlDocument();
+        XDocument document;
         XmlNamespaceManager ns; 
 
-        public void init(IXPathNavigable navigable)
+        public void init()
         {
+            
+        }
+
+        public UcumReader(string docname) : this(File.OpenRead(docname))
+        {
+        }
+
+        public UcumReader(Stream stream)
+        {
+            document = XDocument.Load(stream);
+            document.CreateNavigator();
             navigator = document.CreateNavigator();
             ns = new XmlNamespaceManager(navigator.NameTable);
             ns.AddNamespace("u", "http://unitsofmeasure.org/ucum-essence");
-        }
-
-        public UcumReader(string docname)
-        {
-            this.docname = docname;
-            document.Load(this.docname);
-            init(document);
-        }
-
-        public UcumReader(Stream s)
-        {
-            document.Load(s);
-            init(document);
         }
 
         private void ReadPrefixes(SystemOfUnits system)

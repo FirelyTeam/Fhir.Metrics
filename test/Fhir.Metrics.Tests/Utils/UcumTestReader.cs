@@ -7,12 +7,13 @@ using System.IO;
 using System.Xml;
 using System.Xml.XPath;
 using System.Reflection;
+using System.Xml.Linq;
 
 namespace Fhir.Metrics.Tests
 {
     public class UcumTestSet
     {
-        private XmlDocument document;
+        private XDocument document;
 
         public struct Validation 
         {
@@ -31,12 +32,31 @@ namespace Fhir.Metrics.Tests
             public string Outcome;
         }
 
-        public static XmlDocument Load()
+        /*
+         *  public UcumReader(string docname) : this(File.OpenRead(docname))
         {
-            XmlDocument document = new XmlDocument();
-            string[] names = Assembly.GetExecutingAssembly().GetManifestResourceNames();
-            Stream s = typeof(UcumTestSet).Assembly.GetManifestResourceStream("Fhir.Metrics.Tests.Data.ucum-tests.xml");
-            document.Load(s);
+        }
+
+        public UcumReader(Stream stream)
+        {
+            document = XDocument.Load(stream);
+            document.CreateNavigator();
+            navigator = document.CreateNavigator();
+            ns = new XmlNamespaceManager(navigator.NameTable);
+            ns.AddNamespace("u", "http://unitsofmeasure.org/ucum-essence");
+        }
+
+         */
+
+
+
+        public static XDocument Load()
+        {
+            
+            var assembly = typeof(UcumTestSet).GetTypeInfo().Assembly;
+            //string[] names = assembly.GetManifestResourceNames();
+            Stream s = assembly.GetManifestResourceStream("Fhir.Metrics.Tests.Data.ucum-tests.xml");
+            var document = XDocument.Load(s);
             return document;
         }
 
@@ -47,6 +67,7 @@ namespace Fhir.Metrics.Tests
 
         public IEnumerable<Validation> Validations()
         {
+
             XPathNavigator nav = document.CreateNavigator();
             foreach(XPathNavigator n in nav.Select("ucumTests/validation/case"))
             {

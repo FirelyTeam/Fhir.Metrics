@@ -5,12 +5,9 @@
 * This file is licensed under the BSD 3-Clause license
 */
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace Fhir.Metrics
 {

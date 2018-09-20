@@ -8,11 +8,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
-namespace Fhir.Metrics   
+namespace Fhir.Metrics
 {
     public struct Unary
     {
@@ -53,7 +51,7 @@ namespace Fhir.Metrics
     public static class Parser
     {
 
-        public static string TokenPattern = @"^(((?<m>[\.\/])?(?<m>[^\.\/]+))*)?$";
+        public static string TokenPattern = @"(((?<m>[\.\/])?(?<m>[^\.\/]+))*)?";
 
         public static List<string> Tokenize(string expression)
         {

@@ -1,4 +1,4 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Xunit;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,33 +7,24 @@ using System.Threading.Tasks;
 
 namespace Fhir.Metrics.Tests
 {
-    [TestClass]
+    
     public class TestValidation
     {
-        static SystemOfUnits system;
+        SystemOfUnits system;
 
-        [ClassInitialize]
-        public static void Init(TestContext context)
+        public TestValidation()
         {
             system = UCUM.Load();
         }
 
-        [TestMethod]
-        public void ValidateSimple()
-        {
-            Quantity a;
-            a = system.Quantity("4 kg");
-            a = system.Quantity("4 aapjes");
-        }
-
-        [TestMethod]
+        [Fact]
         public void TestMmol()
         {
             Quantity input = system.Quantity("4.1234mmol");
             Quantity output = system.Canonical(input);
             
             string s = output.LeftSearchableString();
-            Assert.AreEqual("abcd", s);
+            Assert.Equal("E21x2.5832", s);
         }
     }
 

@@ -1,27 +1,23 @@
 ﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Text.RegularExpressions;
-using System.Collections.Generic;
-using System.Linq;
+using Xunit;
 
 namespace Fhir.Metrics.Tests
 {
-    [TestClass]
+
     public class UcumTests
     {
-        static SystemOfUnits system;
+        SystemOfUnits system;
 
-        [ClassInitialize]
-        public static void Init(TestContext context)
+        public UcumTests()
         {
             system = UCUM.Load();
         }
 
-        [TestMethod]
+        [Fact]
         public void Validation()
         {
-            UcumTestSet reader = new UcumTestSet();
-            foreach (UcumTestSet.Validation v in reader.Validations())
+            UcumTestSet tests = new UcumTestSet();
+            foreach (UcumTestSet.Validation v in tests.Validations())
             {
                 try
                 {
@@ -39,9 +35,10 @@ namespace Fhir.Metrics.Tests
             }
         }
 
-        [TestMethod]
+        [Fact]
         public void Conversion()
         {
+            // this test fails, because in our opinion the input xml is incorrect. See the Data/ucum-tests.xml for the comment.
             UcumTestSet reader = new UcumTestSet();
             foreach (UcumTestSet.Conversion conversion in reader.Conversions())
             {
@@ -52,8 +49,8 @@ namespace Fhir.Metrics.Tests
                 Metric metric = system.Metric(conversion.DestUnit);
                 try
                 {
-                    Assert.AreEqual(metric, quantity.Metric);
-                    Assert.IsTrue(Exponential.Similar(value, quantity.Value));
+                    Assert.Equal(metric, quantity.Metric);
+                    Assert.True(Exponential.Similar(value, quantity.Value));
                 }
                 catch (Exception e)
                 {
