@@ -46,5 +46,24 @@ namespace Fhir.Metrics.Tests
             Assert.Equal("gE3x4.000", s);
         }
 
+        [Fact]
+        public void LeftSearchableStringWithSlashAsCode()
+        {
+            Quantity q, qc;
+
+            q = system.Quantity(3, "/a"); 
+            qc = system.Canonical(q);
+            string s = qc.LeftSearchableString();
+            Assert.Equal("s-1E-8x9.516436344219736296402018867", s);
+
+            // This creates a quantity with a value of 9.5 and an error of 1.5
+            // It was leading to an ArrayOutOfBoundsException when calculating SignificandText
+            // caused by the fact that the error was of the same order as the first digit.
+            q = system.Quantity(3M, "/a");
+            qc = system.Canonical(q);
+            s = qc.LeftSearchableString();
+            Assert.Equal("s-1E-8x9", s);
+        }
+
     }
 }
