@@ -296,6 +296,8 @@ namespace Fhir.Metrics
 
         private static string round(string s, int pos)
         {
+            if (pos < 1) pos = 1;
+
             int reminder = 0;
             StringBuilder b = new StringBuilder(s);
             while (b.Length <= pos)
