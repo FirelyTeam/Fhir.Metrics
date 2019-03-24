@@ -15,9 +15,13 @@ namespace Fhir.Metrics
     {
         public List<Prefix> Prefixes = new List<Prefix>();
         public List<Unit> Units = new List<Unit>();
+        public static string Unity = "1";
 
         public Unit FindUnit(string symbol)
         {
+            if (symbol.Equals(Unity))
+                return new Unit("Unity", Unity, "");
+
             return Units.FirstOrDefault(u => u.Symbol == symbol);
         }
 
