@@ -70,16 +70,16 @@ namespace Fhir.Metrics
             var annotations = new Regex(@"{[^{}]*}", RegexOptions.Compiled);
             foreach(Match match in annotations.Matches(expression))
             {
-                if (match.Index == 0) // Expressions contains just an annotation
+                if (match.Index == 0) // Expressions contains just an annotation, e.g. "{rbc}"
                 {
                     expression = Metrics.Unity;
                 }
-                else if (expression[match.Index - 1].Equals('/') || expression[match.Index - 1].Equals('.')) // Annotation is part of a multiplication or division
+                else if (expression[match.Index - 1].Equals('/') || expression[match.Index - 1].Equals('.')) // Annotation is part of a multiplication or division, e.g. "/{count}" or "10*3.{RBC}"
                 {
                     expression = expression.Remove(match.Index, match.Length);
                     expression = expression.Insert(match.Index, Metrics.Unity);
                 }
-                else // e.g. // Annotation is directly combined with another unit
+                else // e.g. // Annotation is directly combined with another unit, e.g. "ml{total}"
                 {
                     expression = expression.Remove(match.Index, match.Length);
                 }
