@@ -52,14 +52,14 @@ namespace Fhir.Metrics
     {
 
         public static Regex TokenPattern = new Regex(@"(((?<m>[\.\/])?(?<m>[^\.\/]+))*)?", RegexOptions.Compiled);
-        public static Regex Annontations = new Regex(@"{[^{}]*}", RegexOptions.Compiled);
+        public static Regex Annotations = new Regex(@"{[^{}]*}", RegexOptions.Compiled);
 
         public static List<string> Tokenize(string expression)
         {
-            if(Annontations.IsMatch(expression))
+            if(Annotations.IsMatch(expression))
                 expression = CanonicalizeAnnotations(expression);
 
-            if (!TokenPattern.IsMatch(expression) || Annontations.IsMatch(expression))
+            if (!TokenPattern.IsMatch(expression) || Annotations.IsMatch(expression))
                 throw new ArgumentException("Invalid metric expression");
 
             return TokenPattern.Match(expression).Captures("m").ToList();
