@@ -87,8 +87,41 @@ namespace Fhir.Metrics.Tests
             // Is now replaced with: (((?[./])?(?[^./]+)))?
             string unit = "ForinterpretationofeGFRseehttp://www.kidney.org.au";
             Assert.Throws<ArgumentException>(() => system.Metric(unit));
-            
-            
+        }
+
+        [Fact]
+        public void MetricWithValidAnnotations()
+        {
+            Metric metric;
+
+            metric = system.Metric("{rbc}");
+            Assert.Equal(1, metric.Axes.Count);
+            Assert.Equal("1", metric.Symbols);
+
+            metric = system.Metric("mL/min/{1.73_m2}");
+            Assert.Equal(3, metric.Axes.Count);
+            Assert.Equal("mL.min-1.1-1", metric.Symbols);
+
+            metric = system.Metric("10*3.{RBC}");
+            Assert.Equal(2, metric.Axes.Count);
+            Assert.Equal("10*3.1", metric.Symbols);
+
+            metric = system.Metric("ml{total}");
+            Assert.Equal(1, metric.Axes.Count);
+            Assert.Equal("ml", metric.Symbols);
+        }
+
+        [Fact]
+        public void MetricWithInvalidAnnotations()
+        {
+            try
+            {
+                Metric metric = system.Metric("{{1}}");
+            }
+            catch (Exception e)
+            {
+                Assert.IsType<ArgumentException>(e);
+            }
         }
     }
 }

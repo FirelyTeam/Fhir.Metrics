@@ -51,17 +51,41 @@ namespace Fhir.Metrics
     public static class Parser
     {
 
-        public static string TokenPattern = @"(((?<m>[\.\/])?(?<m>[^\.\/]+))*)?";
+        public static Regex TokenPattern = new Regex(@"(((?<m>[\.\/])?(?<m>[^\.\/]+))*)?", RegexOptions.Compiled);
+        public static Regex Annotations = new Regex(@"{[^{}]*}", RegexOptions.Compiled);
 
         public static List<string> Tokenize(string expression)
         {
-            bool valid = Regex.IsMatch(expression, TokenPattern);
-            if (!valid)
+            if(Annotations.IsMatch(expression))
+                expression = CanonicalizeAnnotations(expression);
+
+            if (!TokenPattern.IsMatch(expression) || Annotations.IsMatch(expression))
                 throw new ArgumentException("Invalid metric expression");
 
-            Match match = Regex.Match(expression, TokenPattern);
-            return match.Captures("m").ToList();
+            return TokenPattern.Match(expression).Captures("m").ToList();
+        }
 
+        private static string CanonicalizeAnnotations(string expression)
+        {
+            var annotations = new Regex(@"{[^{}]*}", RegexOptions.Compiled);
+            foreach(Match match in annotations.Matches(expression))
+            {
+                if (match.Index == 0) // Expressions contains just an annotation, e.g. "{rbc}"
+                {
+                    expression = Metrics.Unity;
+                }
+                else if (expression[match.Index - 1].Equals('/') || expression[match.Index - 1].Equals('.')) // Annotation is part of a multiplication or division, e.g. "/{count}" or "10*3.{RBC}"
+                {
+                    expression = expression.Remove(match.Index, match.Length);
+                    expression = expression.Insert(match.Index, Metrics.Unity);
+                }
+                else // e.g. // Annotation is directly combined with another unit, e.g. "ml{total}"
+                {
+                    expression = expression.Remove(match.Index, match.Length);
+                }
+            }
+
+            return expression;
         }
 
         static bool IsOperator(string token)
