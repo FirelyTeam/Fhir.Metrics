@@ -109,7 +109,6 @@ namespace Fhir.Metrics
         public Quantity Quantity(string expression)
         {
             Match match = regex.Match(expression);
-            string[] result = regex.Split(expression);
             if (match.Groups.Count != 3)
                 throw new ArgumentException("Expression cannot be parsed as a quantity");
 
