@@ -66,8 +66,7 @@ namespace Fhir.Metrics
 
         private static string CanonicalizeAnnotations(string expression)
         {
-            var annotations = new Regex(@"{[^{}]*}", RegexOptions.Compiled);
-            foreach(Match match in annotations.Matches(expression))
+            foreach(Match match in Annotations.Matches(expression))
             {
                 if (match.Index == 0) // Expressions contains just an annotation, e.g. "{rbc}"
                 {
