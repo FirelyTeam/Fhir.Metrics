@@ -55,21 +55,20 @@ namespace Fhir.Metrics
 
         public static List<string> Tokenize(string expression)
         {
-            var tokensMatch = TokenPattern.Match(expression);
-            var annotationsMatch = Annotations.Match(expression);
+            var annotationMatches = Annotations.Matches(expression);
+            if (annotationMatches.Count > 0)
+                expression = CanonicalizeAnnotations(annotationMatches, expression);
 
-            if (annotationsMatch.Success)
-                expression = CanonicalizeAnnotations(expression);
-
-            if (!tokensMatch.Success || annotationsMatch.Success)
+            var tokenMatch = TokenPattern.Match(expression);
+            if (!tokenMatch.Success || Annotations.IsMatch(expression))
                 throw new ArgumentException("Invalid metric expression");
 
-            return TokenPattern.Match(expression).Captures("m").ToList();
+            return tokenMatch.Captures("m").ToList();
         }
 
-        private static string CanonicalizeAnnotations(string expression)
+        private static string CanonicalizeAnnotations(MatchCollection matches, string expression)
         {
-            foreach(Match match in Annotations.Matches(expression))
+            foreach(Match match in matches)
             {
                 if (match.Index == 0) // Expressions contains just an annotation, e.g. "{rbc}"
                 {
