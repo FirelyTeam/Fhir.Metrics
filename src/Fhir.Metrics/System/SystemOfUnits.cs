@@ -49,7 +49,7 @@ namespace Fhir.Metrics
         public Prefix AddPrefix(string name, string symbol, Exponential factor)
         {
             Prefix p = new Prefix(name, symbol, factor);
-            Metrics.Prefixes.Add(p);
+            Metrics.AddPrefix(p);
             return p;
         }
         
@@ -63,7 +63,7 @@ namespace Fhir.Metrics
         public Unit AddUnit(string name, string symbol, string dimension = null)
         {
             Unit u = new Unit(name, symbol, dimension);
-            Metrics.Units.Add(u);
+            Metrics.AddUnit(u);
             return u;
         }
 
