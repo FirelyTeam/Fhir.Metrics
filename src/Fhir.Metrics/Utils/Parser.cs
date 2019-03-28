@@ -42,8 +42,7 @@ namespace Fhir.Metrics
         {
             get
             {
-                double dummy;
-                return double.TryParse(this.Expression, out dummy);
+                return double.TryParse(this.Expression, out _);
             }
         }
     }
