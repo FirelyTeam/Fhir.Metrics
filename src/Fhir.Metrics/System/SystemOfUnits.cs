@@ -67,7 +67,7 @@ namespace Fhir.Metrics
             return u;
         }
 
-        private Regex regex = new Regex(@"^(\-?\d+(?:\.\d+)?(?:e\d+)?)(.+)?$");
+        private readonly static Regex regex = new Regex(@"^(\-?\d+(?:\.\d+)?(?:e\d+)?)(.+)?$");
 
         /// <summary>
         /// Builds a quantity from an Exponential and a metric (parsed from the symbols)

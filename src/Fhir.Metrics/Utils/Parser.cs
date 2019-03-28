@@ -51,8 +51,8 @@ namespace Fhir.Metrics
     public static class Parser
     {
 
-        public static Regex TokenPattern = new Regex(@"(((?<m>[\.\/])?(?<m>[^\.\/]+))*)?", RegexOptions.Compiled);
-        public static Regex Annotations = new Regex(@"{[^{}]*}", RegexOptions.Compiled);
+        public readonly static Regex TokenPattern = new Regex(@"(((?<m>[\.\/])?(?<m>[^\.\/]+))*)?", RegexOptions.Compiled);
+        public readonly static Regex Annotations = new Regex(@"{[^{}]*}", RegexOptions.Compiled);
 
         public static List<string> Tokenize(string expression)
         {
