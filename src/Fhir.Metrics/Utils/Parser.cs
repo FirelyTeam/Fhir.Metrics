@@ -103,7 +103,7 @@ namespace Fhir.Metrics
             }
         }
 
-        private static Unary parseUnaryExponent(string expression)
+        private static Unary ParseUnaryExponent(string expression)
         {
             int exponent = 1;
             Match match = Regex.Match(expression, @"[\+\-]?\d+$");
@@ -118,7 +118,7 @@ namespace Fhir.Metrics
             return new Unary(exponent, expression);
         }
        
-        static IEnumerable<Unary> parseTokens(IEnumerable<string> tokens)
+        static IEnumerable<Unary> ParseTokens(IEnumerable<string> tokens)
         {
 
             int exponent = 1;
@@ -130,7 +130,7 @@ namespace Fhir.Metrics
                 }
                 else
                 {
-                    Unary u = parseUnaryExponent(token);
+                    Unary u = ParseUnaryExponent(token);
                     u.Exponent *= exponent;
                     yield return u;
                 }
@@ -139,7 +139,7 @@ namespace Fhir.Metrics
 
         public static IEnumerable<Unary> ToUnaryTokens(string expression)
         {
-            return parseTokens(Tokenize(expression));
+            return ParseTokens(Tokenize(expression));
         }
         
         public static IEnumerable<Unary> Numerics(this IEnumerable<Unary> tokens)
