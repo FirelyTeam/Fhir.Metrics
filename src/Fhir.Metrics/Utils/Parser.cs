@@ -72,12 +72,12 @@ namespace Fhir.Metrics
             {
                 if (match.Index == 0) // Expressions contains just an annotation, e.g. "{rbc}"
                 {
-                    expression = Metrics.Unity.Symbol;
+                    expression = Metrics.Unity;
                 }
                 else if (expression[match.Index - 1].Equals('/') || expression[match.Index - 1].Equals('.')) // Annotation is part of a multiplication or division, e.g. "/{count}" or "10*3.{RBC}"
                 {
                     expression = expression.Remove(match.Index, match.Length);
-                    expression = expression.Insert(match.Index, Metrics.Unity.Symbol);
+                    expression = expression.Insert(match.Index, Metrics.Unity);
                 }
                 else // e.g. // Annotation is directly combined with another unit, e.g. "ml{total}"
                 {

@@ -13,49 +13,30 @@ namespace Fhir.Metrics
 {
     public class Metrics
     {
-        private Dictionary<string, Prefix> _prefixes;
-        public List<Prefix> Prefixes => _prefixes.Values.ToList();
-
-        public Dictionary<string, Unit> _units;
-        public List<Unit> Units => _units.Values.ToList();
-
-        private const string UnitySymbol = "1";
-        internal static Unit Unity = new Unit("Unity", UnitySymbol, "");
-
-        public Metrics()
-        {
-            _units = new Dictionary<string, Unit>();
-            _units.Add(UnitySymbol, Unity);
-
-            _prefixes = new Dictionary<string, Prefix>();
-        }
+        public List<Prefix> Prefixes = new List<Prefix>();
+        public List<Unit> Units = new List<Unit>();
+        public static string Unity = "1";
 
         public Unit FindUnit(string symbol)
         {
-            return _units.FirstOrDefault(u => u.Key == symbol).Value;
-        }
+            if (symbol.Equals(Unity))
+                return new Unit("Unity", Unity, "");
 
-        public void AddUnit(Unit unit)
-        {
-            if (!_units.ContainsKey(unit.Symbol))
-                _units.Add(unit.Symbol, unit);
-        }
-
-        public void AddPrefix(Prefix prefix)
-        {
-            if (!_prefixes.ContainsKey(prefix.Symbol))
-                _prefixes.Add(prefix.Symbol, prefix);
+            return Units.FirstOrDefault(u => u.Symbol == symbol);
         }
 
         public Prefix GetPrefix(string symbols)
         {
-            return _prefixes.FirstOrDefault(p => symbols.StartsWith(p.Key)).Value;
+            return Prefixes.FirstOrDefault(p => symbols.StartsWith(p.Symbol));
         }
 
         public Metric.Axis ParseAxis(string expression, int exponent)
         {
+            Unit unit = null;
             Prefix prefix = null;
-            Unit unit = FindUnit(expression);
+
+            
+            unit = FindUnit(expression);
             if (unit == null)
             {
                 prefix = GetPrefix(expression);
