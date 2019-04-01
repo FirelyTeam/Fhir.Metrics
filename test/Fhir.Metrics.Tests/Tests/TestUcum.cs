@@ -23,7 +23,7 @@ namespace Fhir.Metrics.Tests
                 {
                     Metric m = system.Metric(v.Unit);
                     
-                    if (!v.Valid) throw new AssertFailedException(string.Format("Test {0} succeeded, but should not have", v.Id));
+                    if (!v.Valid) throw new AssertFailedException(string.Format($"Test {v.Id} succeeded, but should not have. Reason: '{v.Reason}'"));
                 }
                 catch (Exception e)
                 {

@@ -75,9 +75,8 @@ namespace Fhir.Metrics.Tests
                 validation.Id = n.SelectSingleNode("@id").Value;
                 validation.Unit = n.SelectSingleNode("@unit").Value;
                 validation.Valid = n.SelectSingleNode("@valid").Value == "true";
-                //validation.Reason = = n.SelectSingleNode("unit").Value ;
+                validation.Reason = n.SelectSingleNode("@reason")?.Value;
                 yield return validation;
-
             }
         }
 
