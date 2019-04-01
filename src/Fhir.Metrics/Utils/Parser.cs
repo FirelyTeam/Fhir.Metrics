@@ -42,8 +42,7 @@ namespace Fhir.Metrics
         {
             get
             {
-                double dummy;
-                return double.TryParse(this.Expression, out dummy);
+                return double.TryParse(this.Expression, out _);
             }
         }
     }
@@ -51,33 +50,34 @@ namespace Fhir.Metrics
     public static class Parser
     {
 
-        public static Regex TokenPattern = new Regex(@"(((?<m>[\.\/])?(?<m>[^\.\/]+))*)?", RegexOptions.Compiled);
-        public static Regex Annotations = new Regex(@"{[^{}]*}", RegexOptions.Compiled);
+        public readonly static Regex TokenPattern = new Regex(@"(((?<m>[\.\/])?(?<m>[^\.\/]+))*)?", RegexOptions.Compiled);
+        public readonly static Regex Annotations = new Regex(@"{[^{}]*}", RegexOptions.Compiled);
 
         public static List<string> Tokenize(string expression)
         {
-            if(Annotations.IsMatch(expression))
-                expression = CanonicalizeAnnotations(expression);
+            var annotationMatches = Annotations.Matches(expression);
+            if (annotationMatches.Count > 0)
+                expression = CanonicalizeAnnotations(annotationMatches, expression);
 
-            if (!TokenPattern.IsMatch(expression) || Annotations.IsMatch(expression))
+            var tokenMatch = TokenPattern.Match(expression);
+            if (!tokenMatch.Success || Annotations.IsMatch(expression))
                 throw new ArgumentException("Invalid metric expression");
 
-            return TokenPattern.Match(expression).Captures("m").ToList();
+            return tokenMatch.Captures("m").ToList();
         }
 
-        private static string CanonicalizeAnnotations(string expression)
+        private static string CanonicalizeAnnotations(MatchCollection matches, string expression)
         {
-            var annotations = new Regex(@"{[^{}]*}", RegexOptions.Compiled);
-            foreach(Match match in annotations.Matches(expression))
+            foreach(Match match in matches)
             {
                 if (match.Index == 0) // Expressions contains just an annotation, e.g. "{rbc}"
                 {
-                    expression = Metrics.Unity;
+                    expression = Metrics.Unity.Symbol;
                 }
                 else if (expression[match.Index - 1].Equals('/') || expression[match.Index - 1].Equals('.')) // Annotation is part of a multiplication or division, e.g. "/{count}" or "10*3.{RBC}"
                 {
                     expression = expression.Remove(match.Index, match.Length);
-                    expression = expression.Insert(match.Index, Metrics.Unity);
+                    expression = expression.Insert(match.Index, Metrics.Unity.Symbol);
                 }
                 else // e.g. // Annotation is directly combined with another unit, e.g. "ml{total}"
                 {
@@ -104,7 +104,7 @@ namespace Fhir.Metrics
             }
         }
 
-        private static Unary parseUnaryExponent(string expression)
+        private static Unary ParseUnaryExponent(string expression)
         {
             int exponent = 1;
             Match match = Regex.Match(expression, @"[\+\-]?\d+$");
@@ -119,7 +119,7 @@ namespace Fhir.Metrics
             return new Unary(exponent, expression);
         }
        
-        static IEnumerable<Unary> parseTokens(IEnumerable<string> tokens)
+        static IEnumerable<Unary> ParseTokens(IEnumerable<string> tokens)
         {
 
             int exponent = 1;
@@ -131,7 +131,7 @@ namespace Fhir.Metrics
                 }
                 else
                 {
-                    Unary u = parseUnaryExponent(token);
+                    Unary u = ParseUnaryExponent(token);
                     u.Exponent *= exponent;
                     yield return u;
                 }
@@ -140,7 +140,7 @@ namespace Fhir.Metrics
 
         public static IEnumerable<Unary> ToUnaryTokens(string expression)
         {
-            return parseTokens(Tokenize(expression));
+            return ParseTokens(Tokenize(expression));
         }
         
         public static IEnumerable<Unary> Numerics(this IEnumerable<Unary> tokens)
