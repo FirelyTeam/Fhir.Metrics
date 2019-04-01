@@ -39,7 +39,7 @@
 
   <!-- Note: all tests use case sensitive codes -->
     
-  <!-- Failing UCUM validation tests in Fhir.Metrics:
+  <!-- Firely: Failing UCUM validation tests in Fhir.Metrics:
         - 1-102
         - 1-114
         - 1-115a
@@ -642,7 +642,7 @@
 	  to maintain this precision
 	-->
         
-      <!-- Failing UCUM conversion tests in Fhir.Metrics:
+    <!-- Firely: Failing UCUM conversion tests in Fhir.Metrics:
         - 3-103
         - 3-105
         - 3-106
@@ -663,7 +663,7 @@
         - 3-127
         - 3-128
         - 3-130
-  -->    
+    -->    
         
 	<case id="3-101"  value="6.3"      srcUnit="m"           dstUnit="m"             outcome="6.3"/>
     <case id="3-102"  value="6.3"      srcUnit="mm"          dstUnit="m"             outcome="0.0063"/>
