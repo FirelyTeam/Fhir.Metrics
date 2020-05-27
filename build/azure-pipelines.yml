@@ -1,0 +1,44 @@
+# Repo: FirelyTeam/Fhir.Metrics
+# File: build/azure-pipelines.yml
+name: build-$(Date:yyyyMMdd)$(Rev:-r)
+
+resources:
+  repositories:
+    - repository: templates
+      type: github
+      name: FirelyTeam/azure-pipeline-templates
+      endpoint: FirelyTeam 
+
+variables:
+  buildConfiguration: 'Release'
+
+trigger:
+  branches:
+    include:
+    - develop*
+    - release*
+
+pr:
+  branches:
+    include: 
+    - develop*
+    - hotfix/*
+
+stages:
+- stage: build
+  jobs:
+  - template: build.yml@templates  # Template reference
+    parameters:
+      packageArtifacts: true
+      pool:
+        name: 'Private pool'
+           
+
+- stage: deploy
+  dependsOn: build
+  jobs:
+  - template: deploy-plugin-package.yml@templates
+    parameters:
+      pool:
+        name: 'Private pool'
+      nugetcredentials: MyGet
