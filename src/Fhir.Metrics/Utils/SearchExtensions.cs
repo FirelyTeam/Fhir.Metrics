@@ -18,27 +18,34 @@ namespace Fhir.Metrics
     {
         ///<summary>
         /// Creates a string from a decimal that allows compare-from-left string searching 
-        /// for finding values that fall within a the precision of a given string representing a decimal .
+        /// for finding values that fall within a the precision of a given string representing a decimal.
+        /// Each Digit caries the significance of the original digits more to the right.
         ///</summary>
-        private static string LeftSearchableNumberString(string s)
+        private static string LeftSearchableNumberString(string original)
         {
-            StringBuilder b = new StringBuilder(s);
+            StringBuilder leftSearchable = new StringBuilder(original);
             int reminder = 0;
 
-            for (int i = b.Length - 1; i >= 0; i--)
+            for (int i = leftSearchable.Length - 1; i >= 0; i--)
             {
-                if (b[i] == '.') continue;
-                int n = (int)Char.GetNumericValue(b[i]);
-                n += reminder;
+                if (leftSearchable[i] == '.') continue; // End of the decimal fraction part of the quantity
 
-                reminder = n / 10;
+                // Add the reminder to the number on the left side
+                int n = (int)Char.GetNumericValue(leftSearchable[i]);
+                n = n + reminder;
+
+                reminder = n / 10; // Reset the reminder to 0 in case n < 10
                 n = n % 10;
-                reminder += (n > 5) ? 1 : 0;
-                char c = Convert.ToString(n)[0];
-                b[i] = c;
+                if (n > 5)
+                    reminder = reminder + 1;
 
+                leftSearchable[i] = Convert.ToString(n)[0];
             }
-            return b.ToString();
+
+            if(reminder != 0 && leftSearchable[0] == '0') // We still have a reminder that we need to cary to the left
+                return reminder + leftSearchable.ToString();
+
+            return leftSearchable.ToString();
         }
 
 
