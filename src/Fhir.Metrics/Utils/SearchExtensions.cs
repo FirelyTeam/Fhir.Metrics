@@ -42,7 +42,7 @@ namespace Fhir.Metrics
                 leftSearchable[i] = Convert.ToString(n)[0];
             }
 
-            if(reminder != 0 && leftSearchable[0] == '0') // We still have a reminder that we need to cary to the left
+            if(reminder != 0 && leftSearchable[0] == '0') // We still have a reminder that we need to carry to the left
                 return reminder + leftSearchable.ToString();
 
             return leftSearchable.ToString();
