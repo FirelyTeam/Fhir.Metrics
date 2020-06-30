@@ -30,6 +30,7 @@ stages:
     - template: build.yml@templates  # Template reference
       parameters:
         packageArtifacts: false
+        dotNetCoreVersion: '2.2.x'
         pool:
           vmImage: windows-latest
              
