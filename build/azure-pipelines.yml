@@ -29,21 +29,16 @@ stages:
     jobs:
     - template: build.yml@templates  # Template reference
       parameters:
-        packageArtifacts: false
+        packageArtifacts: true
         dotNetCoreVersion: '2.2.x'
-        pool:
-          vmImage: windows-latest
-             
-    - template: publish-plugin.yml@templates  # Template reference
-      parameters:
-        pool:
-          vmImage: windows-latest
+    pool:
+      vmImage: windows-latest
+  
   - stage: deploy
     dependsOn: build
     jobs:
-    - template: deploy-plugin.yml@templates
+    - template: deploy-plugin-package.yml@templates
       parameters:
         pool:
           vmImage: windows-latest      
-        packageName: Fhir.Metrics
-        packageDescription: 'Conversion system for physical units, with UCUM implementation'
+        nugetcredentials: MyGet
