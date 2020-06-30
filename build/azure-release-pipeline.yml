@@ -26,14 +26,16 @@ stages:
     parameters:
       useVersionSuffix: false
       packageArtifacts: true
+      dotNetCoreVersion: '2.2.x'
       pool:
-        name: 'Private pool'
+        vmImage: windows-latest
+           
 
 - stage: deploy
   dependsOn: build
-  jobs:      
+  jobs:
   - template: deploy-plugin-package.yml@templates
     parameters:
       pool:
-        name: 'Private pool'
-      nugetcredentials: MyGet
+        vmImage: windows-latest
+      nugetcredentials: NuGet

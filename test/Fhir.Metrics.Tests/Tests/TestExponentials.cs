@@ -204,7 +204,7 @@ namespace UnitsSystemTests
             Assert.True(d.Approximates(expected));
         }
 
-        [Fact(Skip = "Still to be solved")]
+        [Fact]
         public void ExponentialToString()
         {
             Exponential value;
