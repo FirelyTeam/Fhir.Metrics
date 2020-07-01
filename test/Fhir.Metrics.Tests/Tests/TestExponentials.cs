@@ -35,7 +35,7 @@ namespace UnitsSystemTests
             a = new Exponential(4);
             Assert.Equal(4m, a.Significand);
             Assert.Equal(0.5m, a.Error);
-            
+
             a = new Exponential(4.0m);
             Assert.Equal(4m, a.Significand);
             Assert.Equal(0.05m, a.Error);
@@ -62,7 +62,7 @@ namespace UnitsSystemTests
         public void Normalizing()
         {
             Exponential a;
-            
+
             a = new Exponential(34, 3);
             Assert.Equal(3.4m, a.Significand);
             Assert.Equal(4, a.Exponent);
@@ -155,7 +155,7 @@ namespace UnitsSystemTests
             b = new Exponential("8.0e3");
             c = a - b;
             Assert.Equal(4.0m, c.Significand);
-            Assert.Equal(0.1m, c.Error); 
+            Assert.Equal(0.1m, c.Error);
             Assert.Equal(3, c.Exponent);
         }
 
@@ -195,7 +195,7 @@ namespace UnitsSystemTests
         public void DivisionWithDifferentExponents()
         {
             Exponential a, b, c, d, expected;
-            
+
             a = new Exponential("10.0");
             b = Exponential.Exact("60");
             c = a / b;
