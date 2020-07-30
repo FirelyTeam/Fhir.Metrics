@@ -1,4 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
     <Description>Conversion system for physical units, with UCUM implementation - The Unified Code for Units of Measure</Description>
     <Copyright>Copyright 2015, 2016 Furore Health Informatics</Copyright>
@@ -12,24 +13,9 @@
     <PackageIconUrl>https://raw.githubusercontent.com/ewoutkramer/fhir-net-api/master/icon-fhir-32.png</PackageIconUrl>
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
+
   <ItemGroup>
     <EmbeddedResource Include="Data\*.xml" Exclude="bin\**;obj\**;**\*.xproj;packages\**;@(EmbeddedResource)" />
   </ItemGroup>
-  <!--<ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
-    <PackageReference Include="System.Globalization" Version="4.3.0" />
-    <PackageReference Include="System.IO.FileSystem" Version="4.3.0" />
-    <PackageReference Include="System.Linq" Version="4.3.0" />
-    <PackageReference Include="System.Linq.Expressions" Version="4.3.0" />
-    <PackageReference Include="System.Runtime.Extensions" Version="4.3.0" />
-    <PackageReference Include="System.Text.RegularExpressions" Version="4.3.0" />
-    <PackageReference Include="System.Xml.XmlDocument" Version="4.3.0" />
-    <PackageReference Include="System.Xml.XPath" Version="4.3.0" />
-    <PackageReference Include="System.Xml.XPath.XDocument" Version="4.3.0" />
-  </ItemGroup>
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
-    <Reference Include="System.Xml" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System" />
-    <Reference Include="Microsoft.CSharp" />
-  </ItemGroup>-->
+
 </Project>

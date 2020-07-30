@@ -26,7 +26,7 @@ stages:
     parameters:
       useVersionSuffix: false
       packageArtifacts: true
-      dotNetCoreVersion: '2.2.x'
+      dotNetCoreVersion: '3.1.x'
       pool:
         vmImage: windows-latest
            
