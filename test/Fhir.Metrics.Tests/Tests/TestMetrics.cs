@@ -121,14 +121,17 @@ namespace Fhir.Metrics.Tests
         [Fact]
         public void MetricShouldRejectWhitespaces()
         {
-            Action act = () => system.Metric("/min 1/min {breaths}/min {breath}/min {resp}/min");
-            act.Should().Throw<ArgumentException>("Whitespaces are not allowed in a metric expression");
+            var metric = "/min 1/min {breaths}/min {breath}/min {resp}/min";
+            Action act = () => system.Metric(metric);
+            act.Should().Throw<ArgumentException>("Whitespaces are not allowed in a metric expression").And.Message.Should().Contain(metric);
 
+            metric = " /min ";
             act = () => system.Metric(" /min ");
-            act.Should().Throw<ArgumentException>("Whitespaces are not allowed in a metric expression");
+            act.Should().Throw<ArgumentException>("Whitespaces are not allowed in a metric expression").And.Message.Should().Contain(metric);
 
+            metric = "/min ";
             act = () => system.Metric("/min ");
-            act.Should().Throw<ArgumentException>("Whitespaces are not allowed in a metric expression");
+            act.Should().Throw<ArgumentException>("Whitespaces are not allowed in a metric expression").And.Message.Should().Contain(metric);
         }
     }
 }

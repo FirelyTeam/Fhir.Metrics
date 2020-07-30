@@ -57,7 +57,7 @@ namespace Fhir.Metrics
         public static List<string> Tokenize(string expression)
         {
             if (ContainsWhitespace.IsMatch(expression))
-                throw new ArgumentException("Metric expression contains whitespace");
+                throw new ArgumentException($"Metric expression \"{expression}\" contains whitespace");
 
             var annotationMatches = Annotations.Matches(expression);
             if (annotationMatches.Count > 0)
@@ -65,7 +65,7 @@ namespace Fhir.Metrics
 
             var tokenMatch = TokenPattern.Match(expression);
             if (!tokenMatch.Success || Annotations.IsMatch(expression))
-                throw new ArgumentException("Invalid metric expression");
+                throw new ArgumentException($"Invalid metric expression \"{expression}\"");
 
             return tokenMatch.Captures("m").ToList();
         }
