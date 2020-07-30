@@ -124,6 +124,12 @@ namespace Fhir.Metrics.Tests
         {
             Action act = () => system.Metric("/min 1/min {breaths}/min {breath}/min {resp}/min");
             act.Should().Throw<ArgumentException>("Whitespaces are not allowed in a metric expression");
+
+            act = () => system.Metric(" /min ");
+            act.Should().Throw<ArgumentException>("Whitespaces are not allowed in a metric expression");
+
+            act = () => system.Metric("/min ");
+            act.Should().Throw<ArgumentException>("Whitespaces are not allowed in a metric expression");
         }
     }
 }
