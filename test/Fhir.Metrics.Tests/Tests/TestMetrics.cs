@@ -1,4 +1,5 @@
 ﻿using System;
+using FluentAssertions;
 using Xunit;
 using Fhir.Metrics;
 
@@ -114,14 +115,15 @@ namespace Fhir.Metrics.Tests
         [Fact]
         public void MetricWithInvalidAnnotations()
         {
-            try
-            {
-                Metric metric = system.Metric("{{1}}");
-            }
-            catch (Exception e)
-            {
-                Assert.IsType<ArgumentException>(e);
-            }
+            Action act = () => system.Metric("{{1}}");
+            act.Should().Throw<ArgumentException>("Nested annotations are not allowed");
+        }
+
+        [Fact]
+        public void MetricShouldRejectWhitespaces()
+        {
+            Action act = () => system.Metric("/min 1/min {breaths}/min {breath}/min {resp}/min");
+            act.Should().Throw<ArgumentException>("Whitespaces are not allowed in a metric expression");
         }
     }
 }
