@@ -1,7 +1,6 @@
 ﻿using System;
 using Xunit;
 using Fhir.Metrics;
-using System.Text.RegularExpressions;
 
 namespace UnitsSystemTests
 {
@@ -204,7 +203,7 @@ namespace UnitsSystemTests
             Assert.True(d.Approximates(expected));
         }
 
-        [Fact]
+        [Fact(Skip = "Skipped unitl is https://github.com/FirelyTeam/Fhir.Metrics/issues/17 fixed")]
         public void ExponentialToString()
         {
             Exponential value;

@@ -1,11 +1,4 @@
 ﻿using System;
-using Fhir.Metrics;
-using System.Globalization;
-using System.IO;
-using System.Text.RegularExpressions;
-using System.Diagnostics;
-using System.Collections.Generic;
-using System.Linq;
 using Xunit;
 
 namespace Fhir.Metrics.Tests
@@ -194,9 +187,9 @@ namespace Fhir.Metrics.Tests
         {
             // Feature is not built. Unit test should fail here with NotImplementedException
             Quantity quantity = system.Convert("4[in_i]", "m");
-            Assert.Equal(quantity.Metric.Symbols, "m");
-            Assert.Equal((decimal)quantity.Value, 0.1016m);
-            Assert.Equal((decimal)quantity.Value.Error, 0.127000m);
+            Assert.Equal("m", quantity.Metric.Symbols);
+            Assert.Equal(0.1016m, (decimal)quantity.Value);
+            Assert.Equal(0.127000m, (decimal)quantity.Value.Error);
 
             Quantity target = system.Quantity("74e9Bq");
             quantity = system.Convert("2.00Ci", "Bq");
