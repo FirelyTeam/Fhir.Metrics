@@ -203,7 +203,7 @@ namespace UnitsSystemTests
             Assert.True(d.Approximates(expected));
         }
 
-        [Fact(Skip = "Skipped unitl is https://github.com/FirelyTeam/Fhir.Metrics/issues/17 fixed")]
+        [Fact(Skip = "Skipped until is https://github.com/FirelyTeam/Fhir.Metrics/issues/17 fixed")]
         public void ExponentialToString()
         {
             Exponential value;
