@@ -1,6 +1,5 @@
 ﻿using System;
 using Xunit;
-using Fhir.Metrics;
 
 namespace Fhir.Metrics.Tests
 {
@@ -95,7 +94,7 @@ namespace Fhir.Metrics.Tests
             Metric metric;
 
             metric = system.Metric("{rbc}");
-            Assert.Equal(1, metric.Axes.Count);
+            Assert.Single(metric.Axes);
             Assert.Equal("1", metric.Symbols);
 
             metric = system.Metric("mL/min/{1.73_m2}");
@@ -107,7 +106,7 @@ namespace Fhir.Metrics.Tests
             Assert.Equal("10*3.1", metric.Symbols);
 
             metric = system.Metric("ml{total}");
-            Assert.Equal(1, metric.Axes.Count);
+            Assert.Single(metric.Axes);
             Assert.Equal("ml", metric.Symbols);
         }
 
