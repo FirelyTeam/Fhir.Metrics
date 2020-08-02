@@ -125,7 +125,7 @@ namespace Fhir.Metrics.Tests
             var s1 = q1.LeftSearchableString();
             var s2 = q2.LeftSearchableString();
 
-            Assert.Equal(1, s1.CompareTo(s2));
+            Assert.Equal(1, s1.CompareTo(s2)); // q1 > q2
 
             q1 = system.Quantity("100.1010kg");
             q2 = system.Quantity("100.101kg");
@@ -150,6 +150,13 @@ namespace Fhir.Metrics.Tests
 
             q1 = system.Quantity("9.6kg");  // gE3x10.6
             q2 = system.Quantity("10.6kg"); // gE4x11.6
+            s1 = q1.LeftSearchableString();
+            s2 = q2.LeftSearchableString();
+
+            Assert.Equal(-1, s1.CompareTo(s2));
+
+            q1 = system.Quantity("9.6e3g");  // 9.6kg
+            q2 = system.Quantity("10.6e2g"); // 1.06kg
             s1 = q1.LeftSearchableString();
             s2 = q2.LeftSearchableString();
 
