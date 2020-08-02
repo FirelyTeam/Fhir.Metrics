@@ -161,6 +161,13 @@ namespace Fhir.Metrics.Tests
             s2 = q2.LeftSearchableString();
 
             Assert.Equal(1, s1.CompareTo(s2));
+
+            q1 = system.Quantity("9.6g");
+            q2 = system.Quantity("0.94e1g");
+            s1 = q1.LeftSearchableString();
+            s2 = q2.LeftSearchableString();
+
+            Assert.Equal(1, s1.CompareTo(s2));
         }
 
     }
