@@ -8,8 +8,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Fhir.Metrics
 {
@@ -52,16 +50,6 @@ namespace Fhir.Metrics
             }
         }
 
-        private Exponential multiply(Exponential a, Exponential b, int exponent)
-        {
-            if (exponent > 0)
-                return Exponential.Multiply(a, b);
-            else if (exponent < 0)
-                return Exponential.Divide(a, b);
-            else // (exponent == 0)
-                return a;
-        }
-
         /// <summary>
         /// Tries to convert each axis of the metric of the quantity once.
         /// </summary>
@@ -89,7 +77,7 @@ namespace Fhir.Metrics
                     axes.Add(Metric.Axis.CopyOf(axis));
                 }
             }
-            Metric metric = new Metric(axes);
+
             if (modified)
                 quantity = new Quantity(value, new Metric(axes));
 
