@@ -6,7 +6,6 @@
 */
 
 using System;
-using System.Linq;
 using System.Text;
 
 
@@ -22,11 +21,10 @@ namespace Fhir.Metrics
         /// for finding values that fall within a the precision of a given string representing a decimal.
         /// Each Digit caries the significance of the original digits more to the right.
         ///</summary>
-        private static string LeftSearchableNumberString(string original, string exponent)
+        private static string LeftSearchableNumberString(string original, int exponent)
         {
             StringBuilder leftSearchable = new StringBuilder(original);
             int reminder = 0;
-            var exponentValue = int.Parse(exponent);
 
             for (int i = leftSearchable.Length - 1; i >= 0; i--)
             {
@@ -46,9 +44,9 @@ namespace Fhir.Metrics
 
             // Check if we still have a reminder that we need to carry to the left
             if (reminder != 0 && leftSearchable[0] == '0')
-                exponentValue++;
+                exponent++;
 
-            return $"E{exponentValue}x{leftSearchable}";
+            return $"E{exponent}x{leftSearchable}";
         }
 
         /// <summary>
@@ -58,9 +56,7 @@ namespace Fhir.Metrics
         public static string ValueAsSearchablestring(this Quantity quantity)
         {
             quantity = quantity.UnPrefixed();
-            var value = quantity.Value.SignificandText;
-            var exponent = quantity.Value.Exponent.ToString();
-            var leftSearchable = LeftSearchableNumberString(value, exponent);
+            var leftSearchable = LeftSearchableNumberString(quantity.Value.SignificandText, quantity.Value.Exponent);
             return leftSearchable;
         }
 
@@ -71,9 +67,7 @@ namespace Fhir.Metrics
         public static string LeftSearchableString(this Quantity quantity)
         {
             quantity = quantity.UnPrefixed();
-            var value = quantity.Value.SignificandText;
-            var exponent = quantity.Value.Exponent.ToString();
-            var leftSearchable = LeftSearchableNumberString(value, exponent);
+            var leftSearchable = LeftSearchableNumberString(quantity.Value.SignificandText, quantity.Value.Exponent);
 
             StringBuilder b = new StringBuilder();
             b.Append(quantity.Metric);
