@@ -21,7 +21,7 @@ namespace Fhir.Metrics
         /// for finding values that fall within a the precision of a given string representing a decimal.
         /// Each Digit caries the significance of the original digits more to the right.
         ///</summary>
-        private static string LeftSearchableNumberString(string original)
+        private static string LeftSearchableNumberString(string original, string exponent)
         {
             StringBuilder leftSearchable = new StringBuilder(original);
             int reminder = 0;
@@ -56,14 +56,10 @@ namespace Fhir.Metrics
         public static string ValueAsSearchablestring(this Quantity quantity)
         {
             quantity = quantity.UnPrefixed();
-            
-            StringBuilder b = new StringBuilder();
-            b.Append("E");
-            b.Append(quantity.Value.Exponent.ToString());
-            b.Append("x");
-            string value = quantity.Value.SignificandText;
-            b.Append(LeftSearchableNumberString(value));
-            return b.ToString();
+            var value = quantity.Value.SignificandText;
+            var exponent = quantity.Value.Exponent.ToString();
+            var leftSearchable = LeftSearchableNumberString(value, exponent);
+            return leftSearchable;
         }
 
         /// <summary>
@@ -73,13 +69,13 @@ namespace Fhir.Metrics
         public static string LeftSearchableString(this Quantity quantity)
         {
             quantity = quantity.UnPrefixed();
+            var value = quantity.Value.SignificandText;
+            var exponent = quantity.Value.Exponent.ToString();
+            var leftSearchable = LeftSearchableNumberString(value, exponent);
+
             StringBuilder b = new StringBuilder();
             b.Append(quantity.Metric);
-            b.Append("E");
-            b.Append(quantity.Value.Exponent.ToString());
-            b.Append("x");
-            string value = quantity.Value.SignificandText;
-            b.Append(LeftSearchableNumberString(value));
+            b.Append(leftSearchable);
             return b.ToString();
         }
     }
