@@ -106,15 +106,15 @@ namespace Fhir.Metrics.Tests
             // The reminder should not get lost if the leftmost digit is indicating a copy to the left
             q = system.Quantity("9.6kg");
             s = q.LeftSearchableString();
-            Assert.Equal("gE3x10.6", s);
+            Assert.Equal("gE4x0.6", s);
 
             q = system.Quantity("99.6kg");
             s = q.LeftSearchableString();
-            Assert.Equal("gE4x10.06", s);
+            Assert.Equal("gE5x0.06", s);
 
             q = system.Quantity("999.6kg");
             s = q.LeftSearchableString();
-            Assert.Equal("gE5x10.006", s);
+            Assert.Equal("gE6x0.006", s);
         }
 
         [Fact]
@@ -141,26 +141,26 @@ namespace Fhir.Metrics.Tests
 
             Assert.Equal(1, s1.CompareTo(s2));
 
-            q1 = system.Quantity("9.6kg"); // gE3x10.6
+            q1 = system.Quantity("9.6kg"); // gE4x0.6
             q2 = system.Quantity("1.5kg"); // gE3x1.5
             s1 = q1.LeftSearchableString();
             s2 = q2.LeftSearchableString();
 
             Assert.Equal(1, s1.CompareTo(s2));
 
-            q1 = system.Quantity("9.6kg");  // gE3x10.6
+            q1 = system.Quantity("9.6kg");  // gE4x0.6
             q2 = system.Quantity("10.6kg"); // gE4x11.6
             s1 = q1.LeftSearchableString();
             s2 = q2.LeftSearchableString();
 
             Assert.Equal(-1, s1.CompareTo(s2));
 
-            q1 = system.Quantity("9.6e3g");  // 9.6kg
-            q2 = system.Quantity("10.6e2g"); // 1.06kg
+            q1 = system.Quantity("9.6e3g");  // 9.6kg =>  gE4x0.6
+            q2 = system.Quantity("10.6e2g"); // 1.06kg => gE3x1.16
             s1 = q1.LeftSearchableString();
             s2 = q2.LeftSearchableString();
 
-            Assert.Equal(-1, s1.CompareTo(s2));
+            Assert.Equal(1, s1.CompareTo(s2));
         }
 
     }

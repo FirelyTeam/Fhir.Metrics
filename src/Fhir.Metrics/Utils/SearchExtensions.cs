@@ -6,6 +6,7 @@
 */
 
 using System;
+using System.Linq;
 using System.Text;
 
 
@@ -25,29 +26,30 @@ namespace Fhir.Metrics
         {
             StringBuilder leftSearchable = new StringBuilder(original);
             int reminder = 0;
+            var exponentValue = int.Parse(exponent);
 
             for (int i = leftSearchable.Length - 1; i >= 0; i--)
             {
                 if (leftSearchable[i] == '.') continue; // End of the decimal fraction part of the quantity
 
                 // Add the reminder to the number on the left side
-                int n = (int)Char.GetNumericValue(leftSearchable[i]);
-                n = n + reminder;
+                int n = (int)char.GetNumericValue(leftSearchable[i]);
+                n += reminder;
 
                 reminder = n / 10; // Reset the reminder to 0 in case n < 10
                 n = n % 10;
                 if (n > 5)
-                    reminder = reminder + 1;
+                    reminder += 1;
 
                 leftSearchable[i] = Convert.ToString(n)[0];
             }
 
-            if(reminder != 0 && leftSearchable[0] == '0') // We still have a reminder that we need to carry to the left
-                return reminder + leftSearchable.ToString();
+            // Check if we still have a reminder that we need to carry to the left
+            if (reminder != 0 && leftSearchable[0] == '0')
+                exponentValue++;
 
-            return leftSearchable.ToString();
+            return $"E{exponentValue}x{leftSearchable}";
         }
-
 
         /// <summary>
         /// Transforms the value of a quantity to a string that can be compared from the left.
