@@ -1,6 +1,6 @@
 ﻿using System;
+using FluentAssertions;
 using Xunit;
-using Fhir.Metrics;
 
 namespace Fhir.Metrics.Tests
 {
@@ -95,7 +95,7 @@ namespace Fhir.Metrics.Tests
             Metric metric;
 
             metric = system.Metric("{rbc}");
-            Assert.Equal(1, metric.Axes.Count);
+            Assert.Single(metric.Axes);
             Assert.Equal("1", metric.Symbols);
 
             metric = system.Metric("mL/min/{1.73_m2}");
@@ -107,21 +107,31 @@ namespace Fhir.Metrics.Tests
             Assert.Equal("10*3.1", metric.Symbols);
 
             metric = system.Metric("ml{total}");
-            Assert.Equal(1, metric.Axes.Count);
+            Assert.Single(metric.Axes);
             Assert.Equal("ml", metric.Symbols);
         }
 
         [Fact]
         public void MetricWithInvalidAnnotations()
         {
-            try
-            {
-                Metric metric = system.Metric("{{1}}");
-            }
-            catch (Exception e)
-            {
-                Assert.IsType<ArgumentException>(e);
-            }
+            Action act = () => system.Metric("{{1}}");
+            act.Should().Throw<ArgumentException>("Nested annotations are not allowed");
+        }
+
+        [Fact]
+        public void MetricShouldRejectWhitespaces()
+        {
+            var metric = "/min 1/min {breaths}/min {breath}/min {resp}/min";
+            Action act = () => system.Metric(metric);
+            act.Should().Throw<ArgumentException>("Whitespaces are not allowed in a metric expression").And.Message.Should().Contain(metric);
+
+            metric = " /min ";
+            act = () => system.Metric(" /min ");
+            act.Should().Throw<ArgumentException>("Whitespaces are not allowed in a metric expression").And.Message.Should().Contain(metric);
+
+            metric = "/min ";
+            act = () => system.Metric("/min ");
+            act.Should().Throw<ArgumentException>("Whitespaces are not allowed in a metric expression").And.Message.Should().Contain(metric);
         }
     }
 }

@@ -52,16 +52,20 @@ namespace Fhir.Metrics
 
         public readonly static Regex TokenPattern = new Regex(@"(((?<m>[\.\/])?(?<m>[^\.\/]+))*)?", RegexOptions.Compiled);
         public readonly static Regex Annotations = new Regex(@"{[^{}]*}", RegexOptions.Compiled);
+        public readonly static Regex ContainsWhitespace = new Regex(@"\s", RegexOptions.Compiled);
 
         public static List<string> Tokenize(string expression)
         {
+            if (ContainsWhitespace.IsMatch(expression))
+                throw new ArgumentException($"Metric expression \"{expression}\" contains whitespace");
+
             var annotationMatches = Annotations.Matches(expression);
             if (annotationMatches.Count > 0)
                 expression = CanonicalizeAnnotations(annotationMatches, expression);
 
             var tokenMatch = TokenPattern.Match(expression);
             if (!tokenMatch.Success || Annotations.IsMatch(expression))
-                throw new ArgumentException("Invalid metric expression");
+                throw new ArgumentException($"Invalid metric expression \"{expression}\"");
 
             return tokenMatch.Captures("m").ToList();
         }
