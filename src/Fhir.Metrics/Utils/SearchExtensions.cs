@@ -20,6 +20,7 @@ namespace Fhir.Metrics
         /// Creates a string from a decimal that allows compare-from-left string searching 
         /// for finding values that fall within a the precision of a given string representing a decimal.
         /// Each Digit caries the significance of the original digits more to the right.
+        /// This method fails for exponents larger than 99
         ///</summary>
         private static string LeftSearchableNumberString(string original, int exponent)
         {
