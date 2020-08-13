@@ -18,29 +18,40 @@ namespace Fhir.Metrics
     {
         ///<summary>
         /// Creates a string from a decimal that allows compare-from-left string searching 
-        /// for finding values that fall within a the precision of a given string representing a decimal .
+        /// for finding values that fall within a the precision of a given string representing a decimal.
+        /// Each Digit caries the significance of the original digits more to the right.
+        /// This method fails for exponents larger than 99
         ///</summary>
-        private static string LeftSearchableNumberString(string s)
+        private static string LeftSearchableNumberString(string original, int exponent)
         {
-            StringBuilder b = new StringBuilder(s);
+            StringBuilder leftSearchable = new StringBuilder(original);
             int reminder = 0;
 
-            for (int i = b.Length - 1; i >= 0; i--)
+            for (int i = leftSearchable.Length - 1; i >= 0; i--)
             {
-                if (b[i] == '.') continue;
-                int n = (int)Char.GetNumericValue(b[i]);
+                if (leftSearchable[i] == '.') continue; // End of the decimal fraction part of the quantity
+
+                // Add the reminder to the number on the left side
+                int n = (int)char.GetNumericValue(leftSearchable[i]);
                 n += reminder;
 
-                reminder = n / 10;
+                reminder = n / 10; // Reset the reminder to 0 in case n < 10
                 n = n % 10;
-                reminder += (n > 5) ? 1 : 0;
-                char c = Convert.ToString(n)[0];
-                b[i] = c;
+                if (n > 5)
+                    reminder += 1;
 
+                leftSearchable[i] = Convert.ToString(n)[0];
             }
-            return b.ToString();
-        }
 
+            // Check if we still have a reminder that we need to carry to the left
+            if (reminder != 0 && leftSearchable[0] == '0')
+                exponent++;
+
+            var minPadLenght = 2;
+            var paddedExponend = exponent.ToString().PadLeft(minPadLenght, '0');
+
+            return $"E{paddedExponend}x{leftSearchable}";
+        }
 
         /// <summary>
         /// Transforms the value of a quantity to a string that can be compared from the left.
@@ -49,14 +60,8 @@ namespace Fhir.Metrics
         public static string ValueAsSearchablestring(this Quantity quantity)
         {
             quantity = quantity.UnPrefixed();
-            
-            StringBuilder b = new StringBuilder();
-            b.Append("E");
-            b.Append(quantity.Value.Exponent.ToString());
-            b.Append("x");
-            string value = quantity.Value.SignificandText;
-            b.Append(LeftSearchableNumberString(value));
-            return b.ToString();
+            var leftSearchable = LeftSearchableNumberString(quantity.Value.SignificandText, quantity.Value.Exponent);
+            return leftSearchable;
         }
 
         /// <summary>
@@ -66,13 +71,11 @@ namespace Fhir.Metrics
         public static string LeftSearchableString(this Quantity quantity)
         {
             quantity = quantity.UnPrefixed();
+            var leftSearchable = LeftSearchableNumberString(quantity.Value.SignificandText, quantity.Value.Exponent);
+
             StringBuilder b = new StringBuilder();
             b.Append(quantity.Metric);
-            b.Append("E");
-            b.Append(quantity.Value.Exponent.ToString());
-            b.Append("x");
-            string value = quantity.Value.SignificandText;
-            b.Append(LeftSearchableNumberString(value));
+            b.Append(leftSearchable);
             return b.ToString();
         }
     }
