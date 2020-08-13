@@ -78,5 +78,15 @@ namespace Fhir.Metrics
             b.Append(leftSearchable);
             return b.ToString();
         }
+
+        public static string LeftSearchableNumberString(string metric, int exponent, string value)
+        {
+            var leftSearchable = LeftSearchableNumberString(value, exponent);
+
+            StringBuilder b = new StringBuilder();
+            b.Append(metric);
+            b.Append(leftSearchable);
+            return b.ToString();
+        }
     }
 }

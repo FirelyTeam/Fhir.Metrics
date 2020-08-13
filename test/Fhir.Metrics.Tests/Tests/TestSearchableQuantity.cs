@@ -1,5 +1,6 @@
 ﻿using System;
 using Xunit;
+using static Fhir.Metrics.SearchExtensions;
 
 namespace Fhir.Metrics.Tests
 {
@@ -175,6 +176,17 @@ namespace Fhir.Metrics.Tests
             s2 = q2.LeftSearchableString();
 
             Assert.Equal(1, s1.CompareTo(s2));
+        }
+
+        [Fact]
+        public void TestLeftSearchableNonUcumUnit()
+        {
+            var metric = "ThisIsNotAUcumUnit";
+            var exponent = 3;
+            var value = "0.4";
+
+            var leftSearchable = LeftSearchableNumberString(metric, exponent, value);
+            Assert.Equal($"{metric}E0{exponent}x{value}", leftSearchable);
         }
 
     }
