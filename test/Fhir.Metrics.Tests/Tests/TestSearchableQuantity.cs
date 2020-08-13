@@ -31,18 +31,18 @@ namespace Fhir.Metrics.Tests
         {
             Quantity q = system.Quantity("41.234567kg.m/s2");
             string s = q.LeftSearchableString();
-            Assert.Equal("g.m.s-2E4x4.1235677", s);
+            Assert.Equal("g.m.s-2E04x4.1235677", s);
 
             Quantity mass = system.Quantity("4.0kg");
             Quantity acceleration = system.Quantity("2.0m/s2");
             Quantity force = mass * acceleration;
             s = force.LeftSearchableString();
-            Assert.Equal("g.m.s-2E3x8", s);
+            Assert.Equal("g.m.s-2E03x8", s);
 
 
             q = system.Quantity("4000g");
             s = q.LeftSearchableString();
-            Assert.Equal("gE3x4.000", s);
+            Assert.Equal("gE03x4.000", s);
         }
 
         [Fact]
@@ -70,51 +70,51 @@ namespace Fhir.Metrics.Tests
             // Test decimal with no fraction
             var q = system.Quantity("100kg");
             var s = q.LeftSearchableString();
-            Assert.Equal("gE5x1.00", s);
+            Assert.Equal("gE05x1.00", s);
 
             // Test quantity with different iterations of 1's and 0's
             q = system.Quantity("100.10kg");
             s = q.LeftSearchableString();
-            Assert.Equal("gE5x1.0010", s);
+            Assert.Equal("gE05x1.0010", s);
 
             q = system.Quantity("100.101kg");
             s = q.LeftSearchableString();
-            Assert.Equal("gE5x1.00101", s);
+            Assert.Equal("gE05x1.00101", s);
 
             q = system.Quantity("100.1010kg");
             s = q.LeftSearchableString();
-            Assert.Equal("gE5x1.001010", s);
+            Assert.Equal("gE05x1.001010", s);
 
             q = system.Quantity("100.101010kg");
             s = q.LeftSearchableString();
-            Assert.Equal("gE5x1.00101010", s);
+            Assert.Equal("gE05x1.00101010", s);
 
             // The reminder should be copied over to the left for any digit > 5
             q = system.Quantity("100.1234567890kg");
             s = q.LeftSearchableString();
-            Assert.Equal("gE5x1.001235678990", s);
+            Assert.Equal("gE05x1.001235678990", s);
 
             // The reminder should get copied over to the left for all 9's
             q = system.Quantity("1.999999kg");
             s = q.LeftSearchableString();
-            Assert.Equal("gE3x2.000009", s);
+            Assert.Equal("gE03x2.000009", s);
 
             q = system.Quantity("1.6kg");
             s = q.LeftSearchableString();
-            Assert.Equal("gE3x2.6", s);
+            Assert.Equal("gE03x2.6", s);
 
             // The reminder should not get lost if the leftmost digit is indicating a copy to the left
             q = system.Quantity("9.6kg");
             s = q.LeftSearchableString();
-            Assert.Equal("gE4x0.6", s);
+            Assert.Equal("gE04x0.6", s);
 
             q = system.Quantity("99.6kg");
             s = q.LeftSearchableString();
-            Assert.Equal("gE5x0.06", s);
+            Assert.Equal("gE05x0.06", s);
 
             q = system.Quantity("999.6kg");
             s = q.LeftSearchableString();
-            Assert.Equal("gE6x0.006", s);
+            Assert.Equal("gE06x0.006", s);
         }
 
         [Fact]
@@ -164,6 +164,13 @@ namespace Fhir.Metrics.Tests
 
             q1 = system.Quantity("9.6g");
             q2 = system.Quantity("0.94e1g");
+            s1 = q1.LeftSearchableString();
+            s2 = q2.LeftSearchableString();
+
+            Assert.Equal(1, s1.CompareTo(s2));
+
+            q1 = system.Quantity("9.6e9g");
+            q2 = system.Quantity("10.6e8g");
             s1 = q1.LeftSearchableString();
             s2 = q2.LeftSearchableString();
 

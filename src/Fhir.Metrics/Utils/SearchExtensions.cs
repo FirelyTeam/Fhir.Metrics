@@ -46,7 +46,10 @@ namespace Fhir.Metrics
             if (reminder != 0 && leftSearchable[0] == '0')
                 exponent++;
 
-            return $"E{exponent}x{leftSearchable}";
+            var minPadLenght = 2;
+            var paddedExponend = exponent.ToString().PadLeft(minPadLenght, '0');
+
+            return $"E{paddedExponend}x{leftSearchable}";
         }
 
         /// <summary>
