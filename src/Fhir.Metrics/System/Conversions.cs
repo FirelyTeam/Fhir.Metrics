@@ -35,11 +35,14 @@ namespace Fhir.Metrics
             do
             {
                 step = Find(m);
-                if (step != null) steps.Add(step);
-                m = step.To;
-                found = predicate(step);
+                if (step != null)
+                {
+                    steps.Add(step);
+                    m = step.To;
+                    found = predicate(step);
+                }
             }
-            while (steps != null && !found);
+            while (step != null && !found);
             if (found)
             {
                 return steps;
