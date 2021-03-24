@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Xunit;
 
 namespace Fhir.Metrics.Tests
@@ -180,6 +181,20 @@ namespace Fhir.Metrics.Tests
             result = system.Canonical(quantity);
             expected = system.Quantity("3.14rad").UnPrefixed();
             Assert.True(result.Approximates(expected));
+        }
+
+        [Fact]
+        public void ConversionPath()
+        {
+            Metric cm = system.Metric("cm");
+            Metric ci = system.Metric("Ci");
+            Metric bq = system.Metric("Bq");
+
+            List<Conversion> can = system.Conversions.Path(ci, x => x.To.Equals(bq));
+            Assert.Single(can);
+
+            List<Conversion> cannot = system.Conversions.Path(cm, x => x.To.Equals(bq));
+            Assert.Null(cannot);
         }
 
         //[Fact]
