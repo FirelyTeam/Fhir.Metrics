@@ -58,7 +58,8 @@ namespace Fhir.Metrics
 
         public Metric ParseMetric(string expression)
         {
-            return ParseMetric(Parser.ToUnaryTokens(expression));
+            var tokens = Parser.ToUnaryTokens(expression);
+            return ParseMetric(tokens);
         }
 
         public Metric ParseMetric(IEnumerable<Unary> tokens)

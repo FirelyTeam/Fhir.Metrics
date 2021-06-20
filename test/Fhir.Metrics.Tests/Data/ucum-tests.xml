@@ -43,8 +43,6 @@
         - 1-102
         - 1-114
         - 1-115a
-        - 1-116
-        - 1-118
         - 1-345
         - Skipping tests with id=k-*
   -->
@@ -79,10 +77,10 @@
 	<!-- test that the parser supports both {} inserts, but not unicode characters too, while we're at it -->
     <case id="1-115" unit="rad2{a}" valid="true"/>
     <!-- <case id="1-115a" unit="rad2{錠}" valid="false" reason="Unicode is not allowed"/> -->
-    <!-- <case id="1-116" unit="{a}.rad2{b}" valid="true"/> -->
+    <case id="1-116" unit="{a}.rad2{b}" valid="true"/>
     <case id="1-116a" unit="{a}rad2{b}" valid="false" reason="Cannot start a symbol with an annodation"/>    
 	<case id="1-117" unit="1{c}" valid="true"/>
-    <!--  <case id="1-118" unit="{|}1" valid="false" reason="Cannot start a symbol with an annodation"/> -->
+    <case id="1-118" unit="{|}1" valid="false" reason="Cannot start a symbol with an annodation"/>
 	<case id="1-119" unit="{e}" valid="true"/>
 	<case id="1-120" unit="%" valid="true"/>
 	

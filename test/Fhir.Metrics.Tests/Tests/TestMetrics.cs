@@ -111,8 +111,12 @@ namespace Fhir.Metrics.Tests
             Assert.Equal("ml", metric.Symbols);
             
             metric = system.Metric("{reads}/{base}");
-            Assert.Single(metric.Axes);
-            Assert.Equal("1/1", metric.Symbols);
+            Assert.Equal(2, metric.Axes.Count);
+            Assert.Equal("1.1-1", metric.Symbols);
+
+            metric = system.Metric("kg/{1}/ml");
+            Assert.Equal(3, metric.Axes.Count);
+            Assert.Equal("kg.1-1.ml-1", metric.Symbols);
         }
 
         [Fact]
@@ -120,6 +124,9 @@ namespace Fhir.Metrics.Tests
         {
             Action act = () => system.Metric("{{1}}");
             act.Should().Throw<ArgumentException>("Nested annotations are not allowed");
+
+            act = () => system.Metric("{test}m");
+            act.Should().Throw<ArgumentException>("Cannot start a symbol with an annodation");
         }
 
         [Fact]
