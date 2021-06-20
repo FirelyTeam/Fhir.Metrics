@@ -126,7 +126,7 @@ namespace Fhir.Metrics.Tests
             act.Should().Throw<ArgumentException>("Nested annotations are not allowed");
 
             act = () => system.Metric("{test}m");
-            act.Should().Throw<ArgumentException>("Cannot start a symbol with an annodation");
+            act.Should().Throw<ArgumentException>("Cannot start a symbol with an annotation");
         }
 
         [Fact]
