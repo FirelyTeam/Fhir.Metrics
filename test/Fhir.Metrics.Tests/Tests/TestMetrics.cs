@@ -109,6 +109,10 @@ namespace Fhir.Metrics.Tests
             metric = system.Metric("ml{total}");
             Assert.Single(metric.Axes);
             Assert.Equal("ml", metric.Symbols);
+            
+            metric = system.Metric("{reads}/{base}");
+            Assert.Single(metric.Axes);
+            Assert.Equal("1/1", metric.Symbols);
         }
 
         [Fact]
