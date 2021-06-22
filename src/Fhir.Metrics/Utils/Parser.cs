@@ -52,7 +52,7 @@ namespace Fhir.Metrics
     {
 
         public readonly static Regex TokenPattern = new Regex(@"(((?<m>[\.\/])?(?<m>[^\.\/]+))*)?", RegexOptions.Compiled);
-        public readonly static Regex ValidAnnotationsPattern = new Regex(@"{[^{}]+}(?=$|/|\.)", RegexOptions.Compiled);
+        public readonly static Regex ValidAnnotationsPattern = new Regex(@"{[^{}]+}(?=$|\/|\.)", RegexOptions.Compiled);
         public readonly static Regex InvalidAnnotationsPattern = new Regex(@"{[^{}]+}", RegexOptions.Compiled); // Matches any annotation that is not followed by a operator or marks the end of a unit symbol
         public readonly static Regex ContainsWhitespace = new Regex(@"\s", RegexOptions.Compiled);
 
