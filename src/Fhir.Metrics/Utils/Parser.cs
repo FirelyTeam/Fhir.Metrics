@@ -8,6 +8,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace Fhir.Metrics
@@ -51,7 +52,8 @@ namespace Fhir.Metrics
     {
 
         public readonly static Regex TokenPattern = new Regex(@"(((?<m>[\.\/])?(?<m>[^\.\/]+))*)?", RegexOptions.Compiled);
-        public readonly static Regex Annotations = new Regex(@"{[^{}]*}", RegexOptions.Compiled);
+        public readonly static Regex ValidAnnotationsPattern = new Regex(@"{[^{}]+}(?=$|\/|\.)", RegexOptions.Compiled);
+        public readonly static Regex InvalidAnnotationsPattern = new Regex(@"{[^{}]+}", RegexOptions.Compiled); // Matches any annotation that is not followed by a operator or marks the end of a unit symbol
         public readonly static Regex ContainsWhitespace = new Regex(@"\s", RegexOptions.Compiled);
 
         public static List<string> Tokenize(string expression)
@@ -59,12 +61,12 @@ namespace Fhir.Metrics
             if (ContainsWhitespace.IsMatch(expression))
                 throw new ArgumentException($"Metric expression \"{expression}\" contains whitespace");
 
-            var annotationMatches = Annotations.Matches(expression);
+            var annotationMatches = ValidAnnotationsPattern.Matches(expression);
             if (annotationMatches.Count > 0)
                 expression = CanonicalizeAnnotations(annotationMatches, expression);
 
             var tokenMatch = TokenPattern.Match(expression);
-            if (!tokenMatch.Success || Annotations.IsMatch(expression))
+            if (!tokenMatch.Success || InvalidAnnotationsPattern.IsMatch(expression))
                 throw new ArgumentException($"Invalid metric expression \"{expression}\"");
 
             return tokenMatch.Captures("m").ToList();
@@ -72,24 +74,31 @@ namespace Fhir.Metrics
 
         private static string CanonicalizeAnnotations(MatchCollection matches, string expression)
         {
+            var canonicalizedExpression = new StringBuilder(expression);
             foreach(Match match in matches)
             {
-                if (match.Index == 0) // Expressions contains just an annotation, e.g. "{rbc}"
+                var offset = expression.Length - canonicalizedExpression.Length;
+                if (match.Index == 0) // Expressions starts with / contains only an annotation, e.g. "{rbc} or {reads}/{base}"
                 {
-                    expression = Metrics.Unity.Symbol;
+                    replaceWithUnitySymbol(match.Index, match.Length); // No need to account for offset, this case is only executed for the first iteration
                 }
                 else if (expression[match.Index - 1].Equals('/') || expression[match.Index - 1].Equals('.')) // Annotation is part of a multiplication or division, e.g. "/{count}" or "10*3.{RBC}"
                 {
-                    expression = expression.Remove(match.Index, match.Length);
-                    expression = expression.Insert(match.Index, Metrics.Unity.Symbol);
+                    replaceWithUnitySymbol(match.Index - offset, match.Length);
                 }
                 else // e.g. // Annotation is directly combined with another unit, e.g. "ml{total}"
                 {
-                    expression = expression.Remove(match.Index, match.Length);
+                    canonicalizedExpression = canonicalizedExpression.Remove(match.Index - offset, match.Length);
                 }
             }
 
-            return expression;
+            void replaceWithUnitySymbol(int index, int length)
+            {
+                canonicalizedExpression = canonicalizedExpression.Remove(index, length);
+                canonicalizedExpression = canonicalizedExpression.Insert(index, Metrics.Unity.Symbol);
+            }
+
+            return canonicalizedExpression.ToString();
         }
 
         static bool IsOperator(string token)

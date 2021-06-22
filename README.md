@@ -22,3 +22,4 @@ Classes:
 
 TODO:
 - UcumReader doesn't implement special cases (like fahrenheid/celcius conversion formulas)
+- Add support for [nested terms](https://ucum.org/ucum.html#section-Syntax-Rules)
