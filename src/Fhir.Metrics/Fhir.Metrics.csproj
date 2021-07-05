@@ -4,7 +4,7 @@
     <Description>Conversion system for physical units, with UCUM implementation - The Unified Code for Units of Measure</Description>
     <Copyright>Copyright 2015, 2016 Furore Health Informatics</Copyright>
     <VersionPrefix>1.3.0</VersionPrefix>
-    <VersionSuffix>alpha</VersionSuffix>
+    <VersionSuffix></VersionSuffix>
     <Authors>Martijn Harthoorn</Authors>
     <DebugType>portable</DebugType>
     <AssemblyName>Fhir.Metrics</AssemblyName>
