@@ -1,0 +1,25 @@
+parameters:
+  # Default values
+  useVersionSuffix: true
+
+steps:
+  # Package nugets
+  - script: dotnet pack --no-build --configuration $(buildConfiguration) --version-suffix $(build.buildNumber) --output $(Build.artifactStagingDirectory)/packages
+    displayName: 'dotnet pack $(buildConfiguration) with version suffix'
+    condition: and(succeeded(), eq('${{ parameters.useVersionSuffix }}', 'true'))
+
+  - script: dotnet pack --no-build --configuration $(buildConfiguration) --output $(Build.artifactStagingDirectory)/packages
+    displayName: 'dotnet pack $(buildConfiguration)'
+    condition: and(succeeded(), eq('${{ parameters.useVersionSuffix }}', 'false'))
+
+  - template: codesign-nuget-packages.yml@templates
+    parameters:
+      certificateValue: $(FirelyCodeSignerCertificate)
+      certificatePasswordValue: $(CodeSigningPassword)
+      packagePaths: $(Build.ArtifactStagingDirectory)\packages\*.nupkg
+
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Artifact: NuGet Packages'
+    inputs:
+      pathtoPublish: '$(Build.artifactStagingDirectory)/packages'
+      artifactName: 'NuGet Packages'
