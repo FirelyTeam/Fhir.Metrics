@@ -15,12 +15,17 @@
 		<PackageIcon>icon-fhir-32.png</PackageIcon>
 		<PackageReleaseNotes>See https://github.com/FirelyTeam/Fhir.Metrics/releases</PackageReleaseNotes>
 		<PackageLicenseExpression>BSD-3-Clause</PackageLicenseExpression>
-		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageReadmeFile>\README.md</PackageReadmeFile>
 		<TargetFramework>netstandard2.0</TargetFramework>
 		<RepositoryUrl>https://github.com/FirelyTeam/Fhir.Metrics</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>
 	</PropertyGroup>
+	
+	<ItemGroup>
+		<None Include="..\..\icon-fhir-32.png" Pack="true" PackagePath=""/>
+		<None Include="..\..\README.md" Pack="true" PackagePath=""/>
+	</ItemGroup>
 
 	<!-- Compiler settings -->
 	<PropertyGroup>
