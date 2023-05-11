@@ -62,7 +62,7 @@ stages:
           steps:
           - template: push-nuget-package.yml@templates
             parameters:
-              artifact: 'NuGet Packages'
+              artifact: 'NuGetPackages'
               source: https://nuget.pkg.github.com/FirelyTeam/index.json
               apiKey: $(GITHUB_PACKAGES_APIKEY)                
 
@@ -80,6 +80,6 @@ stages:
           steps:
           - template: push-nuget-package.yml@templates
             parameters:
-              artifact: 'NuGet Packages'
+              artifact: 'NuGetPackages'
               source: https://api.nuget.org/v3/index.json
               apiKey: $(NUGET_APIKEY)
