@@ -4,7 +4,7 @@
 		<Description>Conversion system for physical units, with UCUM implementation - The Unified Code for Units of Measure</Description>
 		<Copyright>Copyright 2013-2023 Firely.  Contains materials (C) HL7 International</Copyright>
 		<VersionPrefix>1.2.2</VersionPrefix>
-		<VersionSuffix>alpha</VersionSuffix>
+		<VersionSuffix></VersionSuffix>
 		<Authors>Firely (info@fire.ly) and contributors</Authors>
 		<Company>Firely (https://fire.ly)</Company>
 		<DebugType>portable</DebugType>
