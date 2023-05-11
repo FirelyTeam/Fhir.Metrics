@@ -13,13 +13,13 @@ steps:
       TargetFolder: $(Build.SourcesDirectory)
     condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest')) # not a PR
   - powershell: |        
-          $files   =  Get-ChildItem -Path $(Build.SourcesDirectory)\Firely.Fhir.Packages\bin\Release\*\Firely.Fhir.Packages.dll
+          $files   =  Get-ChildItem -Path $(Build.SourcesDirectory)\src\Fhir.Metrics\bin\Release\*\Fhir.Metrics.dll
           Write-Verbose "Last exitcode before signing: $lastexitcode" 
           foreach ($file in $files)
           {          
             Write-Verbose "Signing file: $file"
 
-            & '$(Build.SourcesDirectory)\build\tools\sn.exe' -R $file $(Build.SourcesDirectory)\FirelyPackages.snk
+            & '$(Build.SourcesDirectory)\build\tools\sn.exe' -R $file $(Build.SourcesDirectory)\FhirMetrics.snk
             Write-Verbose "Last exitcode after signing file: $lastexitcode" 
           }           
           Write-Verbose "Last exitcode after signing all files: $lastexitcode"
