@@ -1,22 +1,52 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <Description>Conversion system for physical units, with UCUM implementation - The Unified Code for Units of Measure</Description>
-    <Copyright>Copyright 2015, 2016 Furore Health Informatics</Copyright>
-    <VersionPrefix>1.2.1</VersionPrefix>
-    <VersionSuffix></VersionSuffix>
-    <Authors>Martijn Harthoorn</Authors>
-    <DebugType>portable</DebugType>
-    <AssemblyName>Fhir.Metrics</AssemblyName>
-    <OutputType>Library</OutputType>
-    <PackageId>Fhir.Metrics</PackageId>
-    <PackageTags>FHIR UCUM Metrics conversion unit units</PackageTags>
-    <PackageIconUrl>https://raw.githubusercontent.com/ewoutkramer/fhir-net-api/master/icon-fhir-32.png</PackageIconUrl>
-    <TargetFramework>netstandard2.0</TargetFramework>
-  </PropertyGroup>
+	<PropertyGroup>
+		<Description>Conversion system for physical units, with UCUM implementation - The Unified Code for Units of Measure</Description>
+		<Copyright>Copyright 2013-2023 Firely.  Contains materials (C) HL7 International</Copyright>
+		<VersionPrefix>1.2.2</VersionPrefix>
+		<VersionSuffix></VersionSuffix>
+		<Authors>Firely (info@fire.ly) and contributors</Authors>
+		<Company>Firely (https://fire.ly)</Company>
+		<DebugType>portable</DebugType>
+		<AssemblyName>Fhir.Metrics</AssemblyName>
+		<OutputType>Library</OutputType>
+		<PackageId>Fhir.Metrics</PackageId>
+		<PackageTags>FHIR UCUM Metrics conversion unit units</PackageTags>
+		<PackageIcon>icon-fhir-32.png</PackageIcon>
+		<PackageReleaseNotes>See https://github.com/FirelyTeam/Fhir.Metrics/releases</PackageReleaseNotes>
+		<PackageLicenseExpression>BSD-3-Clause</PackageLicenseExpression>
+		<PackageReadmeFile>\README.md</PackageReadmeFile>
+		<TargetFramework>netstandard2.0</TargetFramework>
+		<RepositoryUrl>https://github.com/FirelyTeam/Fhir.Metrics</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+	</PropertyGroup>
+	
+	<ItemGroup>
+		<None Include="..\..\icon-fhir-32.png" Pack="true" PackagePath=""/>
+		<None Include="..\..\README.md" Pack="true" PackagePath=""/>
+	</ItemGroup>
 
-  <ItemGroup>
-    <EmbeddedResource Include="Data\*.xml" Exclude="bin\**;obj\**;**\*.xproj;packages\**;@(EmbeddedResource)" />
-  </ItemGroup>
+	<!-- Compiler settings -->
+	<PropertyGroup>
+		<LangVersion>11.0</LangVersion>
+		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+	</PropertyGroup>
+
+	<PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+		<SignAssembly>True</SignAssembly>
+		<DelaySign>true</DelaySign>
+		<AssemblyOriginatorKeyFile>..\..\FhirMetrics.publickey</AssemblyOriginatorKeyFile>
+		<IncludeSymbols>True</IncludeSymbols>
+		<GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<NoWarn>1591</NoWarn>
+		<!-- Missing XML comments -->
+	</PropertyGroup>
+
+
+	<ItemGroup>
+		<EmbeddedResource Include="Data\*.xml" Exclude="bin\**;obj\**;**\*.xproj;packages\**;@(EmbeddedResource)" />
+	</ItemGroup>
 
 </Project>

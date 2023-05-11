@@ -8,7 +8,7 @@ namespace Fhir.Metrics.Tests
     {
         SystemOfUnits system;
 
-        
+
         public TestConversions()
         {
             system = UCUM.Load();
@@ -78,7 +78,7 @@ namespace Fhir.Metrics.Tests
             result = system.Conversions.Canonical(quantity);
             expected = system.Quantity("18kg.m.s-2").UnPrefixed();
             Assert.True(result.Approximates(expected));
-            
+
             // newton
             quantity = system.Quantity("8.0N");
             result = system.Conversions.Canonical(quantity);
@@ -197,10 +197,9 @@ namespace Fhir.Metrics.Tests
             Assert.Null(cannot);
         }
 
-        //[Fact]
+        [Fact(Skip = " Feature is not built. Unit test should fail here with NotImplementedException")]
         public void ConversionToTargetUnit()
         {
-            // Feature is not built. Unit test should fail here with NotImplementedException
             Quantity quantity = system.Convert("4[in_i]", "m");
             Assert.Equal("m", quantity.Metric.Symbols);
             Assert.Equal(0.1016m, (decimal)quantity.Value);
@@ -215,7 +214,7 @@ namespace Fhir.Metrics.Tests
 
             quantity = system.Convert("2.00Ci", "MBq");
             Assert.True(quantity.Approximates(target));
-            
+
             quantity = system.Convert("3.000[ft_br]", "[in_br]");
             target = system.Quantity("36.0[in_br]");
             Assert.True(quantity.Approximates(target));
@@ -230,7 +229,7 @@ namespace Fhir.Metrics.Tests
         {
             // Prefixes
             Assert.NotNull(system.Metrics.GetPrefix("k"));
-            
+
             Assert.NotNull(system.Metrics.GetPrefix("y"));
 
             // Base-units
