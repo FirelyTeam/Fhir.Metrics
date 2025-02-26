@@ -7,7 +7,7 @@ resources:
       type: github
       name: FirelyTeam/azure-pipeline-templates
       endpoint: FirelyTeam
-      ref: refs/tags/v1
+      ref: refs/heads/feature/DEVOPS-355-Extend-build-template-to-allow-for-signing-DLLs-and-nuget-packages
 
 variables:
   - group: CodeSigning
@@ -28,7 +28,7 @@ stages:
 - stage: build
   jobs:
   - ${{ if not(startswith(variables['Build.SourceBranch'], 'refs/tags/v')) }}:  # 'normal' build 
-    - template: templates/build.yml  # Template reference
+    - template: build.yml@templates  # Template reference
       parameters:
         dotNetCoreVersion: $(DOTNET_CORE_SDK)
         useVersionSuffix: true
@@ -40,7 +40,7 @@ stages:
           vmImage: $(vmImage)
     
   - ${{ if startswith(variables['Build.SourceBranch'], 'refs/tags/v') }}:  # release mode
-    - template: templates/build.yml  # Template reference
+    - template: build.yml@templates  # Template reference
       parameters:
         dotNetCoreVersion: $(DOTNET_CORE_SDK)
         useVersionSuffix: false
