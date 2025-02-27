@@ -31,7 +31,7 @@ stages:
     - template: build.yml@templates  # Template reference
       parameters:
         dotNetCoreVersion: $(DOTNET_CORE_SDK)
-        propFile: 'src\Fhir.Metrics\Fhir.Metrics.csproj'
+        propsFile: 'src\Fhir.Metrics\Fhir.Metrics.csproj'
         useVersionSuffix: true
         packageArtifacts: true
         restoreDependencies: true
