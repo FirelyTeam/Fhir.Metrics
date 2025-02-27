@@ -40,7 +40,7 @@ stages:
       nuGetServiceConnections: GitHubPackageGetFeed
       nuGetSources: --source https://nuget.pkg.github.com/FirelyTeam/index.json
       signingKeyFileName: 'FhirMetrics.snk' 
-      filesForSigning: '$(Build.SourcesDirectory)\src\Fhir.Metrics\bin\Release\*\Fhir.Metrics.dll'
+      filesForSigning: '_none_'
       pool: 
         vmImage: $(vmImage)
     
