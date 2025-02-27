@@ -30,9 +30,6 @@ stages:
   - ${{ if not(startswith(variables['Build.SourceBranch'], 'refs/tags/v')) }}:  # 'normal' build 
     - template: build.yml@templates  # Template reference
       parameters:
-        checkoutSteps:
-          - checkout: templates
-            path: $(Pipeline.Workspace)/templates
         dotNetCoreVersion: $(DOTNET_CORE_SDK)
         useVersionSuffix: true
         packageArtifacts: true
