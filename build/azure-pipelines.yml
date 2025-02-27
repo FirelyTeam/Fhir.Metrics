@@ -31,7 +31,10 @@ stages:
     parameters:
       dotNetCoreVersion: $(DOTNET_CORE_SDK)
       propsFile: 'src\Fhir.Metrics\Fhir.Metrics.csproj'
-      useVersionSuffix: not(startswith(variables['Build.SourceBranch'], 'refs/tags/v'))
+      ${{ if not(startswith(variables['Build.SourceBranch'], 'refs/tags/v')) }}:  # 'normal' build 
+        useVersionSuffix: true
+      ${{ if startswith(variables['Build.SourceBranch'], 'refs/tags/v') }}:  # release mode
+        useVersionSuffix: false
       packageArtifacts: true
       restoreDependencies: true
       nuGetServiceConnections: GitHubPackageGetFeed
