@@ -33,7 +33,7 @@ stages:
       propsFile: 'src\Fhir.Metrics\Fhir.Metrics.csproj'
       ${{ if not(startswith(variables['Build.SourceBranch'], 'refs/tags/v')) }}:  # 'normal' build 
         useVersionSuffix: true
-      ${{ if startswith(variables['Build.SourceBranch'], 'refs/tags/v') }}:  # release mode
+      ${{ else }}:  # release mode
         useVersionSuffix: false
       packageArtifacts: true
       restoreDependencies: true
