@@ -36,7 +36,6 @@ stages:
       ${{ else }}:  # release mode
         useVersionSuffix: false
       packageArtifacts: true
-      restoreDependencies: true
       nuGetServiceConnections: GitHubPackageGetFeed
       nuGetSources: --source https://nuget.pkg.github.com/FirelyTeam/index.json
       signingKeyFileName: 'FhirMetrics.snk' 
