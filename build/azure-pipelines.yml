@@ -27,31 +27,20 @@ trigger:
 stages:
 - stage: build
   jobs:
-  - ${{ if not(startswith(variables['Build.SourceBranch'], 'refs/tags/v')) }}:  # 'normal' build 
-    - template: build.yml@templates  # Template reference
-      parameters:
-        dotNetCoreVersion: $(DOTNET_CORE_SDK)
-        propsFile: 'src\Fhir.Metrics\Fhir.Metrics.csproj'
-        useVersionSuffix: true
-        packageArtifacts: true
-        restoreDependencies: true
-        nuGetServiceConnections: GitHubPackageGetFeed
-        nuGetSources: --source https://nuget.pkg.github.com/FirelyTeam/index.json
-        signingKeyFileName: 'FhirMetrics.snk' 
-        filesForSigning: '$(Build.SourcesDirectory)\src\Fhir.Metrics\bin\Release\*\Fhir.Metrics.dll'
-        pool: 
-          vmImage: $(vmImage)
+  - template: build.yml@templates  # Template reference
+    parameters:
+      dotNetCoreVersion: $(DOTNET_CORE_SDK)
+      propsFile: 'src\Fhir.Metrics\Fhir.Metrics.csproj'
+      useVersionSuffix: not(startswith(variables['Build.SourceBranch'], 'refs/tags/v'))
+      packageArtifacts: true
+      restoreDependencies: true
+      nuGetServiceConnections: GitHubPackageGetFeed
+      nuGetSources: --source https://nuget.pkg.github.com/FirelyTeam/index.json
+      signingKeyFileName: 'FhirMetrics.snk' 
+      filesForSigning: '$(Build.SourcesDirectory)\src\Fhir.Metrics\bin\Release\*\Fhir.Metrics.dll'
+      pool: 
+        vmImage: $(vmImage)
     
-  - ${{ if startswith(variables['Build.SourceBranch'], 'refs/tags/v') }}:  # release mode
-    - template: build.yml@templates  # Template reference
-      parameters:
-        dotNetCoreVersion: $(DOTNET_CORE_SDK)
-        useVersionSuffix: false
-        packageArtifacts: true
-        restoreDependencies: true
-        pool: 
-          vmImage: $(vmImage)
-
 - stage: deployToGitHub
   dependsOn: build
   displayName: Deploy packages To Github
