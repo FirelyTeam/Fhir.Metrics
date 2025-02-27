@@ -42,7 +42,7 @@ stages:
       signingKeyFileName: 'FhirMetrics.snk' 
       filesForSigning: '$(Build.SourcesDirectory)\src\Fhir.Metrics\bin\Release\*\Fhir.Metrics.dll'
       codeSignerCertificate: $(FirelyCodeSignerCertificate)
-      codeSignerPassword: $(CodeSignerPassword)
+      codeSignerPassword: $(CodeSigningPassword)
       pool: 
         vmImage: $(vmImage)
     
