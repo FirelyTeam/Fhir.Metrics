@@ -27,28 +27,24 @@ trigger:
 stages:
 - stage: build
   jobs:
-  - ${{ if not(startswith(variables['Build.SourceBranch'], 'refs/tags/v')) }}:  # 'normal' build 
-    - template: templates/build.yml  # Template reference
-      parameters:
-        dotNetCoreVersion: $(DOTNET_CORE_SDK)
+  - template: build.yml@templates  # Template reference
+    parameters:
+      dotNetCoreVersion: $(DOTNET_CORE_SDK)
+      propsFile: 'src\Fhir.Metrics\Fhir.Metrics.csproj'
+      ${{ if not(startswith(variables['Build.SourceBranch'], 'refs/tags/v')) }}:  # 'normal' build 
         useVersionSuffix: true
-        packageArtifacts: true
-        restoreDependencies: true
-        nuGetServiceConnections: GitHubPackageGetFeed
-        nuGetSources: --source https://nuget.pkg.github.com/FirelyTeam/index.json
-        pool: 
-          vmImage: $(vmImage)
-    
-  - ${{ if startswith(variables['Build.SourceBranch'], 'refs/tags/v') }}:  # release mode
-    - template: templates/build.yml  # Template reference
-      parameters:
-        dotNetCoreVersion: $(DOTNET_CORE_SDK)
+      ${{ else }}:  # release mode
         useVersionSuffix: false
-        packageArtifacts: true
-        restoreDependencies: true
-        pool: 
-          vmImage: $(vmImage)
-
+      packageArtifacts: true
+      nuGetServiceConnections: GitHubPackageGetFeed
+      nuGetSources: --source https://nuget.pkg.github.com/FirelyTeam/index.json
+      signingKeyFileName: 'FhirMetrics.snk' 
+      filesForSigning: '$(Build.SourcesDirectory)\src\Fhir.Metrics\bin\Release\*\Fhir.Metrics.dll'
+      codeSignerCertificate: $(FirelyCodeSignerCertificate)
+      codeSignerPassword: $(CodeSigningPassword)
+      pool: 
+        vmImage: $(vmImage)
+    
 - stage: deployToGitHub
   dependsOn: build
   displayName: Deploy packages To Github
