@@ -40,10 +40,11 @@ stages:
       nuGetSources: --source https://nuget.pkg.github.com/FirelyTeam/index.json
       signingKeyFileName: 'FhirMetrics.snk' 
       filesForSigning: '$(Build.SourcesDirectory)\src\Fhir.Metrics\bin\Release\*\Fhir.Metrics.dll'
-      certificateProfileName: 'FirelyCodeSigning'
-      trustedSigningAccountEndpoint: 'https://weu.codesigning.azure.net/'
-      trustedSigningAccountName: 'FirelyCodeSigning'
-      azureServiceConnectionForSigning: 'AzureTrustedSigningPrincipal'
+      ${{ if startswith(variables['Build.SourceBranch'], 'refs/tags/v') }}:
+        certificateProfileName: 'FirelyCodeSigning'
+        trustedSigningAccountEndpoint: 'https://weu.codesigning.azure.net/'
+        trustedSigningAccountName: 'FirelyCodeSigning'
+        azureServiceConnectionForSigning: 'AzureTrustedSigningPrincipal'
       pool: 
         vmImage: $(vmImage)
     
