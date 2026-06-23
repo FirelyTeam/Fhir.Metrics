@@ -86,21 +86,64 @@ public class FhirMetricService : IMetricService
     /// <inheritdoc />
     public bool TryConvertTo((string value, string unit, string codesystem) quantity, string targetUnit, out (string value, string unit, string codesystem)? converted)
     {
-        throw new NotImplementedException();
+        try
+        {
+            Quantity src = _system.Value.Conversions.Canonical(ToQuantity(quantity));
+            Quantity targetBase = _system.Value.Conversions.Canonical(ToQuantity(("1", targetUnit, quantity.codesystem)));
+
+            if (!Quantity.SameDimension(src, targetBase))
+            {
+                converted = null;
+                return false;
+            }
+
+            Exponential convertedValue = Exponential.Divide(src.Value, targetBase.Value);
+            converted = (convertedValue.ToDecimal().ToString(CultureInfo.InvariantCulture), targetUnit, quantity.codesystem);
+            return true;
+        }
+        catch (Exception ex) when (ex is ArgumentException or InvalidCastException)
+        {
+            converted = null;
+            return false;
+        }
     }
 
     /// <inheritdoc />
     public bool TrySubtract((string value, string unit, string codesystem) quantity1, (string value, string unit, string codesystem) quantity2,
         out (string value, string unit, string codesystem)? result)
     {
-        throw new NotImplementedException();
+        try
+        {
+            Quantity q1 = _system.Value.Conversions.Canonical(ToQuantity(quantity1));
+            Quantity q2 = _system.Value.Conversions.Canonical(ToQuantity(quantity2));
+            Quantity resultQuantity = q1 - q2;
+            result = ToTuple(resultQuantity);
+            return true;
+        }
+        catch (Exception ex) when (ex is ArgumentException or InvalidCastException)
+        {
+            result = null;
+            return false;
+        }
     }
 
     /// <inheritdoc />
     public bool TryAdd((string value, string unit, string codesystem) quantity1, (string value, string unit, string codesystem) quantity2,
         out (string value, string unit, string codesystem)? result)
     {
-        throw new NotImplementedException();
+        try
+        {
+            Quantity q1 = _system.Value.Conversions.Canonical(ToQuantity(quantity1));
+            Quantity q2 = _system.Value.Conversions.Canonical(ToQuantity(quantity2));
+            Quantity resultQuantity = q1 + q2;
+            result = ToTuple(resultQuantity);
+            return true;
+        }
+        catch (Exception ex) when (ex is ArgumentException or InvalidCastException)
+        {
+            result = null;
+            return false;
+        }
     }
     
     private static Quantity ToQuantity((string value, string unit, string codesystem) quantity)
