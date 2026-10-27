@@ -75,8 +75,46 @@ public interface IMetricService
     public bool TryAdd((string value, string unit, string? codesystem) quantity1, (string value, string unit, string? codesystem) quantity2, [NotNullWhen(true)] out (string value, string unit, string? codesystem)? result);
 }
 
+/// <summary>
+/// Overloads of the <see cref="IMetricService"/> members that take and return native decimals instead of strings.
+/// </summary>
+/// <remarks>
+/// A value the service returns is accepted in plain notation (2500.0) and in exponential notation (2.5E+03, 6.6E-5). A value a decimal
+/// cannot hold makes the call return false: one that is too large (1E+29), and one so small that a decimal would round it to zero
+/// (6.6E-31), since a zero would hide that the value was lost.
+/// </remarks>
 public static class MetricServiceExtensions
 {
+    private static readonly char[] _exponentMarkers = ['e', 'E'];
+    private static readonly char[] _nonZeroDigits = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
+
+    /// <summary>
+    /// Parses a value the service returned, in plain or exponential notation. Fails for a value that does not fit in a decimal, and for
+    /// a non-zero value that a decimal would round to zero.
+    /// </summary>
+    private static bool TryParseValue(string value, out decimal result)
+    {
+        if (!decimal.TryParse(value, NumberStyles.Number | NumberStyles.AllowExponent, CultureInfo.InvariantCulture, out result))
+        {
+            return false;
+        }
+
+        if (result != 0 || !HasNonZeroDigit(value))
+        {
+            return true;
+        }
+
+        result = 0;
+        return false;
+    }
+
+    private static bool HasNonZeroDigit(string value)
+    {
+        var exponentIndex = value.IndexOfAny(_exponentMarkers);
+        var mantissa = exponentIndex < 0 ? value : value.Substring(0, exponentIndex);
+        return mantissa.IndexOfAny(_nonZeroDigits) >= 0;
+    }
+
     /// <inheritdoc cref="IMetricService.TryCanonicalize"/>
     public static bool TryCanonicalize(this IMetricService service, (decimal value, string unit, string? codesystem) quantity, [NotNullWhen(true)] out (decimal value, string unit, string? codesystem)? canonical)
     {
@@ -86,16 +124,13 @@ public static class MetricServiceExtensions
             return false;
         }
 
-        try
-        {
-            canonical = (decimal.Parse(canonicalTuple.Value.value, CultureInfo.InvariantCulture), canonicalTuple.Value.unit, canonicalTuple.Value.codesystem);
-        }
-        catch
+        if (!TryParseValue(canonicalTuple.Value.value, out var value))
         {
             canonical = null;
             return false;
         }
 
+        canonical = (value, canonicalTuple.Value.unit, canonicalTuple.Value.codesystem);
         return true;
     }
     
@@ -108,16 +143,13 @@ public static class MetricServiceExtensions
             return false;
         }
 
-        try
-        {
-            result = (decimal.Parse(resultTuple.Value.value, CultureInfo.InvariantCulture), resultTuple.Value.unit, resultTuple.Value.codesystem);
-        }
-        catch
+        if (!TryParseValue(resultTuple.Value.value, out var value))
         {
             result = null;
             return false;
         }
 
+        result = (value, resultTuple.Value.unit, resultTuple.Value.codesystem);
         return true;
     }
     
@@ -130,16 +162,13 @@ public static class MetricServiceExtensions
             return false;
         }
 
-        try
-        {
-            result = (decimal.Parse(resultTuple.Value.value, CultureInfo.InvariantCulture), resultTuple.Value.unit, resultTuple.Value.codesystem);
-        }
-        catch
+        if (!TryParseValue(resultTuple.Value.value, out var value))
         {
             result = null;
             return false;
         }
 
+        result = (value, resultTuple.Value.unit, resultTuple.Value.codesystem);
         return true;
     }
     
@@ -165,16 +194,13 @@ public static class MetricServiceExtensions
             return false;
         }
 
-        try
-        {
-            converted = (decimal.Parse(convertedTuple.Value.value, CultureInfo.InvariantCulture), convertedTuple.Value.unit, convertedTuple.Value.codesystem);
-        }
-        catch
+        if (!TryParseValue(convertedTuple.Value.value, out var value))
         {
             converted = null;
             return false;
         }
 
+        converted = (value, convertedTuple.Value.unit, convertedTuple.Value.codesystem);
         return true;
     }
     
@@ -187,16 +213,13 @@ public static class MetricServiceExtensions
             return false;
         }
 
-        try
-        {
-            result = (decimal.Parse(resultTuple.Value.value, CultureInfo.InvariantCulture), resultTuple.Value.unit, resultTuple.Value.codesystem);
-        }
-        catch
+        if (!TryParseValue(resultTuple.Value.value, out var value))
         {
             result = null;
             return false;
         }
 
+        result = (value, resultTuple.Value.unit, resultTuple.Value.codesystem);
         return true;
     }
     
@@ -209,16 +232,13 @@ public static class MetricServiceExtensions
             return false;
         }
 
-        try
-        {
-            result = (decimal.Parse(resultTuple.Value.value, CultureInfo.InvariantCulture), resultTuple.Value.unit, resultTuple.Value.codesystem);
-        }
-        catch
+        if (!TryParseValue(resultTuple.Value.value, out var value))
         {
             result = null;
             return false;
         }
 
+        result = (value, resultTuple.Value.unit, resultTuple.Value.codesystem);
         return true;
     }
 }
