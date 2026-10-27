@@ -30,6 +30,8 @@ public class MetricServiceExtensionsTests
     [InlineData("1.3E-02", "0.013")]
     [InlineData("-6.6E-5", "-0.000066")]
     [InlineData("1E-28", "0.0000000000000000000000000001")]
+    [InlineData("20E-29", "0.0000000000000000000000000002")]
+    [InlineData("1.0000000000000000000000000001", "1.0000000000000000000000000001")]
     [InlineData("0E+10", "0")]
     public void TryCanonicalize_ServiceReturnsPlainOrExponentialNotation_ReturnsTheValue(string returned, string expected)
     {
@@ -47,6 +49,10 @@ public class MetricServiceExtensionsTests
     [InlineData("6.6E-31", "a decimal would round it to zero")]
     [InlineData("1e-29", "a decimal would round it to zero")]
     [InlineData("0.00000000000000000000000000001", "a decimal would round it to zero")]
+    [InlineData("1.5E-28", "the 5 lies beyond the 28th decimal place, so a decimal would round it to 2E-28")]
+    [InlineData("6.6260755E-28", "the digits beyond the 28th decimal place would be rounded to 7E-28")]
+    [InlineData("25E-29", "the 5 lies beyond the 28th decimal place, so a decimal would round it to 3E-28")]
+    [InlineData("1.00000000000000000000000000001", "the last 1 lies beyond the 28th decimal place")]
     [InlineData("abc", "not a number")]
     [InlineData("", "not a number")]
     public void TryCanonicalize_ServiceReturnsAValueADecimalCannotHold_ReturnsFalse(string returned, string because)

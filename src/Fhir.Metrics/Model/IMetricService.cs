@@ -80,39 +80,98 @@ public interface IMetricService
 /// </summary>
 /// <remarks>
 /// A value the service returns is accepted in plain notation (2500.0) and in exponential notation (2.5E+03, 6.6E-5). A value a decimal
-/// cannot hold makes the call return false: one that is too large (1E+29), and one so small that a decimal would round it to zero
-/// (6.6E-31), since a zero would hide that the value was lost.
+/// cannot hold makes the call return false: one that is too large (1E+29), and one with a non-zero digit beyond the 28th decimal place
+/// (1.5E-28, 6.6E-31). A decimal keeps 28 decimal places and would round such a digit away, and the rounded value would hide that it was lost.
 /// </remarks>
 public static class MetricServiceExtensions
 {
-    private static readonly char[] _exponentMarkers = ['e', 'E'];
-    private static readonly char[] _nonZeroDigits = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
-
     /// <summary>
     /// Parses a value the service returned, in plain or exponential notation. Fails for a value that does not fit in a decimal, and for
-    /// a non-zero value that a decimal would round to zero.
+    /// a value with a non-zero digit beyond the 28th decimal place, which a decimal would round away.
     /// </summary>
     private static bool TryParseValue(string value, out decimal result)
     {
-        if (!decimal.TryParse(value, NumberStyles.Number | NumberStyles.AllowExponent, CultureInfo.InvariantCulture, out result))
+        if (!decimal.TryParse(value, NumberStyles.Number | NumberStyles.AllowExponent, CultureInfo.InvariantCulture, out result)
+            || HasDigitBeyondDecimalScale(value))
         {
+            result = 0;
             return false;
         }
 
-        if (result != 0 || !HasNonZeroDigit(value))
-        {
-            return true;
-        }
-
-        result = 0;
-        return false;
+        return true;
     }
 
-    private static bool HasNonZeroDigit(string value)
+    /// <summary>
+    /// Whether a non-zero digit of the value lies beyond the 28th decimal place, the last one a decimal keeps. Only called for text that
+    /// <see cref="decimal.TryParse(string, NumberStyles, IFormatProvider, out decimal)"/> accepted, so the exponent, when present, is a sign and digits.
+    /// </summary>
+    private static bool HasDigitBeyondDecimalScale(string value)
     {
-        var exponentIndex = value.IndexOfAny(_exponentMarkers);
-        var mantissa = exponentIndex < 0 ? value : value.Substring(0, exponentIndex);
-        return mantissa.IndexOfAny(_nonZeroDigits) >= 0;
+        const int decimalScale = 28;
+        var digitCount = 0;
+        var integerDigitCount = -1;
+        var lastNonZeroDigit = -1;
+        var index = 0;
+
+        for (; index < value.Length && value[index] is not ('e' or 'E'); index++)
+        {
+            var c = value[index];
+            if (c == '.')
+            {
+                integerDigitCount = digitCount;
+            }
+            else if (c is >= '0' and <= '9')
+            {
+                if (c != '0')
+                {
+                    lastNonZeroDigit = digitCount;
+                }
+
+                digitCount++;
+            }
+            // A sign, a thousands separator and white space carry no digit.
+        }
+
+        if (lastNonZeroDigit < 0)
+        {
+            return false; // zero is kept as it is
+        }
+
+        if (integerDigitCount < 0)
+        {
+            integerDigitCount = digitCount;
+        }
+
+        var lastNonZeroPlace = lastNonZeroDigit - integerDigitCount + 1;
+        return lastNonZeroPlace - ReadExponent(value, index) > decimalScale;
+    }
+
+    /// <summary>
+    /// Reads the exponent that follows the marker at <paramref name="markerIndex"/>, or 0 when the value has none. The digits are read
+    /// while the exponent stays far below <see cref="int.MaxValue"/>, so an absurd exponent cannot overflow it.
+    /// </summary>
+    private static int ReadExponent(string value, int markerIndex)
+    {
+        const int exponentCap = 100_000_000;
+        var index = markerIndex + 1;
+        if (index >= value.Length)
+        {
+            return 0;
+        }
+
+        var negative = value[index] == '-';
+        if (negative || value[index] == '+')
+        {
+            index++;
+        }
+
+        var exponent = 0;
+        for (; index < value.Length && value[index] is >= '0' and <= '9' && exponent < exponentCap; index++)
+        {
+            exponent = exponent * 10 + (value[index] - '0');
+        }
+
+        return negative ? -exponent : exponent;
     }
 
     /// <inheritdoc cref="IMetricService.TryCanonicalize"/>
