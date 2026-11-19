@@ -308,7 +308,14 @@ namespace Fhir.Metrics
 
         public override int GetHashCode()
         {
-            return base.GetHashCode();
+            // Equals compares the reduced axes without their prefixes, so the hash is built from those same axes.
+            // Two metrics that are equal then have the same hash code.
+            int hash = 17;
+            foreach (Axis axis in this.UnPrefixed().Reduced().Axes)
+            {
+                hash = unchecked(hash * 31 + axis.GetHashCode());
+            }
+            return hash;
         }
 
         private void clearVoids()
