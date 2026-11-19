@@ -115,7 +115,9 @@ namespace Fhir.Metrics
                     return
                         (this.Prefix == c.Prefix)
                         &&
-                        (this.Unit == c.Unit);
+                        (this.Unit == c.Unit)
+                        &&
+                        (this.Exponent == c.Exponent);
                 }
                 else return false;
             }
@@ -331,7 +333,6 @@ namespace Fhir.Metrics
             for (int i = 0; i <= a.Axes.Count-1; i++)
             {
                 equal &= a.Axes[i].Equals(b.Axes[i]);
-                i++;
             }
             return equal;
         }

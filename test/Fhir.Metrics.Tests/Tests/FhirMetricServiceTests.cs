@@ -227,4 +227,57 @@ public class FhirMetricServiceTests
 
         result.Should().BeNull();
     }
+
+    [Theory]
+    [InlineData("1", "m", "1", "m3")]
+    [InlineData("5.5", "cm", "2", "cm2")]
+    [InlineData("2", "cm2", "5.5", "cm")]
+    [InlineData("1", "g.m", "1", "g.s")]
+    [InlineData("1", "kg.m", "1", "g.m2")]
+    public void MetricService_Add_DifferentDimension_ReturnsNull(string value1, string unit1, string value2, string unit2)
+    {
+        var quantity1 = (value1, unit1, "http://unitsofmeasure.org");
+        var quantity2 = (value2, unit2, "http://unitsofmeasure.org");
+
+        _service.TryAdd(quantity1, quantity2, out var result).Should().BeFalse();
+        result.Should().BeNull();
+    }
+
+    [Theory]
+    [InlineData("1", "m", "1", "m3")]
+    [InlineData("3.14", "cm", "3.12", "cm2")]
+    [InlineData("1", "g.m", "1", "g.s")]
+    public void MetricService_Subtract_DifferentDimension_ReturnsNull(string value1, string unit1, string value2, string unit2)
+    {
+        var quantity1 = (value1, unit1, "http://unitsofmeasure.org");
+        var quantity2 = (value2, unit2, "http://unitsofmeasure.org");
+
+        _service.TrySubtract(quantity1, quantity2, out var result).Should().BeFalse();
+        result.Should().BeNull();
+    }
+
+    [Theory]
+    [InlineData("1", "cm", "cm2")]
+    [InlineData("1", "m3", "m")]
+    [InlineData("1", "g.m", "g.s")]
+    public void MetricService_ConvertTo_DifferentDimension_ReturnsNull(string value, string unit, string targetUnit)
+    {
+        _service.TryConvertTo((value, unit, "http://unitsofmeasure.org"), targetUnit, out var converted).Should().BeFalse();
+        converted.Should().BeNull();
+    }
+
+    [Theory]
+    [InlineData("1", "N", "1", "kg.m/s2", "2000")]
+    [InlineData("1", "J", "1", "N.m", "2000")]
+    [InlineData("1", "Hz", "1", "/s", "2")]
+    [InlineData("1", "mL", "1", "cm3", "2E-6")]
+    public void MetricService_Add_SameDimensionWrittenDifferently_ReturnsSum(string value1, string unit1, string value2, string unit2, string expectedCanonicalValue)
+    {
+        var quantity1 = (value1, unit1, "http://unitsofmeasure.org");
+        var quantity2 = (value2, unit2, "http://unitsofmeasure.org");
+
+        _service.TryAdd(quantity1, quantity2, out var result).Should().BeTrue();
+        decimal.Parse(result!.Value.value, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture)
+            .Should().BeApproximately(decimal.Parse(expectedCanonicalValue, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture), 0.000001m);
+    }
 }
