@@ -299,9 +299,7 @@ namespace Fhir.Metrics
                 Metric a = this.UnPrefixed();
                 Metric b = m.UnPrefixed();
 
-                bool equala = a.EqualAxes(b);
-                bool equalf = a.UnPrefix(1) == b.UnPrefix(1); 
-                return equala && equalf;
+                return a.EqualAxes(b);
             }
             else return false;
         }
