@@ -68,9 +68,12 @@ namespace Fhir.Metrics.Tests
         public void Dimensions()
         {
             Quantity a = system.Quantity("4kg.m.s-2");
-            Quantity b = system.Quantity("8kg.m/s-2");
-            bool same = Quantity.SameDimension(a, b);
-            Assert.True(same);
+            Quantity b = system.Quantity("8kg.m/s2");
+            Assert.True(Quantity.SameDimension(a, b));
+
+            // Dividing by s-2 multiplies by s2, so this is kg.m.s2: the exponent differs.
+            Quantity c = system.Quantity("8kg.m/s-2");
+            Assert.False(Quantity.SameDimension(a, c));
         }
 
         [Fact]
