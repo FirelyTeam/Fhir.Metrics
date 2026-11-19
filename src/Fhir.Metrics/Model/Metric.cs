@@ -299,16 +299,21 @@ namespace Fhir.Metrics
                 Metric a = this.UnPrefixed();
                 Metric b = m.UnPrefixed();
 
-                bool equala = a.EqualAxes(b);
-                bool equalf = a.UnPrefix(1) == b.UnPrefix(1); 
-                return equala && equalf;
+                return a.EqualAxes(b);
             }
             else return false;
         }
 
         public override int GetHashCode()
         {
-            return base.GetHashCode();
+            // Equals compares the reduced axes without their prefixes, so the hash is built from those same axes.
+            // Two metrics that are equal then have the same hash code.
+            int hash = 17;
+            foreach (Axis axis in this.UnPrefixed().Reduced().Axes)
+            {
+                hash = unchecked(hash * 31 + axis.GetHashCode());
+            }
+            return hash;
         }
 
         private void clearVoids()

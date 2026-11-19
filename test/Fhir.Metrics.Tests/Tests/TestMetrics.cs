@@ -62,6 +62,29 @@ namespace Fhir.Metrics.Tests
             Assert.NotEqual(b, a);
         }
 
+        [Theory]
+        [InlineData("m.m", "m2")]
+        [InlineData("cm.m", "m.cm")]
+        [InlineData("kg.m.s-2", "m.kg/s2")]
+        [InlineData("km", "km")]
+        public void GetHashCode_OfEqualMetricsWrittenDifferently_IsTheSame(string first, string second)
+        {
+            Metric a = system.Metric(first);
+            Metric b = system.Metric(second);
+
+            Assert.Equal(a, b);
+            Assert.Equal(a.GetHashCode(), b.GetHashCode());
+        }
+
+        [Fact]
+        public void GetHashCode_OfAMetricInAHashSet_FindsAnEqualMetricWrittenDifferently()
+        {
+            var metrics = new System.Collections.Generic.HashSet<Metric> { system.Metric("m2") };
+
+            Assert.Contains(system.Metric("m.m"), metrics);
+            Assert.DoesNotContain(system.Metric("m3"), metrics);
+        }
+
         [Fact]
         public void Algebra()
         {
